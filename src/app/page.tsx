@@ -1,103 +1,220 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import { useSearchParams, useRouter } from "next/navigation";
+import useProducts from "@/hooks/useProducts";
+import ProductCard from "@/components/product/ProductCard";
+import { ProductGridSkeleton } from "@/components/product/ProductSkeleton";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { motion } from "framer-motion";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+const validSorts = [
+  "newest",
+  "oldest",
+  "price_asc",
+  "price_desc",
+  "name",
+] as const;
+type SortType = (typeof validSorts)[number];
+
+export default function HomePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const searchParam = searchParams.get("search") || "";
+  const pageParam = parseInt(searchParams.get("page") || "1");
+  const sortParam = searchParams.get("sort");
+  const categoryParam = searchParams.get("category") || "";
+
+  const sort: SortType = validSorts.includes(sortParam as SortType)
+    ? (sortParam as SortType)
+    : "newest";
+
+  const currentParams = {
+    search: searchParam,
+    page: pageParam,
+    sort,
+    category: categoryParam,
+  };
+
+  const { listData, isListLoading, listError } = useProducts(currentParams);
+
+  const updateURL = (newParams: Partial<typeof currentParams>) => {
+    const params = new URLSearchParams();
+    const updated = { ...currentParams, ...newParams };
+
+    if (updated.search) params.set("search", updated.search);
+    if (updated.page > 1) params.set("page", updated.page.toString());
+    if (updated.sort !== "newest") params.set("sort", updated.sort);
+    if (updated.category) params.set("category", updated.category);
+
+    router.push(`/?${params.toString()}`);
+  };
+
+  const handleSortChange = (newSort: SortType) => {
+    updateURL({ sort: newSort, page: 1 });
+  };
+
+  const handlePageChange = (page: number) => {
+    updateURL({ page });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  if (listError) {
+    return (
+      <div className="container py-8">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-red-600">
+              오류가 발생했습니다
+            </h2>
+            <p className="mt-2 text-muted-foreground">
+              상품을 불러올 수 없습니다.
+            </p>
+            <Button onClick={() => window.location.reload()} className="mt-4">
+              다시 시도
+            </Button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </div>
+    );
+  }
+
+  return (
+    <div className="container py-8">
+      {/* 헤더 섹션 */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">
+              {currentParams.search
+                ? `"${currentParams.search}" 검색 결과`
+                : "전체 상품"}
+            </h1>
+            {listData && (
+              <p className="text-muted-foreground">
+                총 {listData.total}개의 상품 (
+                {listData.total === 0 ? 0 : listData.page} /{" "}
+                {listData.totalPages}
+                페이지)
+              </p>
+            )}
+          </div>
+
+          {/* 정렬 옵션 */}
+          <Select value={currentParams.sort} onValueChange={handleSortChange}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="정렬 방법" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">최신순</SelectItem>
+              <SelectItem value="oldest">등록순</SelectItem>
+              <SelectItem value="price_asc">가격 낮은순</SelectItem>
+              <SelectItem value="price_desc">가격 높은순</SelectItem>
+              <SelectItem value="name">이름순</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </motion.div>
+
+      {/* 상품 그리드 */}
+      {isListLoading ? (
+        <ProductGridSkeleton />
+      ) : listData && listData.data.length > 0 ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          {listData.data.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
+          ))}
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center justify-center py-12"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <div className="text-center">
+            <h2 className="text-xl font-semibold">상품이 없습니다</h2>
+            <p className="mt-2 text-muted-foreground">
+              {currentParams.search
+                ? "다른 검색어로 시도해보세요."
+                : "아직 등록된 상품이 없습니다."}
+            </p>
+            {currentParams.search && (
+              <Button onClick={() => router.push("/")} className="mt-4 cursor-pointer">
+                전체 상품 보기
+              </Button>
+            )}
+          </div>
+        </motion.div>
+      )}
+
+      {/* 페이지네이션 */}
+      {listData && listData.data.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 flex justify-center"
         >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentParams.page <= 1}
+              onClick={() => handlePageChange(currentParams.page - 1)}
+            >
+              이전
+            </Button>
+
+            {Array.from(
+              { length: Math.min(5, listData.totalPages) },
+              (_, i) => {
+                const startPage = Math.max(1, currentParams.page - 2);
+                const pageNumber = startPage + i;
+
+                if (pageNumber > listData.totalPages) return null;
+
+                return (
+                  <Button
+                    key={pageNumber}
+                    variant={
+                      currentParams.page === pageNumber ? "default" : "outline"
+                    }
+                    size="sm"
+                    onClick={() => handlePageChange(pageNumber)}
+                  >
+                    {pageNumber}
+                  </Button>
+                );
+              }
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentParams.page >= listData.totalPages}
+              onClick={() => handlePageChange(currentParams.page + 1)}
+            >
+              다음
+            </Button>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

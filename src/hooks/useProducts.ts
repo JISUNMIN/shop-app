@@ -5,7 +5,7 @@ import { Product, SearchParams, ApiResponse } from "@/types";
 
 const PRODUCTS_API_PATH = "/products";
 
-const useProducts = (params?: SearchParams, targetId?: string) => {
+const useProducts = (params?: SearchParams, targetId?: number) => {
   // 상품 목록 조회
   const {
     data: listData,

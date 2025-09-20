@@ -10,7 +10,7 @@ datasource db {
 }
 
 model Product {
-    id          String   @id @default(cuid())
+    id          Int      @id @default(autoincrement())
     name        String
     price       Float
     description String?
@@ -27,8 +27,8 @@ model Product {
 }
 
 model CartItem {
-    id        String   @id @default(cuid())
-    productId String
+    id        Int      @id @default(autoincrement())
+    productId Int
     quantity  Int
     sessionId String // 사용자 세션 기반으로 장바구니 관리
     createdAt DateTime @default(now())
@@ -41,7 +41,7 @@ model CartItem {
 }
 
 model Order {
-    id          String      @id @default(cuid())
+    id          Int         @id @default(autoincrement())
     sessionId   String
     totalAmount Float
     status      OrderStatus @default(PENDING)
@@ -54,11 +54,11 @@ model Order {
 }
 
 model OrderItem {
-    id        String @id @default(cuid())
-    orderId   String
-    productId String
+    id        Int   @id @default(autoincrement())
+    orderId   Int
+    productId Int
     quantity  Int
-    price     Float // 주문 시점의 가격 저장
+    price     Float 
 
     order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
     product Product @relation(fields: [productId], references: [id])

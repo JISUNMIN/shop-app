@@ -2,8 +2,8 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import useProducts from "@/hooks/useProducts";
-import ProductCard from "@/app/product/ProductCard";
-import { ProductGridSkeleton } from "@/app/product/ProductSkeleton";
+import ProductCard from "./ProductCard";
+import { ProductGridSkeleton } from "./ProductSkeleton";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -23,7 +23,7 @@ const validSorts = [
 ] as const;
 type SortType = (typeof validSorts)[number];
 
-export default function HomePage() {
+export default function ProductList() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -86,6 +86,9 @@ export default function HomePage() {
     );
   }
 
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("ko-KR").format(price);
+
   return (
     <div className="container py-8">
       {/* 헤더 섹션 */}
@@ -105,8 +108,7 @@ export default function HomePage() {
               <p className="text-muted-foreground">
                 총 {listData.total}개의 상품 (
                 {listData.total === 0 ? 0 : listData.page} /{" "}
-                {listData.totalPages}
-                페이지)
+                {listData.totalPages} 페이지)
               </p>
             )}
           </div>
@@ -155,7 +157,10 @@ export default function HomePage() {
                 : "아직 등록된 상품이 없습니다."}
             </p>
             {currentParams.search && (
-              <Button onClick={() => router.push("/")} className="mt-4 cursor-pointer">
+              <Button
+                onClick={() => router.push("/")}
+                className="mt-4 cursor-pointer"
+              >
                 전체 상품 보기
               </Button>
             )}

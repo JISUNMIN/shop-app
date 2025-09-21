@@ -6,8 +6,12 @@ interface Params {
   productId: string;
 }
 
-export async function GET(_: NextRequest, { params }: { params: Params }) {
-  const id = Number(params.productId);
+export async function GET(
+  _: NextRequest,
+  context: { params: Promise<Params> }
+) {
+  const { productId } = await context.params;
+  const id = Number(productId);
 
   if (isNaN(id)) {
     return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });

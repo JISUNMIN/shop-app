@@ -148,11 +148,12 @@ export default function ProductGallery({
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute right-4 top-4"
+                className="absolute right-4 top-4 text-xl"
                 onClick={() => setIsFullscreen(false)}
               >
                 ×
               </Button>
+
 
               {images.length > 1 && (
                 <>

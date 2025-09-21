@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import useCart from "@/hooks/useCart";
+import { Input } from "@/components/ui/input";
 
 interface CartItemProps {
   item: CartItemType;
@@ -20,6 +21,7 @@ interface CartItemProps {
 }
 
 const CartItem = ({ item, index = 0 }: CartItemProps) => {
+  const [inputQuantity, setInputQuantity] = useState<number>(item.quantity);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const {
@@ -29,53 +31,64 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
     isRemovePending,
   } = useCart();
 
-  const handleQuantityChange = async (newQuantity: number) => {
-    if (newQuantity < 1 || newQuantity > item.product.stock || isUpdating)
+  const isDisabled = isUpdatePending || isRemovePending || isUpdating;
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("ko-KR").format(price);
+
+  const handleInputChange = (value: string) => {
+    if (value === "") {
+      setInputQuantity(0);
       return;
+    }
+
+    let num = Number(value);
+
+    if (isNaN(num)) return;
+
+    if (num < 1) {
+      num = 1;
+    }
+
+    if (num > item.product.stock) {
+      toast.error(`최대 주문 가능 수량은 ${item.product.stock}개입니다.`);
+      num = item.product.stock;
+    }
+
+    setInputQuantity(num);
+  };
+
+  const handleApplyQuantity = () => {
+    if (isUpdating) return;
+
+    let newQuantity = inputQuantity;
+    if (newQuantity < 1) newQuantity = 1;
+    if (newQuantity === item.quantity) return;
 
     setIsUpdating(true);
-    try {
-      await updateCartItemMutate({ itemId: item.id, quantity: newQuantity });
-    } catch (error: any) {
-      toast.error("수량 변경 실패", {
-        description: error.message || "수량을 변경할 수 없습니다.",
-      });
-    } finally {
-      setIsUpdating(false);
-    }
+    updateCartItemMutate({ itemId: item.id, quantity: newQuantity });
+    setIsUpdating(false);
   };
 
-  const handleRemove = async () => {
-    try {
-      await removeFromCartMutate(item.id);
-      toast.success("상품이 제거되었습니다", {
-        description: `${item.product.name}이(가) 장바구니에서 제거되었습니다.`,
-      });
-    } catch (error: any) {
-      toast.error("제거 실패", {
-        description: error.message || "상품을 제거할 수 없습니다.",
-      });
-    }
+  const handleQuantityChangeButton = (delta: number) => {
+    handleInputChange(String(item.quantity + delta));
+    handleApplyQuantity();
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("ko-KR").format(price);
+  const handleRemove = () => {
+    if (isDisabled) return;
+    removeFromCartMutate(item.id);
   };
 
   const totalPrice = item.product.price * item.quantity;
   const isLowStock = item.product.stock <= 10;
-  const isDisabled = isUpdatePending || isRemovePending || isUpdating;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      transition={{
-        duration: 0.3,
-        delay: index * 0.1,
-        ease: "easeOut",
-      }}
+      transition={{ duration: 0.3, delay: index * 0.1, ease: "easeOut" }}
       layout
     >
       <Card>
@@ -106,6 +119,9 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
                 <p className="text-sm text-muted-foreground">
                   개당 {formatPrice(item.product.price)}원
                 </p>
+                <p className="text-xs text-muted-foreground">
+                  최대 주문 가능 수량: {item.product.stock}개
+                </p>
                 {isLowStock && (
                   <p className="text-xs text-orange-600 font-medium">
                     재고 {item.product.stock}개 남음
@@ -121,26 +137,37 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => handleQuantityChange(item.quantity - 1)}
+                    onClick={() => handleQuantityChangeButton(-1)}
                     disabled={item.quantity <= 1 || isDisabled}
                   >
                     <Minus className="h-3 w-3" />
                   </Button>
 
-                  <span
+                  <Input
+                    type="number"
+                    min={1}
+                    max={item.product.stock}
+                    value={inputQuantity === 0 ? "" : inputQuantity}
+                    onChange={(e) => handleInputChange(e.target.value)}
                     className={cn(
-                      "w-8 text-center text-sm font-medium",
+                      "w-12 text-center rounded border border-gray-300 p-1 text-sm",
                       isUpdating && "opacity-50"
                     )}
+                  />
+
+                  <Button
+                    size="sm"
+                    onClick={handleApplyQuantity}
+                    disabled={isDisabled}
                   >
-                    {item.quantity}
-                  </span>
+                    변경
+                  </Button>
 
                   <Button
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => handleQuantityChange(item.quantity + 1)}
+                    onClick={() => handleQuantityChangeButton(1)}
                     disabled={item.quantity >= item.product.stock || isDisabled}
                   >
                     <Plus className="h-3 w-3" />

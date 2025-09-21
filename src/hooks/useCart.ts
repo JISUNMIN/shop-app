@@ -27,7 +27,6 @@ const useCart = () => {
     queryKey: ["cart", "list"],
     queryFn: async () => {
       const res = await axiosSession.get<CartItem[]>(CART_API_PATH);
-      console.log("####res", res);
       return res.data;
     },
   });
@@ -44,7 +43,7 @@ const useCart = () => {
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
-    onError: () => toast.error("장바구니 추가 실패"),
+    onError: () => toast.error("장바구니 추가에 실패하였습니다."),
   });
 
   // 장바구니 수량 수정
@@ -54,11 +53,12 @@ const useCart = () => {
         const res = await axiosSession.patch<CartItem>(CART_API_PATH, data);
         return res.data;
       },
-      onSuccess: () =>
-        queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
-      onError: () => toast.error("수량 변경 실패"),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
+        toast.success("수량이 변경되었습니다");
+      },
+      onError: () => toast.error("수량 변경에 실패하였습니다."),
     });
-
   // 장바구니 삭제
   const { mutateAsync: removeFromCartMutate, isPending: isRemovePending } =
     useMutation<void, Error, string>({
@@ -67,7 +67,7 @@ const useCart = () => {
       },
       onSuccess: () =>
         queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
-      onError: () => toast.error("상품 제거 실패"),
+      onError: () => toast.error("상품 제거에 실패하였습니다"),
     });
 
   return {

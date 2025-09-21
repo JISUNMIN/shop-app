@@ -61,7 +61,6 @@ export default function ProductPage() {
     }
   };
 
-  // 버튼 클릭 시 +/-
   const handleQuantityChange = (delta: number) => {
     if (!detailData) return;
 

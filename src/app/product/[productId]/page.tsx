@@ -48,11 +48,6 @@ export default function ProductPage() {
     const totalQuantity = num + getCartQuantity();
 
     if (totalQuantity > detailData.stock) {
-      toast.error(
-        `최대 주문 가능 수량은 ${
-          detailData.stock
-        }개입니다. 장바구니에 ${getCartQuantity()}개 담겨 있습니다.`
-      );
       setQuantity(detailData.stock - getCartQuantity());
     } else if (num < 1) {
       setQuantity(1);
@@ -218,6 +213,7 @@ export default function ProductPage() {
                   value={quantity === 0 ? "" : quantity}
                   min={1}
                   max={maxAvailable}
+                  disabled={maxAvailable <= 0}
                   onChange={(e) => handleQuantityInput(e.target.value)}
                   onBlur={() => {
                     if (quantity < 1) setQuantity(1);

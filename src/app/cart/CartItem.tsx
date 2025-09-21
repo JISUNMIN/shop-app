@@ -51,7 +51,6 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
     }
 
     if (num > item.product.stock) {
-      toast.error(`최대 주문 가능 수량은 ${item.product.stock}개입니다.`);
       num = item.product.stock;
     }
 

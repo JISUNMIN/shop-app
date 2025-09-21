@@ -174,11 +174,17 @@ export default function ProductPage() {
 
           <div className="flex items-center gap-2">
             {isOutOfStock ? (
-              <Badge variant="destructive">품절</Badge>
+              <Badge variant="destructive" className="px-3 py-1 text-sm">
+                품절
+              </Badge>
             ) : isLowStock ? (
-              <Badge variant="secondary">재고 {detailData.stock}개</Badge>
+              <Badge variant="secondary" className="px-3 py-1 text-sm">
+                재고 부족({detailData.stock}개)
+              </Badge>
             ) : (
-              <Badge variant="default">재고 충분</Badge>
+              <Badge variant="default" className="px-3 py-1 text-sm">
+                재고 충분 ({detailData.stock}개)
+              </Badge>
             )}
           </div>
 
@@ -282,6 +288,12 @@ export default function ProductPage() {
             </CardContent>
           </Card>
         </motion.div>
+      </div>
+      <div className="relative border-2 border-primary-500 rounded-xl p-6 mt-6 bg-primary-50/20 text-center text-primary-700 font-medium shadow-sm">
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-2 text-sm font-semibold">
+          상품 상세페이지 영역
+        </span>
+        여기에 상품 상세페이지 콘텐츠가 들어갑니다.
       </div>
     </div>
   );

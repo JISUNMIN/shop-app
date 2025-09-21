@@ -27,7 +27,12 @@ export default function ProductPage() {
     productId
   );
 
-  const { addToCartMutate, isAddPending } = useCart();
+  const { listData: cartItems, addToCartMutate, isAddPending } = useCart();
+
+  const getCartQuantity = () => {
+    const item = cartItems?.find((i) => Number(i.product.id) === productId);
+    return item?.quantity || 0;
+  };
 
   const handleQuantityInput = (value: string) => {
     if (!detailData) return;
@@ -40,10 +45,15 @@ export default function ProductPage() {
     const num = Number(value);
     if (isNaN(num)) return;
 
-    if (num > detailData.stock) {
-      // 최대 수량 초과 시 알림
-      toast.error(`최대 주문 가능 수량은 ${detailData.stock}개입니다.`);
-      setQuantity(detailData.stock);
+    const totalQuantity = num + getCartQuantity();
+
+    if (totalQuantity > detailData.stock) {
+      toast.error(
+        `최대 주문 가능 수량은 ${
+          detailData.stock
+        }개입니다. 장바구니에 ${getCartQuantity()}개 담겨 있습니다.`
+      );
+      setQuantity(detailData.stock - getCartQuantity());
     } else if (num < 1) {
       setQuantity(1);
     } else {
@@ -56,23 +66,32 @@ export default function ProductPage() {
     if (!detailData) return;
 
     const newQuantity = quantity + delta;
-    const clamped = Math.max(1, Math.min(detailData.stock, newQuantity));
+    const maxAllowed = detailData.stock - getCartQuantity();
+    const clamped = Math.max(1, Math.min(maxAllowed, newQuantity));
     setQuantity(clamped);
   };
 
   const handleAddToCart = async () => {
     if (!detailData) return;
 
-    const validQuantity = Math.max(1, Math.min(detailData.stock, quantity));
+    const totalQuantity = quantity + getCartQuantity();
+    if (totalQuantity > detailData.stock) {
+      toast.error(
+        `최대 주문 가능 수량은 ${
+          detailData.stock
+        }개입니다. 장바구니에 이미 ${getCartQuantity()}개 담겨 있습니다.`
+      );
+      return;
+    }
 
     try {
       await addToCartMutate({
         productId: detailData.id,
-        quantity: validQuantity,
+        quantity,
       });
 
       toast.success("장바구니에 추가되었습니다", {
-        description: `${detailData.name} ${validQuantity}개가 장바구니에 추가되었습니다.`,
+        description: `${detailData.name} ${quantity}개가 장바구니에 추가되었습니다.`,
       });
     } catch (error: any) {
       toast.error("오류가 발생했습니다", {
@@ -108,6 +127,7 @@ export default function ProductPage() {
 
   const isOutOfStock = detailData.stock === 0;
   const isLowStock = detailData.stock > 0 && detailData.stock <= 10;
+  const maxAvailable = detailData.stock - getCartQuantity();
 
   return (
     <div className="container py-8">
@@ -192,13 +212,11 @@ export default function ProductPage() {
                   className="w-16 text-center rounded border border-gray-300 p-1"
                   value={quantity === 0 ? "" : quantity}
                   min={1}
-                  max={detailData.stock}
+                  max={maxAvailable}
                   onChange={(e) => handleQuantityInput(e.target.value)}
                   onBlur={() => {
-                    // 입력이 끝났을 때만 최소/최대로 보정
                     if (quantity < 1) setQuantity(1);
-                    if (quantity > detailData.stock)
-                      setQuantity(detailData.stock);
+                    if (quantity > maxAvailable) setQuantity(maxAvailable);
                   }}
                 />
 
@@ -206,7 +224,7 @@ export default function ProductPage() {
                   variant="outline"
                   size="icon"
                   onClick={() => handleQuantityChange(1)}
-                  disabled={quantity >= detailData.stock}
+                  disabled={quantity >= maxAvailable}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -224,12 +242,26 @@ export default function ProductPage() {
               <Button
                 size="lg"
                 onClick={handleAddToCart}
-                disabled={isOutOfStock || isAddPending}
+                disabled={isOutOfStock || isAddPending || maxAvailable <= 0}
                 className="gap-2"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {isAddPending ? "추가 중..." : "장바구니에 담기"}
               </Button>
+
+              {maxAvailable <= 0 && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  장바구니에 이미 {getCartQuantity()}개 담겨 있어, 추가로 담을
+                  수 없습니다.
+                </p>
+              )}
+
+              {maxAvailable > 0 && maxAvailable < detailData.stock && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  최대 {detailData.stock}개까지 구매 가능하며, 현재 장바구니에{" "}
+                  {getCartQuantity()}개 담겨 있습니다.
+                </p>
+              )}
             </div>
           </div>
 

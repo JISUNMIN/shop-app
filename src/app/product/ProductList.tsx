@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { motion } from "framer-motion";
+import ErrorMessage from "@/components/ErrorMessage";
 
 const validSorts = [
   "newest",
@@ -68,21 +69,10 @@ export default function ProductList() {
 
   if (listError) {
     return (
-      <div className="container py-8">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-red-600">
-              오류가 발생했습니다
-            </h2>
-            <p className="mt-2 text-muted-foreground">
-              상품을 불러올 수 없습니다.
-            </p>
-            <Button onClick={() => window.location.reload()} className="mt-4">
-              다시 시도
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ErrorMessage
+        message="상품을 불러올 수 없습니다."
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 

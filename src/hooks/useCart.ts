@@ -30,7 +30,6 @@ const useCart = () => {
       console.log("####res", res);
       return res.data;
     },
-    enabled: true,
   });
 
   // 장바구니 추가

@@ -7,17 +7,18 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 import useProducts from "@/hooks/useProducts";
-// import { useAddToCart } from "@/hooks/useCart";
+import useCart from "@/hooks/useCart";
 import ProductGallery from "@/app/product/[productId]/ProductGallery";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import ProductDetailSkeleton from "../ProductDetailSkeleton";
+import { Input } from "@/components/ui/input";
 
 export default function ProductPage() {
   const router = useRouter();
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState<number>(1);
   const params = useParams();
   const productId = Number(params?.productId);
 
@@ -25,26 +26,53 @@ export default function ProductPage() {
     undefined,
     productId
   );
-  // const addToCartMutation = useAddToCart();
 
-  const handleQuantityChange = (newQuantity: number) => {
+  const { addToCartMutate, isAddPending } = useCart();
+
+  const handleQuantityInput = (value: string) => {
     if (!detailData) return;
-    if (newQuantity < 1) return;
-    if (newQuantity > detailData.stock) return;
-    setQuantity(newQuantity);
+
+    if (value === "") {
+      setQuantity(0);
+      return;
+    }
+
+    const num = Number(value);
+    if (isNaN(num)) return;
+
+    if (num > detailData.stock) {
+      // 최대 수량 초과 시 알림
+      toast.error(`최대 주문 가능 수량은 ${detailData.stock}개입니다.`);
+      setQuantity(detailData.stock);
+    } else if (num < 1) {
+      setQuantity(1);
+    } else {
+      setQuantity(num);
+    }
+  };
+
+  // 버튼 클릭 시 +/-
+  const handleQuantityChange = (delta: number) => {
+    if (!detailData) return;
+
+    const newQuantity = quantity + delta;
+    const clamped = Math.max(1, Math.min(detailData.stock, newQuantity));
+    setQuantity(clamped);
   };
 
   const handleAddToCart = async () => {
     if (!detailData) return;
 
+    const validQuantity = Math.max(1, Math.min(detailData.stock, quantity));
+
     try {
-      // await addToCartMutation.mutateAsync({
-      //   productId: detailData.id,
-      //   quantity,
-      // });
+      await addToCartMutate({
+        productId: detailData.id,
+        quantity: validQuantity,
+      });
 
       toast.success("장바구니에 추가되었습니다", {
-        description: `${detailData.name} ${quantity}개가 장바구니에 추가되었습니다.`,
+        description: `${detailData.name} ${validQuantity}개가 장바구니에 추가되었습니다.`,
       });
     } catch (error: any) {
       toast.error("오류가 발생했습니다", {
@@ -153,16 +181,31 @@ export default function ProductPage() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => handleQuantityChange(quantity - 1)}
+                  onClick={() => handleQuantityChange(-1)}
                   disabled={quantity <= 1}
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
+
+                <Input
+                  type="number"
+                  className="w-16 text-center rounded border border-gray-300 p-1"
+                  value={quantity === 0 ? "" : quantity}
+                  min={1}
+                  max={detailData.stock}
+                  onChange={(e) => handleQuantityInput(e.target.value)}
+                  onBlur={() => {
+                    // 입력이 끝났을 때만 최소/최대로 보정
+                    if (quantity < 1) setQuantity(1);
+                    if (quantity > detailData.stock)
+                      setQuantity(detailData.stock);
+                  }}
+                />
+
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => handleQuantityChange(quantity + 1)}
+                  onClick={() => handleQuantityChange(1)}
                   disabled={quantity >= detailData.stock}
                 >
                   <Plus className="h-4 w-4" />
@@ -173,24 +216,19 @@ export default function ProductPage() {
             <div className="flex items-center justify-between border-t pt-4">
               <span className="text-lg font-medium">총 가격:</span>
               <span className="text-2xl font-bold text-primary">
-                {formatPrice(detailData.price * quantity)}원
+                {formatPrice(detailData.price * (quantity || 1))}원
               </span>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3">
               <Button
                 size="lg"
                 onClick={handleAddToCart}
-                // disabled={isOutOfStock || addToCartMutation.isPending}
+                disabled={isOutOfStock || isAddPending}
                 className="gap-2"
               >
                 <ShoppingCart className="h-5 w-5" />
-                {/* {addToCartMutation.isPending ? "추가 중..." : "장바구니에 담기"} */}
-              </Button>
-
-              <Button variant="outline" size="lg" className="gap-2">
-                <Heart className="h-5 w-5" />
-                찜하기
+                {isAddPending ? "추가 중..." : "장바구니에 담기"}
               </Button>
             </div>
           </div>

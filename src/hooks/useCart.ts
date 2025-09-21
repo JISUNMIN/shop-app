@@ -1,0 +1,92 @@
+// src/hooks/useCart.ts
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { CartItem } from "@/types";
+import axiosSession from "@/lib/axiosSession";
+
+const CART_API_PATH = "/cart";
+
+type AddToCartParams = { productId: string; quantity: number };
+type UpdateCartParams = { itemId: string; quantity: number };
+type CreateOrderResponse = {
+  id: string;
+  totalAmount: number;
+  orderItems: any[];
+};
+
+const useCart = () => {
+  const queryClient = useQueryClient();
+
+  // 장바구니 목록 조회
+  const {
+    data: listData,
+    isLoading: isListLoading,
+    isFetching: isListFetching,
+    error: listError,
+  } = useQuery<CartItem[], Error>({
+    queryKey: ["cart", "list"],
+    queryFn: async () => {
+      const res = await axiosSession.get<CartItem[]>(CART_API_PATH);
+      console.log("####res", res);
+      return res.data;
+    },
+    enabled: true,
+  });
+
+  // 장바구니 추가
+  const { mutateAsync: addToCartMutate, isPending: isAddPending } = useMutation<
+    CartItem,
+    Error,
+    AddToCartParams
+  >({
+    mutationFn: async (data) => {
+      const res = await axiosSession.post<CartItem>(CART_API_PATH, data);
+      return res.data;
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
+    onError: () => toast.error("장바구니 추가 실패"),
+  });
+
+  // 장바구니 수량 수정
+  const { mutateAsync: updateCartItemMutate, isPending: isUpdatePending } =
+    useMutation<CartItem, Error, UpdateCartParams>({
+      mutationFn: async (data) => {
+        const res = await axiosSession.patch<CartItem>(CART_API_PATH, data);
+        return res.data;
+      },
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
+      onError: () => toast.error("수량 변경 실패"),
+    });
+
+  // 장바구니 삭제
+  const { mutateAsync: removeFromCartMutate, isPending: isRemovePending } =
+    useMutation<void, Error, string>({
+      mutationFn: async (itemId) => {
+        await axiosSession.delete(`${CART_API_PATH}?itemId=${itemId}`);
+      },
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
+      onError: () => toast.error("상품 제거 실패"),
+    });
+
+  return {
+    // list
+    listData,
+    isListLoading,
+    isListFetching,
+    listError,
+    // add
+    addToCartMutate,
+    isAddPending,
+    // update
+    updateCartItemMutate,
+    isUpdatePending,
+    // remove
+    removeFromCartMutate,
+    isRemovePending,
+  };
+};
+
+export default useCart;

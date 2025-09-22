@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import ErrorMessage from "@/components/ErrorMessage";
+import { useTranslation } from "@/context/TranslationContext";
+import { formatString } from "@/utils/helper";
 
 const validSorts = [
   "newest",
@@ -25,6 +27,7 @@ const validSorts = [
 type SortType = (typeof validSorts)[number];
 
 export default function ProductList() {
+  const t = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -76,9 +79,6 @@ export default function ProductList() {
     );
   }
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("ko-KR").format(price);
-
   return (
     <div className="container py-8">
       {/* 헤더 섹션 */}
@@ -91,14 +91,16 @@ export default function ProductList() {
           <div>
             <h1 className="text-2xl font-bold">
               {currentParams.search
-                ? `"${currentParams.search}" 검색 결과`
-                : "전체 상품"}
+                ? formatString(t.searchResults, { query: currentParams.search })
+                : t.allProducts}
             </h1>
             {listData && (
               <p className="text-muted-foreground">
-                총 {listData.total}개의 상품 (
-                {listData.total === 0 ? 0 : listData.page} /{" "}
-                {listData.totalPages} 페이지)
+                {formatString(t.totalProducts, {
+                  total: listData.total,
+                  page: listData.total === 0 ? 0 : listData.page,
+                  totalPages: listData.totalPages,
+                })}
               </p>
             )}
           </div>
@@ -106,14 +108,14 @@ export default function ProductList() {
           {/* 정렬 옵션 */}
           <Select value={currentParams.sort} onValueChange={handleSortChange}>
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="정렬 방법" />
+              <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">최신순</SelectItem>
-              <SelectItem value="oldest">등록순</SelectItem>
-              <SelectItem value="price_asc">가격 낮은순</SelectItem>
-              <SelectItem value="price_desc">가격 높은순</SelectItem>
-              <SelectItem value="name">이름순</SelectItem>
+              <SelectItem value="newest">{t.sortNewest}</SelectItem>
+              <SelectItem value="oldest">{t.sortOldest}</SelectItem>
+              <SelectItem value="price_asc">{t.sortPriceAsc}</SelectItem>
+              <SelectItem value="price_desc">{t.sortPriceDesc}</SelectItem>
+              <SelectItem value="name">{t.sortName}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -173,7 +175,7 @@ export default function ProductList() {
               disabled={currentParams.page <= 1}
               onClick={() => handlePageChange(currentParams.page - 1)}
             >
-              이전
+              {t.prev}
             </Button>
 
             {Array.from(
@@ -205,7 +207,7 @@ export default function ProductList() {
               disabled={currentParams.page >= listData.totalPages}
               onClick={() => handlePageChange(currentParams.page + 1)}
             >
-              다음
+              {t.next}
             </Button>
           </div>
         </motion.div>

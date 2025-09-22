@@ -17,8 +17,10 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
+        { name: { path: ["ko"], string_contains: search } },
+        { description: { path: ["ko"], string_contains: search } },
+        { name: { path: ["en"], string_contains: search } },
+        { description: { path: ["en"], string_contains: search } },
       ];
     }
 
@@ -26,7 +28,7 @@ export async function GET(request: NextRequest) {
       where.category = category;
     }
 
-    let orderBy: any = { createdAt: "desc" }; // 기본값: 최신순
+    let orderBy: any = { createdAt: "desc" }; // 최신순
 
     switch (sort) {
       case "oldest":

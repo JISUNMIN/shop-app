@@ -73,7 +73,7 @@ export default function ProductList() {
   if (listError) {
     return (
       <ErrorMessage
-        message="상품을 불러올 수 없습니다."
+        message={t.errorLoading}
         onRetry={() => window.location.reload()}
       />
     );
@@ -108,7 +108,7 @@ export default function ProductList() {
           {/* 정렬 옵션 */}
           <Select value={currentParams.sort} onValueChange={handleSortChange}>
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Sort" />
+              <SelectValue placeholder={t.sortPlaceholder} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="newest">{t.sortNewest}</SelectItem>
@@ -142,18 +142,16 @@ export default function ProductList() {
           className="flex items-center justify-center py-12"
         >
           <div className="text-center">
-            <h2 className="text-xl font-semibold">상품이 없습니다</h2>
+            <h2 className="text-xl font-semibold">{t.noProducts}</h2>
             <p className="mt-2 text-muted-foreground">
-              {currentParams.search
-                ? "다른 검색어로 시도해보세요."
-                : "아직 등록된 상품이 없습니다."}
+              {currentParams.search ? t.noProductsSearch : t.noProductsDefault}
             </p>
             {currentParams.search && (
               <Button
                 onClick={() => router.push("/")}
                 className="mt-4 cursor-pointer"
               >
-                전체 상품 보기
+                {t.viewAllProducts}
               </Button>
             )}
           </div>

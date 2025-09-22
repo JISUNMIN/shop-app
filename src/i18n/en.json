@@ -3,7 +3,6 @@
   "searchPlaceholderDesktop": "What robot are you looking for?",
   "searchButton": "Search",
   "cart": "Cart",
-
   "allProducts": "All Products",
   "searchResults": "Search results for \"{{query}}\"",
   "totalProducts": "Total {{total}} products ({{page}} / {{totalPages}} pages)",
@@ -19,11 +18,11 @@
   "prev": "Previous",
   "next": "Next",
   "errorLoading": "Failed to load products.",
+  "sortPlaceholder": "Sort",
 
   "soldOut": "Sold Out",
   "onlyLeft": "Only {{count}} left",
   "price": "${{price}}",
-
   "productDescription": "Product Description",
   "deliveryInfo": "Delivery Information",
   "quantity": "Quantity",
@@ -88,5 +87,9 @@
   "orderComplete": "Order Completed!",
   "orderSuccessMsg": "{{count}} robots have been successfully ordered.",
   "totalAmount": "Total Amount",
-  "continueShopping": "Continue Shopping"
+  "continueShopping": "Continue Shopping",
+
+  "errorOccurred": "An error has occurred",
+  "cannotLoadData": "Unable to load data.",
+  "retry": "Retry"
 }

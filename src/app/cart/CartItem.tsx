@@ -50,8 +50,9 @@ const CartItem = ({
       return;
     }
 
+    if (!/^\d+$/.test(value)) return;
+
     let num = Number(value);
-    if (isNaN(num)) return;
 
     if (num < 1) num = 1;
     if (num > item.product.stock) num = item.product.stock;

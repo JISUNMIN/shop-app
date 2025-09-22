@@ -42,9 +42,13 @@ export default function ProductPage() {
       setQuantity(0);
       return;
     }
+
+    // 숫자가 아니거나 소수점 포함 시 무시
+    if (!/^\d+$/.test(value)) return;
+
     const num = Number(value);
-    if (isNaN(num)) return;
     const totalQuantity = num + getCartQuantity();
+
     if (totalQuantity > detailData.stock) {
       setQuantity(detailData.stock - getCartQuantity());
     } else if (num < 1) {

@@ -1,12 +1,12 @@
 // src/types/index.ts
 export interface Product {
   id: string;
-  name: string;
+  name: LocalizedText;
   price: number;
   description?: string;
   images: string[];
   stock: number;
-  category?: string;
+  category?: LocalizedText;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,4 +60,8 @@ export interface ApiResponse<T> {
   total: number;
   page: number;
   totalPages: number;
+}
+export interface LocalizedText {
+  ko: string;
+  en: string;
 }

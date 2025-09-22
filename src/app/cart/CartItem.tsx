@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils";
 import useCart from "@/hooks/useCart";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useLangStore } from "@/store/langStore";
+import { useTranslation } from "@/context/TranslationContext";
+import { formatString } from "@/utils/helper";
 
 interface CartItemProps {
   item: CartItemType;
@@ -29,6 +32,8 @@ const CartItem = ({
 }: CartItemProps) => {
   const [inputQuantity, setInputQuantity] = useState<number>(item.quantity);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { lang } = useLangStore();
+  const t = useTranslation();
 
   const {
     updateCartItemMutate,
@@ -108,7 +113,7 @@ const CartItem = ({
               <Link href={`/product/${item.product.id}`}>
                 <Image
                   src={item.product.images[0] || "/placeholder.jpg"}
-                  alt={item.product.name}
+                  alt={item.product.name[lang]}
                   fill
                   className="object-cover transition-transform hover:scale-105"
                   sizes="96px"
@@ -123,17 +128,19 @@ const CartItem = ({
                   href={`/product/${item.product.id}`}
                   className="font-medium hover:text-primary transition-colors line-clamp-2"
                 >
-                  {item.product.name}
+                  {item.product.name[lang]}
                 </Link>
                 <p className="text-sm text-muted-foreground">
-                  개당 {formatPrice(item.product.price)}원
+                  {formatString(t.pricePerItem, {
+                    price: formatPrice(item.product.price),
+                  })}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  최대 주문 가능 수량: {item.product.stock}개
+                  {formatString(t.maxOrder, { stock: item.product.stock })}
                 </p>
                 {isLowStock && (
                   <p className="text-xs text-orange-600 font-medium">
-                    재고 {item.product.stock}개 남음
+                    {formatString(t.lowStock, { stock: item.product.stock })}
                   </p>
                 )}
               </div>
@@ -174,7 +181,7 @@ const CartItem = ({
                     onClick={() => handleApplyQuantity(inputQuantity)}
                     disabled={isDisabled}
                   >
-                    변경
+                    {t.applyChange}
                   </Button>
 
                   <Button
@@ -196,7 +203,9 @@ const CartItem = ({
                     </div>
                     {item.quantity > 1 && (
                       <div className="text-xs text-muted-foreground">
-                        {item.quantity}개
+                        {formatString(t.quantityCount, {
+                          count: item.quantity,
+                        })}
                       </div>
                     )}
                   </div>

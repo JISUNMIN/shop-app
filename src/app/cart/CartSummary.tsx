@@ -1,9 +1,10 @@
-// src/app/cart/CartSummary.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "@/context/TranslationContext";
+import { formatString } from "@/utils/helper";
 
 interface CartSummaryProps {
   totalItems: number;
@@ -20,6 +21,8 @@ export default function CartSummary({
   finalPrice,
   onOrder,
 }: CartSummaryProps) {
+  const t = useTranslation();
+
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("ko-KR").format(price);
 
@@ -28,25 +31,33 @@ export default function CartSummary({
   return (
     <Card className="sticky top-8">
       <CardHeader>
-        <CardTitle className="text-lg">주문 요약</CardTitle>
+        <CardTitle className="text-lg">{t.orderSummary}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>상품 ({totalItems}개)</span>
-            <span>{formatPrice(totalPrice)}원</span>
+            <span>
+              {formatString(t.itemsCount, { count: totalItems })}
+            </span>
+            <span>
+              {formatString(t.price, { price: formatPrice(totalPrice) })}
+            </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span>배송비</span>
+            <span>{t.shippingFee}</span>
             {isFreeShipping ? (
               <div className="text-right">
                 <span className="line-through text-muted-foreground">
-                  {formatPrice(shippingFee)}원
+                  {formatString(t.price, { price: formatPrice(shippingFee) })}
                 </span>
-                <span className="ml-2 text-green-600 font-medium">무료</span>
+                <span className="ml-2 text-green-600 font-medium">
+                  {t.free}
+                </span>
               </div>
             ) : (
-              <span>{formatPrice(shippingFee)}원</span>
+              <span>
+                {formatString(t.price, { price: formatPrice(shippingFee) })}
+              </span>
             )}
           </div>
         </div>
@@ -54,16 +65,20 @@ export default function CartSummary({
         <Separator />
 
         <div className="flex justify-between text-lg font-bold">
-          <span>총 결제금액</span>
-          <span className="text-primary">{formatPrice(finalPrice)}원</span>
+          <span>{t.totalPayment}</span>
+          <span className="text-primary">
+            {formatString(t.price, { price: formatPrice(finalPrice) })}
+          </span>
         </div>
 
         {!isFreeShipping && (
           <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
             <span className="text-primary font-medium">
-              {formatPrice(30000 - totalPrice)}원
+              {formatString(t.price, {
+                price: formatPrice(30000 - totalPrice),
+              })}
             </span>{" "}
-            더 구매하시면 무료배송!
+            {t.freeShippingMessage}
           </div>
         )}
 
@@ -73,13 +88,13 @@ export default function CartSummary({
           onClick={onOrder}
           disabled={totalItems === 0}
         >
-          주문하기
+          {t.order}
         </Button>
 
         <div className="text-xs text-muted-foreground space-y-1">
-          <p>• 평일 오후 2시 이전 주문 시 당일 출고</p>
-          <p>• 제주/도서산간 지역 배송비 별도</p>
-          <p>• 로봇 설치 서비스는 별도 문의</p>
+          <p>{t.deliveryNote1}</p>
+          <p>{t.deliveryNote2}</p>
+          <p>{t.deliveryNote3}</p>
         </div>
       </CardContent>
     </Card>

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CartItem } from "@/types";
 import axiosSession from "@/lib/axiosSession";
+import { useTranslation } from "@/context/TranslationContext";
 
 const CART_API_PATH = "/cart";
 
@@ -11,6 +12,7 @@ type UpdateCartParams = { itemId: string; quantity: number };
 
 const useCart = () => {
   const queryClient = useQueryClient();
+  const t = useTranslation();
 
   // 장바구니 목록 조회
   const {
@@ -38,7 +40,7 @@ const useCart = () => {
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
-    onError: () => toast.error("장바구니 추가에 실패하였습니다."),
+    onError: () => toast.error(t.addToCartFail),
   });
 
   // 장바구니 수량 수정
@@ -50,9 +52,9 @@ const useCart = () => {
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
-        toast.success("수량이 변경되었습니다");
+        toast.success(t.quantityChanged);
       },
-      onError: () => toast.error("수량 변경에 실패하였습니다."),
+      onError: () => toast.error(t.quantityChangeFail),
     });
 
   // 장바구니 삭제
@@ -64,9 +66,9 @@ const useCart = () => {
       onSuccess: (_, variables) => {
         const { showToast = true } = variables;
         queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
-        if (showToast) toast.success("상품이 장바구니에서 제거되었습니다.");
+        if (showToast) toast.success(t.removedFromCart);
       },
-      onError: () => toast.error("상품 제거에 실패하였습니다"),
+      onError: () => toast.error(t.removeFail),
     });
 
   return {

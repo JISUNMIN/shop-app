@@ -7,6 +7,8 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { CheckCircle2, X } from "lucide-react";
 import Lottie from "lottie-react";
 import runningAnimation from "@/lottie/running.json";
+import { useTranslation } from "@/context/TranslationContext";
+import { formatString } from "@/utils/helper";
 
 interface OrderedItem {
   id: string;
@@ -29,6 +31,8 @@ export default function OrderCompleteModal({
   const [showRobot, setShowRobot] = useState(true);
   const [showCheck, setShowCheck] = useState(false);
   const [showButton, setShowButton] = useState(false);
+
+  const t = useTranslation();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -78,6 +82,7 @@ export default function OrderCompleteModal({
               <button
                 onClick={onClose}
                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                aria-label={t.close}
               >
                 <X className="w-6 h-6" />
               </button>
@@ -109,9 +114,9 @@ export default function OrderCompleteModal({
                   )}
                 </AnimatePresence>
 
-                <h1 className="text-3xl font-bold">주문이 완료되었습니다!</h1>
+                <h1 className="text-3xl font-bold">{t.orderComplete}</h1>
                 <p className="text-muted-foreground text-base">
-                  {totalItems}개의 로봇 주문이 성공적으로 접수되었습니다.
+                  {formatString(t.orderSuccessMsg, { count: totalItems })}
                 </p>
               </CardHeader>
 
@@ -126,12 +131,18 @@ export default function OrderCompleteModal({
                         <span>
                           {item.name} x {item.quantity}
                         </span>
-                        <span>{item.price * item.quantity}원</span>
+                        <span>
+                          {formatString(t.price, {
+                            price: item.price * item.quantity,
+                          })}
+                        </span>
                       </div>
                     ))}
                     <div className="flex justify-between font-bold pt-2">
-                      <span>총 합계</span>
-                      <span>{totalPrice}원</span>
+                      <span>{t.totalAmount}</span>
+                      <span>
+                        {formatString(t.price, { price: totalPrice })}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -145,7 +156,7 @@ export default function OrderCompleteModal({
                       className="flex justify-center gap-4 w-full"
                     >
                       <Button size="lg" className="flex-1" onClick={onClose}>
-                        쇼핑 계속하기
+                        {t.continueShopping}
                       </Button>
                     </motion.div>
                   )}

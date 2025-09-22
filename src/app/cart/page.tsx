@@ -13,6 +13,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CartSkeleton, EmptyCart, CartSummary, CartItem } from "@/app/cart";
 import ErrorMessage from "@/components/ErrorMessage";
 import OrderCompleteModal from "@/app/order/complete/OrderCompleteModal";
+import { useTranslation } from "@/context/TranslationContext";
+import { formatString } from "@/utils/helper";
+import { useLangStore } from "@/store/langStore";
 
 export default function CartPage() {
   const router = useRouter();
@@ -23,6 +26,8 @@ export default function CartPage() {
     removeFromCartMutate,
     isRemovePending,
   } = useCart();
+  const { lang } = useLangStore();
+  const t = useTranslation();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
     {}
   );
@@ -45,13 +50,13 @@ export default function CartPage() {
     try {
       const itemsToOrder = cartItems?.filter((item) => selectedItems[item.id]);
       if (!itemsToOrder || itemsToOrder.length === 0) {
-        toast.error("주문할 항목을 선택해주세요.");
+        toast.error(t.selectOrderItem);
         return;
       }
 
       const formattedItems = itemsToOrder.map((item) => ({
         id: item.id,
-        name: item.product.name,
+        name: item.product.name[lang],
         quantity: item.quantity,
         price: item.product.price,
       }));
@@ -66,8 +71,8 @@ export default function CartPage() {
 
       setSelectedItems({});
     } catch (error: any) {
-      toast.error("주문 실패", {
-        description: error.message || "주문을 처리할 수 없습니다.",
+      toast.error(t.orderFailed, {
+        description: error.message || t.orderFailedDescription,
       });
     }
   };
@@ -113,7 +118,7 @@ export default function CartPage() {
   if (listError) {
     return (
       <ErrorMessage
-        message="장바구니를 불러올 수 없습니다."
+        message={t.cartLoadError}
         onRetry={() => window.location.reload()}
       />
     );
@@ -135,12 +140,13 @@ export default function CartPage() {
                 onClick={() => router.back()}
                 className="gap-2"
               >
-                <ArrowLeft className="h-4 w-4" /> 뒤로가기
+                <ArrowLeft className="h-4 w-4" />
+                {t.back}
               </Button>
               <div>
-                <h1 className="text-2xl font-bold sm:text-xl">장바구니</h1>
+                <h1 className="text-2xl font-bold sm:text-xl">{t.cart}</h1>
                 <p className="text-muted-foreground text-sm sm:text-xs">
-                  {totalItems}개의 로봇이 담겨있습니다
+                  {formatString(t.cartRobotCount, { count: totalItems })}
                 </p>
               </div>
             </div>
@@ -154,7 +160,7 @@ export default function CartPage() {
                 checked={cartItems.every((item) => selectedItems[item.id])}
                 onCheckedChange={(val) => handleSelectAll(!!val)}
               />
-              <span className="text-sm">전체 선택</span>
+              <span className="text-sm">{t.selectAll}</span>
             </div>
 
             <div className="flex gap-2">
@@ -164,7 +170,7 @@ export default function CartPage() {
                 onClick={handleDeleteSelected}
                 disabled={!Object.values(selectedItems).some(Boolean)}
               >
-                선택 삭제
+                {t.deleteSelected}
               </Button>
 
               <Button
@@ -178,7 +184,7 @@ export default function CartPage() {
                 }}
                 disabled={cartItems.length === 0 || isRemovePending}
               >
-                전체 삭제
+                {t.deleteAll}
               </Button>
             </div>
           </div>

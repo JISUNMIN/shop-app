@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCallback } from "react";
+
 import useProducts from "@/hooks/useProducts";
 import ProductCard from "./ProductCard";
 import { ProductGridSkeleton } from "./ProductSkeleton";
@@ -141,8 +142,8 @@ export default function ProductList() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
         >
-          {listData.data.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {listData.data.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
           ))}
         </motion.div>
       ) : (

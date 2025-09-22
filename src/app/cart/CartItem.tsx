@@ -154,6 +154,12 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
                     max={item.product.stock}
                     value={inputQuantity === 0 ? "" : inputQuantity}
                     onChange={(e) => handleInputChange(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleApplyQuantity(inputQuantity);
+                      }
+                    }}
                     className={cn(
                       "w-12 text-center rounded border border-gray-300 p-1 text-sm",
                       isUpdating && "opacity-50"

@@ -59,6 +59,7 @@ const useCart = () => {
       },
       onError: () => toast.error("수량 변경에 실패하였습니다."),
     });
+
   // 장바구니 삭제
   const { mutateAsync: removeFromCartMutate, isPending: isRemovePending } =
     useMutation<void, Error, string>({

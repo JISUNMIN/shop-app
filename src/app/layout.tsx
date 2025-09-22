@@ -5,6 +5,7 @@ import "./globals.css";
 import QueryProvider from "@/providers/QueryProvider";
 import Header from "@/components/layout/Header";
 import { Toaster } from "@/components/ui/sonner";
+import { TranslationProvider } from "@/context/TranslationContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,13 +23,15 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={inter.className}>
-        <QueryProvider>
-          <div className="flex min-h-screen flex-col items-center">
-            <Header />
-            <main className="flex-1 w-full max-w-6xl px-4">{children}</main>
-          </div>
-          <Toaster />
-        </QueryProvider>
+        <TranslationProvider>
+          <QueryProvider>
+            <div className="flex min-h-screen flex-col items-center">
+              <Header />
+              <main className="flex-1 w-full max-w-6xl px-4">{children}</main>
+            </div>
+            <Toaster />
+          </QueryProvider>
+        </TranslationProvider>
       </body>
     </html>
   );

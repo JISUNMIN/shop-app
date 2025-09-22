@@ -8,7 +8,8 @@ import { CheckCircle2, X } from "lucide-react";
 import Lottie from "lottie-react";
 import runningAnimation from "@/lottie/running.json";
 import { useTranslation } from "@/context/TranslationContext";
-import { formatString } from "@/utils/helper";
+import { formatPrice, formatString } from "@/utils/helper";
+import { useLangStore } from "@/store/langStore";
 
 interface OrderedItem {
   id: string;
@@ -33,6 +34,7 @@ export default function OrderCompleteModal({
   const [showButton, setShowButton] = useState(false);
 
   const t = useTranslation();
+  const { lang } = useLangStore();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -133,7 +135,10 @@ export default function OrderCompleteModal({
                         </span>
                         <span>
                           {formatString(t.price, {
-                            price: item.price * item.quantity,
+                            price: formatPrice(
+                              item.price * item.quantity,
+                              lang
+                            ),
                           })}
                         </span>
                       </div>
@@ -141,7 +146,9 @@ export default function OrderCompleteModal({
                     <div className="flex justify-between font-bold pt-2">
                       <span>{t.totalAmount}</span>
                       <span>
-                        {formatString(t.price, { price: totalPrice })}
+                        {formatString(t.price, {
+                          price: formatPrice(totalPrice, lang),
+                        })}
                       </span>
                     </div>
                   </div>

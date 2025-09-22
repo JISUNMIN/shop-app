@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "@/types";
 import { motion } from "framer-motion";
-import { formatString } from "@/utils/helper";
+import { formatPrice, formatString } from "@/utils/helper";
 import { useTranslation } from "@/context/TranslationContext";
 import { useLangStore } from "@/store/langStore";
 
@@ -71,7 +71,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
                   <span className="text-lg font-bold text-primary">
-                    {formatString(t.price, { price: product.price })}
+                    {formatString(t.price, {
+                      price: formatPrice(product.price ?? 0, lang),
+                    })}
                   </span>
                 </div>
               </div>

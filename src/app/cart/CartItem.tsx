@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLangStore } from "@/store/langStore";
 import { useTranslation } from "@/context/TranslationContext";
-import { formatString } from "@/utils/helper";
+import { formatPrice, formatString } from "@/utils/helper";
 
 interface CartItemProps {
   item: CartItemType;
@@ -43,9 +43,6 @@ const CartItem = ({
   } = useCart();
 
   const isDisabled = isUpdatePending || isRemovePending || isUpdating;
-
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("ko-KR").format(price);
 
   const handleInputChange = (value: string) => {
     if (value === "") {
@@ -132,7 +129,7 @@ const CartItem = ({
                 </Link>
                 <p className="text-sm text-muted-foreground">
                   {formatString(t.pricePerItem, {
-                    price: formatPrice(item.product.price),
+                    price: formatPrice(item.product.price, lang),
                   })}
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -199,7 +196,9 @@ const CartItem = ({
                 <div className="flex items-center justify-between mt-3 border-t border-gray-200 sm:border-t-0 pt-2 sm:pt-0">
                   <div className="text-right">
                     <div className="font-bold text-primary">
-                      {formatPrice(totalPrice)}원
+                      {formatString(t.price, {
+                        price: formatPrice(totalPrice, lang),
+                      })}
                     </div>
                     {item.quantity > 1 && (
                       <div className="text-xs text-muted-foreground">

@@ -14,7 +14,7 @@ import ProductDetailSkeleton from "../ProductDetailSkeleton";
 import { Input } from "@/components/ui/input";
 import { useLangStore } from "@/store/langStore";
 import { useTranslation } from "@/context/TranslationContext";
-import { formatString } from "@/utils/helper";
+import { formatPrice, formatString } from "@/utils/helper";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -93,9 +93,6 @@ export default function ProductPage() {
     }
   };
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("ko-KR").format(price);
-
   if (isDetailLoading) return <ProductDetailSkeleton />;
 
   if (detailError || !detailData) {
@@ -163,7 +160,9 @@ export default function ProductPage() {
           </h1>
 
           <div className="text-3xl font-bold text-primary">
-            {formatString(t.price, { price: formatPrice(detailData?.price) })}
+            {formatString(t.price, {
+              price: formatPrice(detailData?.price, lang),
+            })}
           </div>
 
           <div className="flex items-center gap-2">
@@ -236,7 +235,7 @@ export default function ProductPage() {
               <span className="text-lg font-medium">{t.totalPrice}:</span>
               <span className="text-2xl font-bold text-primary">
                 {formatString(t.price, {
-                  price: formatPrice(detailData?.price * (quantity || 1)),
+                  price: formatPrice(detailData?.price * (quantity || 1), lang),
                 })}
               </span>
             </div>

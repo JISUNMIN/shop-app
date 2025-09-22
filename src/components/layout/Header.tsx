@@ -2,13 +2,15 @@
 "use client";
 
 import Link from "next/link";
-import { Search, ShoppingCart, Bot } from "lucide-react";
+import { Search, ShoppingCart, Bot, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useCart from "@/hooks/useCart";
+import { useTranslation } from "@/context/TranslationContext";
+import { useLangStore } from "@/store/langStore";
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,6 +19,8 @@ export default function Header() {
   const { listData: cartItems } = useCart();
   const cartItemCount =
     cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const { lang, toggleLang } = useLangStore();
+  const t = useTranslation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,9 +33,8 @@ export default function Header() {
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
-    handleResize(); 
+    handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -56,7 +59,9 @@ export default function Header() {
             <Input
               type="search"
               placeholder={
-                isMobile ? "로봇 검색" : "어떤 로봇을 찾고 계신가요?"
+                isMobile
+                  ? t.searchPlaceholderMobile
+                  : t.searchPlaceholderDesktop
               }
               className="pl-8"
               value={searchQuery}
@@ -64,26 +69,38 @@ export default function Header() {
             />
           </div>
           <Button type="submit" size="sm" className="w-full sm:w-auto">
-            검색
+            {t.searchButton}
           </Button>
         </form>
       </div>
 
-      {/* 장바구니 */}
-      <Link href="/cart">
-        <Button variant="ghost" size="sm" className="relative">
-          <ShoppingCart className="h-5 w-5" />
-          {cartItemCount > 0 && (
-            <Badge
-              variant="destructive"
-              className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 text-[10px]"
-            >
-              {cartItemCount > 99 ? "99+" : cartItemCount}
-            </Badge>
-          )}
-          <span className="hidden sm:ml-2 sm:inline">장바구니</span>
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center space-x-1"
+          onClick={toggleLang}
+        >
+          <Globe className="h-4 w-4" />
+          <span>{lang}</span>
         </Button>
-      </Link>
+
+        {/* 장바구니 */}
+        <Link href="/cart">
+          <Button variant="ghost" size="sm" className="relative">
+            <ShoppingCart className="h-5 w-5" />
+            {cartItemCount > 0 && (
+              <Badge
+                variant="destructive"
+                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 text-[10px]"
+              >
+                {cartItemCount > 99 ? "99+" : cartItemCount}
+              </Badge>
+            )}
+            <span className="hidden sm:ml-2 sm:inline">{t.cart}</span>
+          </Button>
+        </Link>
+      </div>
     </header>
   );
 }

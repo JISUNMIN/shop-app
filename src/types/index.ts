@@ -3,7 +3,7 @@ export interface Product {
   id: string;
   name: LocalizedText;
   price: number;
-  description?: string;
+  description?: LocalizedText;
   images: string[];
   stock: number;
   category?: LocalizedText;

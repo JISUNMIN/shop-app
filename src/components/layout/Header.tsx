@@ -29,7 +29,7 @@ export default function Header() {
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
-    handleResize(); // 초기값 설정
+    handleResize(); 
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
@@ -76,7 +76,7 @@ export default function Header() {
           {cartItemCount > 0 && (
             <Badge
               variant="destructive"
-              className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 text-xs"
+              className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 text-[10px]"
             >
               {cartItemCount > 99 ? "99+" : cartItemCount}
             </Badge>

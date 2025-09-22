@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 
 import { CartItem as CartItemType } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -57,21 +56,28 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
     setInputQuantity(num);
   };
 
-  const handleApplyQuantity = () => {
+  const handleApplyQuantity = (quantity?: number) => {
     if (isUpdating) return;
 
-    let newQuantity = inputQuantity;
+    let newQuantity = quantity ?? inputQuantity;
+
     if (newQuantity < 1) newQuantity = 1;
     if (newQuantity === item.quantity) return;
 
     setIsUpdating(true);
-    updateCartItemMutate({ itemId: item.id, quantity: newQuantity });
-    setIsUpdating(false);
+    updateCartItemMutate(
+      { itemId: item.id, quantity: newQuantity },
+      {
+        onSettled: () => setIsUpdating(false),
+      }
+    );
   };
-
   const handleQuantityChangeButton = (delta: number) => {
-    handleInputChange(String(item.quantity + delta));
-    handleApplyQuantity();
+    const newQuantity = inputQuantity + delta;
+    if (newQuantity < 1 || newQuantity > item.product.stock) return;
+
+    setInputQuantity(newQuantity);
+    handleApplyQuantity(newQuantity);
   };
 
   const handleRemove = () => {
@@ -156,7 +162,7 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
 
                   <Button
                     size="sm"
-                    onClick={handleApplyQuantity}
+                    onClick={() => handleApplyQuantity(inputQuantity)}
                     disabled={isDisabled}
                   >
                     변경

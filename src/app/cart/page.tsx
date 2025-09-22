@@ -10,19 +10,11 @@ import useCart from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { CartSkeleton, EmptyCart, CartSummary, CartItem } from "@/app/cart";
 import ErrorMessage from "@/components/ErrorMessage";
 
 export default function CartPage() {
   const router = useRouter();
-  const [showOrderModal, setShowOrderModal] = useState(false);
   const {
     listData: cartItems,
     isListLoading,
@@ -46,17 +38,14 @@ export default function CartPage() {
 
   const handleOrder = async () => {
     try {
-      setShowOrderModal(true);
+      cartItems?.forEach((item) => removeFromCartMutate(item.id));
+      setSelectedItems({});
+      router.push("/order/complete");
     } catch (error: any) {
       toast.error("주문 실패", {
         description: error.message || "주문을 처리할 수 없습니다.",
       });
     }
-  };
-
-  const handleOrderComplete = () => {
-    setShowOrderModal(false);
-    router.push("/");
   };
 
   const handleCheckChange = (itemId: string, checked: boolean) => {
@@ -202,24 +191,6 @@ export default function CartPage() {
           )}
         </AnimatePresence>
       </div>
-
-      {/* 주문 완료 모달 */}
-      <Dialog open={showOrderModal} onOpenChange={setShowOrderModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>주문이 완료되었습니다!</DialogTitle>
-            <DialogDescription>
-              로봇 주문이 성공적으로 접수되었습니다. 빠른 시일 내에
-              배송해드리겠습니다.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={handleOrderComplete}>
-              쇼핑 계속하기
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

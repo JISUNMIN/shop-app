@@ -57,13 +57,14 @@ const useCart = () => {
 
   // 장바구니 삭제
   const { mutateAsync: removeFromCartMutate, isPending: isRemovePending } =
-    useMutation<void, Error, string>({
-      mutationFn: async (itemId) => {
+    useMutation<void, Error, { itemId: string; showToast?: boolean }>({
+      mutationFn: async ({ itemId }) => {
         await axiosSession.delete(`${CART_API_PATH}?itemId=${itemId}`);
       },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
-          toast.success("상품이 장바구니에서 제거되었습니다.");
+      onSuccess: (_, variables) => {
+        const { showToast = true } = variables;
+        queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
+        if (showToast) toast.success("상품이 장바구니에서 제거되었습니다.");
       },
       onError: () => toast.error("상품 제거에 실패하였습니다"),
     });

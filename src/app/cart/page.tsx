@@ -38,7 +38,9 @@ export default function CartPage() {
 
   const handleOrder = async () => {
     try {
-      cartItems?.forEach((item) => removeFromCartMutate(item.id));
+      cartItems?.forEach((item) =>
+        removeFromCartMutate({ itemId: item.id, showToast: false })
+      );
       setSelectedItems({});
       router.push("/order/complete");
     } catch (error: any) {
@@ -62,7 +64,7 @@ export default function CartPage() {
     const idsToDelete = Object.keys(selectedItems).filter(
       (id) => selectedItems[id]
     );
-    idsToDelete.forEach((id) => removeFromCartMutate(id));
+    idsToDelete.forEach((id) => removeFromCartMutate({ itemId: id }));
     setSelectedItems({});
   };
 
@@ -139,7 +141,9 @@ export default function CartPage() {
                 size="sm"
                 variant="destructive"
                 onClick={() => {
-                  cartItems.forEach((item) => removeFromCartMutate(item.id));
+                  cartItems.forEach((item) =>
+                    removeFromCartMutate({ itemId: item.id })
+                  );
                   setSelectedItems({});
                 }}
                 disabled={cartItems.length === 0 || isRemovePending}

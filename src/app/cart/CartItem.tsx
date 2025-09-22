@@ -81,7 +81,7 @@ const CartItem = ({
 
   const handleRemove = () => {
     if (isDisabled) return;
-    removeFromCartMutate(item.id);
+    removeFromCartMutate({ itemId: item.id });
   };
 
   const totalPrice = item.product.price * item.quantity;

@@ -98,9 +98,9 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
     >
       <Card>
         <CardContent className="p-4">
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             {/* 상품 이미지 */}
-            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-100 mx-auto sm:mx-0">
               <Link href={`/product/${item.product.id}`}>
                 <Image
                   src={item.product.images[0] || "/placeholder.jpg"}
@@ -114,7 +114,7 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
 
             {/* 상품 정보 */}
             <div className="flex flex-1 flex-col justify-between">
-              <div className="space-y-1">
+              <div className="space-y-1 text-center sm:text-left">
                 <Link
                   href={`/product/${item.product.id}`}
                   className="font-medium hover:text-primary transition-colors line-clamp-2"
@@ -135,9 +135,8 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
               </div>
 
               {/* 컨트롤 영역 */}
-              <div className="flex items-center justify-between mt-3">
-                {/* 수량 조절 */}
-                <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-3 gap-3 sm:gap-0">
+                <div className="flex items-center justify-center sm:justify-start space-x-2">
                   <Button
                     variant="outline"
                     size="icon"
@@ -186,7 +185,7 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
                 </div>
 
                 {/* 가격 및 삭제 버튼 */}
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center justify-between mt-3 border-t border-gray-200 sm:border-t-0 pt-2 sm:pt-0">
                   <div className="text-right">
                     <div className="font-bold text-primary">
                       {formatPrice(totalPrice)}원
@@ -197,7 +196,6 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
                       </div>
                     )}
                   </div>
-
                   <Button
                     variant="ghost"
                     size="icon"

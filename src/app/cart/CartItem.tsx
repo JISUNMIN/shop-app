@@ -1,4 +1,3 @@
-// src/components/cart/CartItem.tsx
 "use client";
 
 import { useState } from "react";
@@ -13,13 +12,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import useCart from "@/hooks/useCart";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CartItemProps {
   item: CartItemType;
   index?: number;
+  checked: boolean;
+  onCheckChange: (itemId: string, checked: boolean) => void;
 }
 
-const CartItem = ({ item, index = 0 }: CartItemProps) => {
+const CartItem = ({
+  item,
+  index = 0,
+  checked,
+  onCheckChange,
+}: CartItemProps) => {
   const [inputQuantity, setInputQuantity] = useState<number>(item.quantity);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -42,16 +49,10 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
     }
 
     let num = Number(value);
-
     if (isNaN(num)) return;
 
-    if (num < 1) {
-      num = 1;
-    }
-
-    if (num > item.product.stock) {
-      num = item.product.stock;
-    }
+    if (num < 1) num = 1;
+    if (num > item.product.stock) num = item.product.stock;
 
     setInputQuantity(num);
   };
@@ -60,18 +61,16 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
     if (isUpdating) return;
 
     let newQuantity = quantity ?? inputQuantity;
-
     if (newQuantity < 1) newQuantity = 1;
     if (newQuantity === item.quantity) return;
 
     setIsUpdating(true);
     updateCartItemMutate(
       { itemId: item.id, quantity: newQuantity },
-      {
-        onSettled: () => setIsUpdating(false),
-      }
+      { onSettled: () => setIsUpdating(false) }
     );
   };
+
   const handleQuantityChangeButton = (delta: number) => {
     const newQuantity = inputQuantity + delta;
     if (newQuantity < 1 || newQuantity > item.product.stock) return;
@@ -99,6 +98,11 @@ const CartItem = ({ item, index = 0 }: CartItemProps) => {
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
+            <Checkbox
+              checked={checked}
+              onCheckedChange={(val) => onCheckChange(item.id, !!val)}
+            />
+
             {/* 상품 이미지 */}
             <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-100 mx-auto sm:mx-0">
               <Link href={`/product/${item.product.id}`}>

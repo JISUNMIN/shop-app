@@ -8,11 +8,6 @@ const CART_API_PATH = "/cart";
 
 type AddToCartParams = { productId: string; quantity: number };
 type UpdateCartParams = { itemId: string; quantity: number };
-type CreateOrderResponse = {
-  id: string;
-  totalAmount: number;
-  orderItems: any[];
-};
 
 const useCart = () => {
   const queryClient = useQueryClient();
@@ -66,8 +61,10 @@ const useCart = () => {
       mutationFn: async (itemId) => {
         await axiosSession.delete(`${CART_API_PATH}?itemId=${itemId}`);
       },
-      onSuccess: () =>
+      onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
+          toast.success("상품이 장바구니에서 제거되었습니다.");
+      },
       onError: () => toast.error("상품 제거에 실패하였습니다"),
     });
 

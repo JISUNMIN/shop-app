@@ -1,4 +1,3 @@
-// src/app/cart/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 import useCart from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -23,8 +23,26 @@ import ErrorMessage from "@/components/ErrorMessage";
 export default function CartPage() {
   const router = useRouter();
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const {
+    listData: cartItems,
+    isListLoading,
+    listError,
+    removeFromCartMutate,
+    isRemovePending,
+  } = useCart();
+  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
+    {}
+  );
 
-  const { listData: cartItems, isListLoading, listError } = useCart();
+  const totalItems =
+    cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const totalPrice =
+    cartItems?.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0
+    ) || 0;
+  const shippingFee = totalPrice >= 30000 ? 0 : 3000;
+  const finalPrice = totalPrice + shippingFee;
 
   const handleOrder = async () => {
     try {
@@ -41,16 +59,23 @@ export default function CartPage() {
     router.push("/");
   };
 
-  // 계산
-  const totalItems =
-    cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-  const totalPrice =
-    cartItems?.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
-      0
-    ) || 0;
-  const shippingFee = totalPrice >= 30000 ? 0 : 3000;
-  const finalPrice = totalPrice + shippingFee;
+  const handleCheckChange = (itemId: string, checked: boolean) => {
+    setSelectedItems((prev) => ({ ...prev, [itemId]: checked }));
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    const newSelected: Record<string, boolean> = {};
+    cartItems?.forEach((item) => (newSelected[item.id] = checked));
+    setSelectedItems(newSelected);
+  };
+
+  const handleDeleteSelected = () => {
+    const idsToDelete = Object.keys(selectedItems).filter(
+      (id) => selectedItems[id]
+    );
+    idsToDelete.forEach((id) => removeFromCartMutate(id));
+    setSelectedItems({});
+  };
 
   if (isListLoading) {
     return (
@@ -80,7 +105,7 @@ export default function CartPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-4"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -89,8 +114,7 @@ export default function CartPage() {
                 onClick={() => router.back()}
                 className="gap-2"
               >
-                <ArrowLeft className="h-4 w-4" />
-                뒤로가기
+                <ArrowLeft className="h-4 w-4" /> 뒤로가기
               </Button>
               <div>
                 <h1 className="text-2xl font-bold">장바구니</h1>
@@ -101,6 +125,41 @@ export default function CartPage() {
             </div>
           </div>
         </motion.div>
+
+        {cartItems && cartItems.length > 0 && (
+          <div className="flex items-center justify-between mb-4 space-x-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                checked={cartItems.every((item) => selectedItems[item.id])}
+                onCheckedChange={(val) => handleSelectAll(!!val)}
+              />
+              <span className="text-sm">전체 선택</span>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="default"
+                onClick={handleDeleteSelected}
+                disabled={!Object.values(selectedItems).some(Boolean)}
+              >
+                선택 삭제
+              </Button>
+
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => {
+                  cartItems.forEach((item) => removeFromCartMutate(item.id));
+                  setSelectedItems({});
+                }}
+                disabled={cartItems.length === 0 || isRemovePending}
+              >
+                전체 삭제
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* 메인 콘텐츠 */}
         <AnimatePresence mode="wait">
@@ -113,12 +172,17 @@ export default function CartPage() {
               animate={{ opacity: 1 }}
               className="grid gap-8 lg:grid-cols-3"
             >
-              {/* 장바구니 아이템 목록 */}
               <div className="lg:col-span-2">
                 <div className="space-y-4">
                   <AnimatePresence mode="popLayout">
                     {cartItems.map((item, index) => (
-                      <CartItem key={item.id} item={item} index={index} />
+                      <CartItem
+                        key={item.id}
+                        item={item}
+                        index={index}
+                        checked={!!selectedItems[item.id]}
+                        onCheckChange={handleCheckChange}
+                      />
                     ))}
                   </AnimatePresence>
                 </div>

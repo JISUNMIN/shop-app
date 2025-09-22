@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,9 +38,16 @@ export default function CartPage() {
 
   const handleOrder = async () => {
     try {
-      cartItems?.forEach((item) =>
+      const itemsToOrder = cartItems?.filter((item) => selectedItems[item.id]);
+      if (!itemsToOrder || itemsToOrder.length === 0) {
+        toast.error("주문할 항목을 선택해주세요.");
+        return;
+      }
+
+      itemsToOrder.forEach((item) =>
         removeFromCartMutate({ itemId: item.id, showToast: false })
       );
+
       setSelectedItems({});
       router.push("/order/complete");
     } catch (error: any) {
@@ -67,6 +74,14 @@ export default function CartPage() {
     idsToDelete.forEach((id) => removeFromCartMutate({ itemId: id }));
     setSelectedItems({});
   };
+
+  useEffect(() => {
+    if (cartItems) {
+      const initialSelected: Record<string, boolean> = {};
+      cartItems.forEach((item) => (initialSelected[item.id] = true));
+      setSelectedItems(initialSelected);
+    }
+  }, [cartItems]);
 
   if (isListLoading) {
     return (

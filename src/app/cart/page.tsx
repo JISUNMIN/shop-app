@@ -108,8 +108,8 @@ export default function CartPage() {
                 <ArrowLeft className="h-4 w-4" /> 뒤로가기
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">장바구니</h1>
-                <p className="text-muted-foreground">
+                <h1 className="text-2xl font-bold sm:text-xl">장바구니</h1>
+                <p className="text-muted-foreground text-sm sm:text-xs">
                   {totalItems}개의 로봇이 담겨있습니다
                 </p>
               </div>

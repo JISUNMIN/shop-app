@@ -28,6 +28,7 @@ export default function CartPage() {
   } = useCart();
   const { lang } = useLangStore();
   const t = useTranslation();
+
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
     {}
   );
@@ -36,25 +37,28 @@ export default function CartPage() {
     { id: string; name: string; quantity: number; price: number }[]
   >([]);
 
-  const totalItems =
-    cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-  const totalPrice =
-    cartItems?.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
-      0
-    ) || 0;
+  const selectedCartItems =
+    cartItems?.filter((item) => selectedItems[item.id]) || [];
+
+  const totalItems = selectedCartItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+  const totalPrice = selectedCartItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
   const shippingFee = totalPrice >= 30000 ? 0 : 3000;
   const finalPrice = totalPrice + shippingFee;
 
   const handleOrder = async () => {
     try {
-      const itemsToOrder = cartItems?.filter((item) => selectedItems[item.id]);
-      if (!itemsToOrder || itemsToOrder.length === 0) {
+      if (selectedCartItems.length === 0) {
         toast.error(t.selectOrderItem);
         return;
       }
 
-      const formattedItems = itemsToOrder.map((item) => ({
+      const formattedItems = selectedCartItems.map((item) => ({
         id: item.id,
         name: item.product.name[lang],
         quantity: item.quantity,
@@ -65,7 +69,7 @@ export default function CartPage() {
       setIsModalOpen(true);
 
       // 장바구니에서 제거
-      itemsToOrder.forEach((item) =>
+      selectedCartItems.forEach((item) =>
         removeFromCartMutate({ itemId: item.id, showToast: false })
       );
 

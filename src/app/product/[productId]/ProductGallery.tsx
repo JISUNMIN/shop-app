@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface ProductGalleryProps {
   images: string[];
@@ -151,9 +152,8 @@ export default function ProductGallery({
                 className="absolute right-4 top-4 text-xl"
                 onClick={() => setIsFullscreen(false)}
               >
-                ×
+                <X className="w-6 h-6" />
               </Button>
-
 
               {images.length > 1 && (
                 <>

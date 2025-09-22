@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CartSkeleton, EmptyCart, CartSummary, CartItem } from "@/app/cart";
 import ErrorMessage from "@/components/ErrorMessage";
+import OrderCompleteModal from "@/app/order/complete/OrderCompleteModal";
 
 export default function CartPage() {
   const router = useRouter();
@@ -25,6 +26,10 @@ export default function CartPage() {
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
     {}
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [orderedItems, setOrderedItems] = useState<
+    { id: string; name: string; quantity: number; price: number }[]
+  >([]);
 
   const totalItems =
     cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
@@ -44,12 +49,22 @@ export default function CartPage() {
         return;
       }
 
+      const formattedItems = itemsToOrder.map((item) => ({
+        id: item.id,
+        name: item.product.name,
+        quantity: item.quantity,
+        price: item.product.price,
+      }));
+      setOrderedItems(formattedItems);
+
+      setIsModalOpen(true);
+
+      // 장바구니에서 제거
       itemsToOrder.forEach((item) =>
         removeFromCartMutate({ itemId: item.id, showToast: false })
       );
 
       setSelectedItems({});
-      router.push("/order/complete");
     } catch (error: any) {
       toast.error("주문 실패", {
         description: error.message || "주문을 처리할 수 없습니다.",
@@ -210,6 +225,12 @@ export default function CartPage() {
           )}
         </AnimatePresence>
       </div>
+
+      <OrderCompleteModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        orderedItems={orderedItems}
+      />
     </>
   );
 }

@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 상품 존재 여부 및 재고 확인
     const product = await prisma.product.findUnique({
       where: { id: productId },
     });
@@ -47,7 +46,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // 기존 장바구니 아이템 확인
     const existingItem = await prisma.cartItem.findUnique({
       where: {
         productId_sessionId: {
@@ -59,7 +57,6 @@ export async function POST(request: NextRequest) {
 
     let cartItem;
     if (existingItem) {
-      // 기존 아이템 수량 업데이트
       const newQuantity = existingItem.quantity + quantity;
       if (newQuantity > product.stock) {
         return NextResponse.json(
@@ -74,7 +71,6 @@ export async function POST(request: NextRequest) {
         include: { product: true },
       });
     } else {
-      // 새 아이템 추가
       if (quantity > product.stock) {
         return NextResponse.json(
           { error: `재고가 부족합니다. (재고: ${product.stock}개)` },
@@ -115,7 +111,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // 장바구니 아이템 조회 및 권한 확인
     const cartItem = await prisma.cartItem.findFirst({
       where: {
         id: itemId,

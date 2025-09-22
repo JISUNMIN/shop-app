@@ -1,3 +1,25 @@
+## 개발 환경 세팅 및 중요사항
+
+- **패키지 설치:**
+
+  ```bash
+  npm install
+  ```
+
+- **Prisma Client 생성:**
+
+  ```bash
+  npx prisma generate
+  ```
+
+  > ⚠️ **중요:** `npm install` 후 반드시 `npx prisma generate`를 실행해야 Prisma Client가 생성되며, 그렇지 않으면 DB 관련 코드가 정상 작동하지 않습니다.
+
+  ```bash
+  npm run dev
+  ```
+
+---
+
 # 프로젝트 주요 기술 및 전략
 
 ## 1. 인터랙션 및 애니메이션

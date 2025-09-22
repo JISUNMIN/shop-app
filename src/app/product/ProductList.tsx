@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import { useCallback } from "react";
 import useProducts from "@/hooks/useProducts";
 import ProductCard from "./ProductCard";
 import { ProductGridSkeleton } from "./ProductSkeleton";
@@ -49,26 +50,35 @@ export default function ProductList() {
 
   const { listData, isListLoading, listError } = useProducts(currentParams);
 
-  const updateURL = (newParams: Partial<typeof currentParams>) => {
-    const params = new URLSearchParams();
-    const updated = { ...currentParams, ...newParams };
+  const updateURL = useCallback(
+    (newParams: Partial<typeof currentParams>) => {
+      const params = new URLSearchParams();
+      const updated = { ...currentParams, ...newParams };
 
-    if (updated.search) params.set("search", updated.search);
-    if (updated.page > 1) params.set("page", updated.page.toString());
-    if (updated.sort !== "newest") params.set("sort", updated.sort);
-    if (updated.category) params.set("category", updated.category);
+      if (updated.search) params.set("search", updated.search);
+      if (updated.page > 1) params.set("page", updated.page.toString());
+      if (updated.sort !== "newest") params.set("sort", updated.sort);
+      if (updated.category) params.set("category", updated.category);
 
-    router.push(`/?${params.toString()}`);
-  };
+      router.push(`/?${params.toString()}`);
+    },
+    [currentParams, router]
+  );
 
-  const handleSortChange = (newSort: SortType) => {
-    updateURL({ sort: newSort, page: 1 });
-  };
+  const handleSortChange = useCallback(
+    (newSort: SortType) => {
+      updateURL({ sort: newSort, page: 1 });
+    },
+    [updateURL]
+  );
 
-  const handlePageChange = (page: number) => {
-    updateURL({ page });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const handlePageChange = useCallback(
+    (page: number) => {
+      updateURL({ page });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [updateURL]
+  );
 
   if (listError) {
     return (
@@ -131,8 +141,8 @@ export default function ProductList() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
         >
-          {listData.data.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
+          {listData.data.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </motion.div>
       ) : (

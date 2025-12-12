@@ -46,7 +46,7 @@ export default function ProductPage() {
       toast.success("장바구니에 추가되었습니다", {
         description: `${detailData.name} ${quantity}개가 장바구니에 추가되었습니다.`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error("오류가 발생했습니다", {
         description: error.message || "장바구니에 추가할 수 없습니다.",
       });

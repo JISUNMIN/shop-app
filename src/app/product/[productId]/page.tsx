@@ -34,7 +34,7 @@ export default function ProductPage() {
     setQuantity(newQuantity);
   };
 
-  const getErrorMessage = (err: unknown): string {
+  const getErrorMessage = (err: unknown): string => {
     if (err instanceof Error) return err.message;
     if (typeof err === "string") return err;
     return "장바구니에 추가할 수 없습니다.";

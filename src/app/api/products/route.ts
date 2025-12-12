@@ -1,6 +1,7 @@
 // src/app/api/products/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
 
     if (search) {
       where.OR = [
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
       where.category = category;
     }
 
-    let orderBy: any = { createdAt: "desc" }; // 기본값: 최신순
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" }; // 기본값: 최신순
 
     switch (sort) {
       case "oldest":

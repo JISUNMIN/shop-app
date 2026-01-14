@@ -1,6 +1,8 @@
 // src/utils/helper.ts
-export function formatString(template: string, vars: Record<string, any>) {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? "");
+export function formatString(template: string, vars: Record<string, string | number>) {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) =>
+    vars[key] !== undefined ? String(vars[key]) : ""
+  );
 }
 
 // 고정 환율 (1 KRW = 0.00075 USD), 실시간 환율 적용 필요

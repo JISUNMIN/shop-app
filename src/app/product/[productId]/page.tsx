@@ -24,10 +24,7 @@ export default function ProductPage() {
   const { lang } = useLangStore();
   const t = useTranslation();
 
-  const { detailData, isDetailLoading, detailError } = useProducts(
-    undefined,
-    productId
-  );
+  const { detailData, isDetailLoading, detailError } = useProducts(undefined, productId);
 
   const { listData: cartItems, addToCartMutate, isAddPending } = useCart();
 
@@ -70,7 +67,7 @@ export default function ProductPage() {
     if (err instanceof Error) return err.message;
     if (typeof err === "string") return err;
     return "장바구니에 추가할 수 없습니다.";
-  }
+  };
 
   const handleAddToCart = async () => {
     if (!detailData) return;
@@ -96,9 +93,11 @@ export default function ProductPage() {
           quantity,
         }),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t.cannotAddToCart;
+
       toast.error(t.errorLoading, {
-        description: error.message || t.cannotAddToCart,
+        description: message,
       });
     }
   };
@@ -110,9 +109,7 @@ export default function ProductPage() {
       <div className="container py-8">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-red-600">
-              {t.productNotFound}
-            </h2>
+            <h2 className="text-xl font-semibold text-red-600">{t.productNotFound}</h2>
             <p className="mt-2 text-muted-foreground">{t.productDeleted}</p>
             <Button onClick={() => router.push("/")} className="mt-4">
               {t.goHome}
@@ -130,11 +127,7 @@ export default function ProductPage() {
   return (
     <div className="container py-8">
       {/* 뒤로가기 버튼 */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="mb-6"
-      >
+      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mb-6">
         <Button variant="ghost" onClick={() => router.back()} className="gap-2">
           <ArrowLeft className="h-4 w-4" />
           {t.back}
@@ -148,10 +141,7 @@ export default function ProductPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <ProductGallery
-            images={detailData?.images}
-            productName={detailData?.name[lang] ?? ""}
-          />
+          <ProductGallery images={detailData?.images} productName={detailData?.name[lang] ?? ""} />
         </motion.div>
 
         {/* 상품 정보 */}
@@ -165,9 +155,7 @@ export default function ProductPage() {
             <Badge variant="outline">{detailData?.category[lang] ?? ""}</Badge>
           )}
 
-          <h1 className="text-2xl font-bold lg:text-3xl">
-            {detailData?.name[lang] ?? ""}
-          </h1>
+          <h1 className="text-2xl font-bold lg:text-3xl">{detailData?.name[lang] ?? ""}</h1>
 
           <div className="text-3xl font-bold text-primary">
             {formatString(t.price, {

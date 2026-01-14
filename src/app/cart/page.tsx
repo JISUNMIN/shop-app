@@ -29,21 +29,15 @@ export default function CartPage() {
   const { lang } = useLangStore();
   const t = useTranslation();
 
-  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderedItems, setOrderedItems] = useState<
     { id: string; name: string; quantity: number; price: number }[]
   >([]);
 
-  const selectedCartItems =
-    cartItems?.filter((item) => selectedItems[item.id]) || [];
+  const selectedCartItems = cartItems?.filter((item) => selectedItems[item.id]) || [];
 
-  const totalItems = selectedCartItems.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
+  const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = selectedCartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
@@ -74,10 +68,10 @@ export default function CartPage() {
       );
 
       setSelectedItems({});
-    } catch (error: any) {
-      toast.error(t.orderFailed, {
-        description: error.message || t.orderFailedDescription,
-      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t.orderFailedDescription;
+
+      toast.error(t.orderFailed, { description: message });
     }
   };
 
@@ -92,9 +86,7 @@ export default function CartPage() {
   };
 
   const handleDeleteSelected = () => {
-    const idsToDelete = Object.keys(selectedItems).filter(
-      (id) => selectedItems[id]
-    );
+    const idsToDelete = Object.keys(selectedItems).filter((id) => selectedItems[id]);
     idsToDelete.forEach((id) => removeFromCartMutate({ itemId: id }));
     setSelectedItems({});
   };
@@ -120,12 +112,7 @@ export default function CartPage() {
   }
 
   if (listError) {
-    return (
-      <ErrorMessage
-        message={t.cartLoadError}
-        onRetry={() => window.location.reload()}
-      />
-    );
+    return <ErrorMessage message={t.cartLoadError} onRetry={() => window.location.reload()} />;
   }
 
   return (
@@ -139,11 +126,7 @@ export default function CartPage() {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => router.back()}
-                className="gap-2"
-              >
+              <Button variant="ghost" onClick={() => router.back()} className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 {t.back}
               </Button>
@@ -181,9 +164,7 @@ export default function CartPage() {
                 size="sm"
                 variant="destructive"
                 onClick={() => {
-                  cartItems.forEach((item) =>
-                    removeFromCartMutate({ itemId: item.id })
-                  );
+                  cartItems.forEach((item) => removeFromCartMutate({ itemId: item.id }));
                   setSelectedItems({});
                 }}
                 disabled={cartItems.length === 0 || isRemovePending}

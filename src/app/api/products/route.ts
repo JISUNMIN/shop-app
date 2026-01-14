@@ -26,7 +26,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (category) {
-      where.category = category;
+      where.category = {
+        equals: category,
+      };
     }
 
     let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" }; // 기본값: 최신순
@@ -66,9 +68,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Products API Error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch products" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
 }

@@ -12,11 +12,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { signIn } from "next-auth/react";
 
 type LoginForm = {
   email: string;
   password: string;
 };
+
+type Provider = "kakao" | "naver" | "google";
 
 const schema = yup
   .object({
@@ -41,6 +44,17 @@ export default function LoginPage() {
   const onSubmit = (data: LoginForm) => {
     console.log(data);
     router.push("/");
+  };
+
+  const openSocialLoginPopup = async (provider: Provider) => {
+    const res = await signIn(provider, {
+      callbackUrl: "/",
+      redirect: false,
+    });
+
+    if (!res?.url) return;
+
+    window.open(res.url, "snsLogin", "width=500,height=700");
   };
 
   return (
@@ -115,6 +129,7 @@ export default function LoginPage() {
                   type="button"
                   className="w-full"
                   aria-label="카카오톡으로 로그인"
+                  onClick={() => openSocialLoginPopup("kakao")}
                 >
                   <img
                     src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FEE500' d='M12 2C6.477 2 2 5.82 2 10.5c0 2.93 1.863 5.49 4.65 7.05L6 22l4.343-2.606C11.146 19.466 11.57 19.5 12 19.5c5.523 0 10-3.82 10-8.5S17.523 2 12 2z'/%3E%3C/svg%3E"
@@ -128,13 +143,14 @@ export default function LoginPage() {
                   type="button"
                   className="w-full"
                   aria-label="네이버로 로그인"
+                  onClick={() => signIn("naver", { callbackUrl: "/" })}
                 >
                   <span className="w-5 h-5 flex items-center justify-center font-black text-[#03C75A]">
                     N
                   </span>
                 </Button>
 
-                <Button
+                {/* <Button
                   variant="outline"
                   type="button"
                   className="w-full"
@@ -145,7 +161,7 @@ export default function LoginPage() {
                     alt="Google"
                     className="w-5 h-5"
                   />
-                </Button>
+                </Button> */}
               </div>
 
               <div className="text-center text-sm">

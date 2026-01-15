@@ -1,15 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import FullWidthSection from "@/components/layout/FullWidthSection";
 import SNSButton from "@/components/common/SNSButton";
 import * as yup from "yup";
@@ -21,17 +18,36 @@ type SignupForm = {
   email: string;
   password: string;
   passwordConfirm: string;
+  agreeTerms: boolean;
+  agreePrivacy: boolean;
 };
 
-const schema = yup.object({
-  name: yup.string().max(4, "이름은 4글자 이상 입력할수 없습니다.").required(),
-  email: yup.string().email("이메일 형식이 올바르지 않습니다.").required("이메일을 입력해주세요."),
-  password: yup.string().required("비밀번호를 입력해주세요."),
-  passwordConfirm: yup
-    .string()
-    .required("비밀번호를 입력해주세요.")
-    .oneOf([yup.ref("password"), "비밀번호가 일치하지 않습니다."]),
-});
+const schema = yup
+  .object({
+    name: yup
+      .string()
+      .required("이름을 입력해주세요.")
+      .max(4, "이름은 4글자 이상 입력할수 없습니다."),
+    email: yup
+      .string()
+      .required("이메일을 입력해주세요.")
+      .email("이메일 형식이 올바르지 않습니다."),
+    password: yup.string().required("비밀번호를 입력해주세요."),
+    passwordConfirm: yup
+      .string()
+      .required("비밀번호를 입력해주세요.")
+      .oneOf([yup.ref("password")], "비밀번호가 일치하지 않습니다."),
+
+    agreeTerms: yup
+      .boolean()
+      .oneOf([true], "이용약관에 동의해주세요.")
+      .required("이용약관에 동의해주세요."),
+    agreePrivacy: yup
+      .boolean()
+      .oneOf([true], "개인정보 수집 및 이용에 동의해주세요.")
+      .required("개인정보 수집 및 이용에 동의해주세요."),
+  })
+  .required();
 
 export default function SignupPage() {
   const router = useRouter();
@@ -39,32 +55,17 @@ export default function SignupPage() {
     register,
     handleSubmit,
     formState: { errors },
+    control,
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: {
+      agreeTerms: false,
+      agreePrivacy: false,
+    },
   });
-
-  // const [formData, setFormData] = useState({
-  //   name: "",
-  //   email: "",
-  //   password: "",
-  //   confirmPassword: "",
-  //   agreeTerms: false,
-  //   agreePrivacy: false,
-  //   agreeMarketing: false,
-  // });
 
   const onSubmit = (data: SignupForm) => {
     console.log(data);
-
-    // if (formData.password !== formData.confirmPassword) {
-    //   alert("비밀번호가 일치하지 않습니다.");
-    //   return;
-    // }
-
-    // if (!formData.agreeTerms || !formData.agreePrivacy) {
-    //   alert("필수 약관에 동의해주세요.");
-    //   return;
-    // }
     router.push("/login");
   };
 
@@ -163,45 +164,52 @@ export default function SignupPage() {
                 />
               </div>
 
-              {/* <div className="space-y-3 pt-2">
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="agreeTerms"
-                      checked={formData.agreeTerms}
-                      onCheckedChange={(checked) =>
-                        setFormData({
-                          ...formData,
-                          agreeTerms: checked as boolean,
-                        })
-                      }
-                    />
-                    <label
-                      htmlFor="agreeTerms"
-                      className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      <span className="text-red-500">*</span> 이용약관에 동의합니다
-                    </label>
-                  </div>
+              <div className="space-y-3 pt-2">
+                <div className="flex items-start space-x-2">
+                  <Controller
+                    name="agreeTerms"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="agreeTerms"
+                        checked={field.value}
+                        onCheckedChange={(checked) => field.onChange(checked === true)}
+                        className="h-5 w-5"
+                      />
+                    )}
+                  />
+                  <label
+                    htmlFor="agreeTerms"
+                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    <span className="text-red-500">*</span> 이용약관에 동의합니다
+                  </label>
+                </div>
 
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="agreePrivacy"
-                      checked={formData.agreePrivacy}
-                      onCheckedChange={(checked) =>
-                        setFormData({
-                          ...formData,
-                          agreePrivacy: checked as boolean,
-                        })
-                      }
-                    />
-                    <label
-                      htmlFor="agreePrivacy"
-                      className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      <span className="text-red-500">*</span> 개인정보 수집 및 이용에 동의합니다
-                    </label>
-                  </div>
-                </div> */}
+                <div className="flex items-start space-x-2">
+                  <Controller
+                    name="agreePrivacy"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="agreePrivacy"
+                        checked={field.value}
+                        onCheckedChange={(checked) => field.onChange(checked === true)}
+                        className="h-5 w-5"
+                      />
+                    )}
+                  />
+                  <label
+                    htmlFor="agreePrivacy"
+                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    <span className="text-red-500">*</span> 개인정보 수집 및 이용에 동의합니다
+                  </label>
+                </div>
+                {errors.agreeTerms?.message && (
+                  <p className="text-sm text-red-500">{errors.agreeTerms.message}</p>
+                )}
+              </div>
 
               <Button type="submit" className="w-full h-11">
                 회원가입

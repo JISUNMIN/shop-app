@@ -65,3 +65,5 @@ export interface LocalizedText {
   ko: string;
   en: string;
 }
+
+export type SNSType  = "kakao" | "naver" | "google";

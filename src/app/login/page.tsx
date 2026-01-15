@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signIn } from "next-auth/react";
+import FullWidthSection from "@/components/layout/FullWidthSection";
 
 type LoginForm = {
   email: string;
@@ -58,99 +59,100 @@ export default function LoginPage() {
   };
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)}>
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          {/* Logo */}
-          <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
-            <Bot className="w-10 h-10" />
-            <span className="text-2xl font-bold">RoboShop</span>
-          </Link>
+    <FullWidthSection>
+      <form noValidate onSubmit={handleSubmit(onSubmit)}>
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            {/* Logo */}
+            <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
+              <Bot className="w-10 h-10" />
+              <span className="text-2xl font-bold">RoboShop</span>
+            </Link>
 
-          {/* Login Card */}
-          <Card>
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">로그인</CardTitle>
-              <CardDescription className="text-center">
-                계정에 로그인하여 쇼핑을 시작하세요
-              </CardDescription>
-            </CardHeader>
+            {/* Login Card */}
+            <Card>
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl text-center">로그인</CardTitle>
+                <CardDescription className="text-center">
+                  계정에 로그인하여 쇼핑을 시작하세요
+                </CardDescription>
+              </CardHeader>
 
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">이메일</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="example@email.com"
-                  {...register("email")}
-                />
-                <p className="text-sm text-red-500">{errors.email?.message}</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">비밀번호</Label>
-
-                  <Link href="/reset-password" className="text-sm text-blue-600 hover:underline">
-                    비밀번호 찾기
-                  </Link>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">이메일</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="example@email.com"
+                    {...register("email")}
+                  />
+                  <p className="text-sm text-red-500">{errors.email?.message}</p>
                 </div>
 
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  {...register("password")}
-                />
-                <p className="text-sm text-red-500">{errors.password?.message}</p>
-              </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">비밀번호</Label>
 
-              <Button type="submit" className="w-full">
-                로그인
-              </Button>
+                    <Link href="/reset-password" className="text-sm text-blue-600 hover:underline">
+                      비밀번호 찾기
+                    </Link>
+                  </div>
 
-              {/* <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    {...register("password")}
+                  />
+                  <p className="text-sm text-red-500">{errors.password?.message}</p>
+                </div>
+
+                <Button type="submit" className="w-full">
+                  로그인
+                </Button>
+
+                {/* <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "로그인 중..." : "로그인"}
               </Button> */}
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2 text-gray-500">또는 SNS로 로그인</span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">또는 SNS로 로그인</span>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <Button
-                  variant="outline"
-                  type="button"
-                  className="w-full"
-                  aria-label="카카오톡으로 로그인"
-                  onClick={() => openSocialLoginPopup("kakao")}
-                >
-                  <img
-                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FEE500' d='M12 2C6.477 2 2 5.82 2 10.5c0 2.93 1.863 5.49 4.65 7.05L6 22l4.343-2.606C11.146 19.466 11.57 19.5 12 19.5c5.523 0 10-3.82 10-8.5S17.523 2 12 2z'/%3E%3C/svg%3E"
-                    alt="카카오톡"
-                    className="w-5 h-5"
-                  />
-                </Button>
+                <div className="grid grid-cols-3 gap-3">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full"
+                    aria-label="카카오톡으로 로그인"
+                    onClick={() => openSocialLoginPopup("kakao")}
+                  >
+                    <img
+                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FEE500' d='M12 2C6.477 2 2 5.82 2 10.5c0 2.93 1.863 5.49 4.65 7.05L6 22l4.343-2.606C11.146 19.466 11.57 19.5 12 19.5c5.523 0 10-3.82 10-8.5S17.523 2 12 2z'/%3E%3C/svg%3E"
+                      alt="카카오톡"
+                      className="w-5 h-5"
+                    />
+                  </Button>
 
-                <Button
-                  variant="outline"
-                  type="button"
-                  className="w-full"
-                  aria-label="네이버로 로그인"
-                  onClick={() => signIn("naver", { callbackUrl: "/" })}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center font-black text-[#03C75A]">
-                    N
-                  </span>
-                </Button>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full"
+                    aria-label="네이버로 로그인"
+                    onClick={() => signIn("naver", { callbackUrl: "/" })}
+                  >
+                    <span className="w-5 h-5 flex items-center justify-center font-black text-[#03C75A]">
+                      N
+                    </span>
+                  </Button>
 
-                {/* <Button
+                  {/* <Button
                   variant="outline"
                   type="button"
                   className="w-full"
@@ -162,18 +164,19 @@ export default function LoginPage() {
                     className="w-5 h-5"
                   />
                 </Button> */}
-              </div>
+                </div>
 
-              <div className="text-center text-sm">
-                <span className="text-gray-600">계정이 없으신가요? </span>
-                <Link href="/join" className="text-blue-600 hover:underline font-medium">
-                  회원가입
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="text-center text-sm">
+                  <span className="text-gray-600">계정이 없으신가요? </span>
+                  <Link href="/join" className="text-blue-600 hover:underline font-medium">
+                    회원가입
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </FullWidthSection>
   );
 }

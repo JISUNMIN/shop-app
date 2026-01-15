@@ -17,8 +17,7 @@ export default function Header() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const { listData: cartItems } = useCart();
-  const cartItemCount =
-    cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const cartItemCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
   const { lang, toggleLang } = useLangStore();
   const t = useTranslation();
 
@@ -122,6 +121,18 @@ export default function Header() {
               <Globe className="h-4 w-4" />
               <span>{lang}</span>
             </Button>
+
+            <Link href="/login">
+              <Button variant="ghost" size="sm" className="px-2">
+                로그인
+              </Button>
+            </Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/signup">
+              <Button variant="ghost" size="sm" className="px-2 font-semibold">
+                회원가입
+              </Button>
+            </Link>
 
             {/* 장바구니 */}
             <Link href="/cart">

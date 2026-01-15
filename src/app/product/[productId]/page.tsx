@@ -1,66 +1,106 @@
 "use client";
-
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Minus, Plus, ShoppingCart, Heart } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-
 import useProducts from "@/hooks/useProducts";
-// import { useAddToCart } from "@/hooks/useCart";
+import useCart from "@/hooks/useCart";
 import ProductGallery from "@/app/product/[productId]/ProductGallery";
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import ProductDetailSkeleton from "../ProductDetailSkeleton";
+import { Input } from "@/components/ui/input";
+import { useLangStore } from "@/store/langStore";
+import { useTranslation } from "@/context/TranslationContext";
+import { formatPrice, formatString } from "@/utils/helper";
 
 export default function ProductPage() {
   const router = useRouter();
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState<number>(1);
   const params = useParams();
   const productId = Number(params?.productId);
+  const { lang } = useLangStore();
+  const t = useTranslation();
 
-  const { detailData, isDetailLoading, detailError } = useProducts(
-    undefined,
-    productId
-  );
-  // const addToCartMutation = useAddToCart();
+  const { detailData, isDetailLoading, detailError } = useProducts(undefined, productId);
 
-  const handleQuantityChange = (newQuantity: number) => {
+  const { listData: cartItems, addToCartMutate, isAddPending } = useCart();
+
+  const getCartQuantity = () => {
+    const item = cartItems?.find((i) => Number(i.product.id) === productId);
+    return item?.quantity || 0;
+  };
+
+  const handleQuantityInput = (value: string) => {
     if (!detailData) return;
-    if (newQuantity < 1) return;
-    if (newQuantity > detailData.stock) return;
-    setQuantity(newQuantity);
+    if (value === "") {
+      setQuantity(0);
+      return;
+    }
+
+    // 숫자가 아니거나 소수점 포함 시 무시
+    if (!/^\d+$/.test(value)) return;
+
+    const num = Number(value);
+    const totalQuantity = num + getCartQuantity();
+
+    if (totalQuantity > detailData.stock) {
+      setQuantity(detailData.stock - getCartQuantity());
+    } else if (num < 1) {
+      setQuantity(1);
+    } else {
+      setQuantity(num);
+    }
+  };
+
+  const handleQuantityChange = (delta: number) => {
+    if (!detailData) return;
+    const newQuantity = quantity + delta;
+    const maxAllowed = detailData.stock - getCartQuantity();
+    const clamped = Math.max(1, Math.min(maxAllowed, newQuantity));
+    setQuantity(clamped);
   };
 
   const getErrorMessage = (err: unknown): string => {
     if (err instanceof Error) return err.message;
     if (typeof err === "string") return err;
     return "장바구니에 추가할 수 없습니다.";
-  }
+  };
 
   const handleAddToCart = async () => {
     if (!detailData) return;
+    const totalQuantity = quantity + getCartQuantity();
+    if (totalQuantity > detailData.stock) {
+      toast.error(
+        formatString(t.maxOrderLimit, {
+          stock: detailData.stock,
+          cart: getCartQuantity(),
+        })
+      );
+      return;
+    }
 
     try {
-      // await addToCartMutation.mutateAsync({
-      //   productId: detailData.id,
-      //   quantity,
-      // });
-
-      toast.success("장바구니에 추가되었습니다", {
-        description: `${detailData.name} ${quantity}개가 장바구니에 추가되었습니다.`,
+      await addToCartMutate({
+        productId: detailData.id,
+        quantity,
+      });
+      toast.success(t.addedToCart, {
+        description: formatString(t.addedToCartDescription, {
+          name: detailData.name[lang] ?? "",
+          quantity,
+        }),
       });
     } catch (error: unknown) {
-      toast.error("오류가 발생했습니다", {
-        description: getErrorMessage(error),
+      const message = error instanceof Error ? error.message : t.cannotAddToCart;
+
+      toast.error(t.errorLoading, {
+        description: message,
       });
     }
   };
-
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("ko-KR").format(price);
 
   if (isDetailLoading) return <ProductDetailSkeleton />;
 
@@ -69,14 +109,10 @@ export default function ProductPage() {
       <div className="container py-8">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-red-600">
-              상품을 찾을 수 없습니다
-            </h2>
-            <p className="mt-2 text-muted-foreground">
-              요청하신 상품이 존재하지 않거나 삭제되었습니다.
-            </p>
+            <h2 className="text-xl font-semibold text-red-600">{t.productNotFound}</h2>
+            <p className="mt-2 text-muted-foreground">{t.productDeleted}</p>
             <Button onClick={() => router.push("/")} className="mt-4">
-              홈으로 돌아가기
+              {t.goHome}
             </Button>
           </div>
         </div>
@@ -86,18 +122,15 @@ export default function ProductPage() {
 
   const isOutOfStock = detailData.stock === 0;
   const isLowStock = detailData.stock > 0 && detailData.stock <= 10;
+  const maxAvailable = detailData.stock - getCartQuantity();
 
   return (
     <div className="container py-8">
       {/* 뒤로가기 버튼 */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="mb-6"
-      >
+      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mb-6">
         <Button variant="ghost" onClick={() => router.back()} className="gap-2">
           <ArrowLeft className="h-4 w-4" />
-          뒤로가기
+          {t.back}
         </Button>
       </motion.div>
 
@@ -108,10 +141,7 @@ export default function ProductPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <ProductGallery
-            images={detailData.images}
-            productName={detailData.name}
-          />
+          <ProductGallery images={detailData?.images} productName={detailData?.name[lang] ?? ""} />
         </motion.div>
 
         {/* 상품 정보 */}
@@ -121,31 +151,40 @@ export default function ProductPage() {
           transition={{ delay: 0.2 }}
           className="space-y-6"
         >
-          {detailData.category && (
-            <Badge variant="outline">{detailData.category}</Badge>
+          {detailData?.category && (
+            <Badge variant="outline">{detailData?.category[lang] ?? ""}</Badge>
           )}
-          <h1 className="text-2xl font-bold lg:text-3xl">{detailData.name}</h1>
+
+          <h1 className="text-2xl font-bold lg:text-3xl">{detailData?.name[lang] ?? ""}</h1>
 
           <div className="text-3xl font-bold text-primary">
-            {formatPrice(detailData.price)}원
+            {formatString(t.price, {
+              price: formatPrice(detailData?.price, lang),
+            })}
           </div>
 
           <div className="flex items-center gap-2">
             {isOutOfStock ? (
-              <Badge variant="destructive">품절</Badge>
+              <Badge variant="destructive" className="px-3 py-1 text-sm">
+                {t.outOfStock}
+              </Badge>
             ) : isLowStock ? (
-              <Badge variant="secondary">재고 {detailData.stock}개</Badge>
+              <Badge variant="secondary" className="px-3 py-1 text-sm">
+                {formatString(t.lowStock, { count: detailData?.stock })}
+              </Badge>
             ) : (
-              <Badge variant="default">재고 충분</Badge>
+              <Badge variant="default" className="px-3 py-1 text-sm">
+                {formatString(t.inStock, { count: detailData?.stock })}
+              </Badge>
             )}
           </div>
 
-          {detailData.description && (
+          {detailData?.description && (
             <Card>
               <CardContent className="p-4">
-                <h3 className="mb-2 font-semibold">상품 설명</h3>
+                <h3 className="mb-2 font-semibold">{t.productDescription}</h3>
                 <p className="text-muted-foreground whitespace-pre-wrap">
-                  {detailData.description}
+                  {detailData?.description[lang] ?? ""}
                 </p>
               </CardContent>
             </Card>
@@ -154,22 +193,36 @@ export default function ProductPage() {
           {/* 수량 선택 및 장바구니 */}
           <div className="space-y-4">
             <div className="flex items-center space-x-4">
-              <span className="font-medium">수량:</span>
+              <span className="font-medium">{t.quantity}:</span>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => handleQuantityChange(quantity - 1)}
+                  onClick={() => handleQuantityChange(-1)}
                   disabled={quantity <= 1}
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
+
+                <Input
+                  type="number"
+                  className="w-16 text-center rounded border border-gray-300 p-1"
+                  value={quantity === 0 ? "" : quantity}
+                  min={1}
+                  max={maxAvailable}
+                  disabled={maxAvailable <= 0}
+                  onChange={(e) => handleQuantityInput(e.target.value)}
+                  onBlur={() => {
+                    if (quantity < 1) setQuantity(1);
+                    if (quantity > maxAvailable) setQuantity(maxAvailable);
+                  }}
+                />
+
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => handleQuantityChange(quantity + 1)}
-                  disabled={quantity >= detailData.stock}
+                  onClick={() => handleQuantityChange(1)}
+                  disabled={quantity >= maxAvailable}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -177,43 +230,52 @@ export default function ProductPage() {
             </div>
 
             <div className="flex items-center justify-between border-t pt-4">
-              <span className="text-lg font-medium">총 가격:</span>
+              <span className="text-lg font-medium">{t.totalPrice}:</span>
               <span className="text-2xl font-bold text-primary">
-                {formatPrice(detailData.price * quantity)}원
+                {formatString(t.price, {
+                  price: formatPrice(detailData?.price * (quantity || 1), lang),
+                })}
               </span>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3">
               <Button
                 size="lg"
                 onClick={handleAddToCart}
-                // disabled={isOutOfStock || addToCartMutation.isPending}
+                disabled={isOutOfStock || isAddPending || maxAvailable <= 0}
                 className="gap-2"
               >
                 <ShoppingCart className="h-5 w-5" />
-                {/* {addToCartMutation.isPending ? "추가 중..." : "장바구니에 담기"} */}
+                {isAddPending ? t.addingToCart : t.addToCart}
               </Button>
 
-              <Button variant="outline" size="lg" className="gap-2">
-                <Heart className="h-5 w-5" />
-                찜하기
-              </Button>
+              {maxAvailable <= 0 && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {formatString(t.cartLimitReached, {
+                    count: getCartQuantity(),
+                  })}
+                </p>
+              )}
+
+              {maxAvailable > 0 && maxAvailable < detailData?.stock && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {formatString(t.maxPurchaseLimit, {
+                    stock: detailData?.stock,
+                    cart: getCartQuantity(),
+                  })}
+                </p>
+              )}
             </div>
           </div>
 
           <Card>
             <CardContent className="p-4">
-              <h3 className="mb-2 font-semibold">배송 정보</h3>
+              <h3 className="mb-2 font-semibold">{t.deliveryInfo}</h3>
               <div className="space-y-1 text-sm text-muted-foreground">
-                <p>• 주문 확인 후 1~3일 내 발송</p>
-                <p>
-                  • 제주/도서산간 지역은 배송 기간이 추가로 소요될 수 있습니다.
-                </p>
-                <p>
-                  • 로봇 제품 특성상 안전한 포장 및 배송을 위해 별도의 운송
-                  절차가 진행됩니다.
-                </p>
-                <p>• 조립 및 설치 안내는 발송 시 별도 안내됩니다.</p>
+                <p>{t.deliveryInfo1}</p>
+                <p>{t.deliveryInfo2}</p>
+                <p>{t.deliveryInfo3}</p>
+                <p>{t.deliveryInfo4}</p>
               </div>
             </CardContent>
           </Card>

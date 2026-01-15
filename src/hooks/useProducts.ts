@@ -28,7 +28,6 @@ const useProducts = (params?: SearchParams, targetId?: number) => {
       return res.data;
     },
     enabled: !targetId,
-    staleTime: 5 * 60 * 1000,
   });
 
   // 상품 상세 조회
@@ -44,7 +43,6 @@ const useProducts = (params?: SearchParams, targetId?: number) => {
       return res.data;
     },
     enabled: !!targetId,
-    staleTime: 5 * 60 * 1000,
   });
 
   return {

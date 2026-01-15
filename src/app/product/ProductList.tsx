@@ -1,6 +1,8 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import { useCallback } from "react";
+
 import useProducts from "@/hooks/useProducts";
 import ProductCard from "./ProductCard";
 import { ProductGridSkeleton } from "./ProductSkeleton";
@@ -13,6 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { motion } from "framer-motion";
+import ErrorMessage from "@/components/ErrorMessage";
+import { useTranslation } from "@/context/TranslationContext";
+import { formatString } from "@/utils/helper";
 
 const validSorts = [
   "newest",
@@ -24,6 +29,7 @@ const validSorts = [
 type SortType = (typeof validSorts)[number];
 
 export default function ProductList() {
+  const t = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -45,49 +51,44 @@ export default function ProductList() {
 
   const { listData, isListLoading, listError } = useProducts(currentParams);
 
-  const updateURL = (newParams: Partial<typeof currentParams>) => {
-    const params = new URLSearchParams();
-    const updated = { ...currentParams, ...newParams };
+  const updateURL = useCallback(
+    (newParams: Partial<typeof currentParams>) => {
+      const params = new URLSearchParams();
+      const updated = { ...currentParams, ...newParams };
 
-    if (updated.search) params.set("search", updated.search);
-    if (updated.page > 1) params.set("page", updated.page.toString());
-    if (updated.sort !== "newest") params.set("sort", updated.sort);
-    if (updated.category) params.set("category", updated.category);
+      if (updated.search) params.set("search", updated.search);
+      if (updated.page > 1) params.set("page", updated.page.toString());
+      if (updated.sort !== "newest") params.set("sort", updated.sort);
+      if (updated.category) params.set("category", updated.category);
 
-    router.push(`/?${params.toString()}`);
-  };
+      router.push(`/?${params.toString()}`);
+    },
+    [currentParams, router]
+  );
 
-  const handleSortChange = (newSort: SortType) => {
-    updateURL({ sort: newSort, page: 1 });
-  };
+  const handleSortChange = useCallback(
+    (newSort: SortType) => {
+      updateURL({ sort: newSort, page: 1 });
+    },
+    [updateURL]
+  );
 
-  const handlePageChange = (page: number) => {
-    updateURL({ page });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const handlePageChange = useCallback(
+    (page: number) => {
+      updateURL({ page });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [updateURL]
+  );
 
   if (listError) {
     return (
-      <div className="container py-8">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-red-600">
-              오류가 발생했습니다
-            </h2>
-            <p className="mt-2 text-muted-foreground">
-              상품을 불러올 수 없습니다.
-            </p>
-            <Button onClick={() => window.location.reload()} className="mt-4">
-              다시 시도
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ErrorMessage
+        message={t.errorLoading}
+        onRetry={() => window.location.reload()}
+      />
     );
   }
-
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("ko-KR").format(price);
 
   return (
     <div className="container py-8">
@@ -101,14 +102,16 @@ export default function ProductList() {
           <div>
             <h1 className="text-2xl font-bold">
               {currentParams.search
-                ? `"${currentParams.search}" 검색 결과`
-                : "전체 상품"}
+                ? formatString(t.searchResults, { query: currentParams.search })
+                : t.allProducts}
             </h1>
             {listData && (
               <p className="text-muted-foreground">
-                총 {listData.total}개의 상품 (
-                {listData.total === 0 ? 0 : listData.page} /{" "}
-                {listData.totalPages} 페이지)
+                {formatString(t.totalProducts, {
+                  total: listData.total,
+                  page: listData.total === 0 ? 0 : listData.page,
+                  totalPages: listData.totalPages,
+                })}
               </p>
             )}
           </div>
@@ -116,14 +119,14 @@ export default function ProductList() {
           {/* 정렬 옵션 */}
           <Select value={currentParams.sort} onValueChange={handleSortChange}>
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="정렬 방법" />
+              <SelectValue placeholder={t.sortPlaceholder} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">최신순</SelectItem>
-              <SelectItem value="oldest">등록순</SelectItem>
-              <SelectItem value="price_asc">가격 낮은순</SelectItem>
-              <SelectItem value="price_desc">가격 높은순</SelectItem>
-              <SelectItem value="name">이름순</SelectItem>
+              <SelectItem value="newest">{t.sortNewest}</SelectItem>
+              <SelectItem value="oldest">{t.sortOldest}</SelectItem>
+              <SelectItem value="price_asc">{t.sortPriceAsc}</SelectItem>
+              <SelectItem value="price_desc">{t.sortPriceDesc}</SelectItem>
+              <SelectItem value="name">{t.sortName}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -150,18 +153,16 @@ export default function ProductList() {
           className="flex items-center justify-center py-12"
         >
           <div className="text-center">
-            <h2 className="text-xl font-semibold">상품이 없습니다</h2>
+            <h2 className="text-xl font-semibold">{t.noProducts}</h2>
             <p className="mt-2 text-muted-foreground">
-              {currentParams.search
-                ? "다른 검색어로 시도해보세요."
-                : "아직 등록된 상품이 없습니다."}
+              {currentParams.search ? t.noProductsSearch : t.noProductsDefault}
             </p>
             {currentParams.search && (
               <Button
                 onClick={() => router.push("/")}
                 className="mt-4 cursor-pointer"
               >
-                전체 상품 보기
+                {t.viewAllProducts}
               </Button>
             )}
           </div>
@@ -183,7 +184,7 @@ export default function ProductList() {
               disabled={currentParams.page <= 1}
               onClick={() => handlePageChange(currentParams.page - 1)}
             >
-              이전
+              {t.prev}
             </Button>
 
             {Array.from(
@@ -215,7 +216,7 @@ export default function ProductList() {
               disabled={currentParams.page >= listData.totalPages}
               onClick={() => handlePageChange(currentParams.page + 1)}
             >
-              다음
+              {t.next}
             </Button>
           </div>
         </motion.div>

@@ -2,27 +2,25 @@
 "use client";
 
 import Link from "next/link";
-import { Search, ShoppingCart, Bot } from "lucide-react";
+import { Search, ShoppingCart, Bot, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// import { useCart } from "@/hooks/useCart";
+import useCart from "@/hooks/useCart";
+import { useTranslation } from "@/context/TranslationContext";
+import { useLangStore } from "@/store/langStore";
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 640);
-    handleResize(); // 초기값 설정
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  //   const { data: cartItems } = useCart();
+  const { listData: cartItems } = useCart();
+  const cartItemCount =
+    cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const { lang, toggleLang } = useLangStore();
+  const t = useTranslation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +31,12 @@ export default function Header() {
     }
   };
 
-  //   const cartItemCount =
-  //     cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <header className="flex w-full items-center justify-between py-4 px-6 border-b bg-background/95">
@@ -46,45 +48,99 @@ export default function Header() {
         <span className="hidden sm:inline-block font-bold">RoboShop</span>
       </Link>
 
-      {/* 검색바 */}
-      <div className="flex flex-1 items-center justify-center px-4">
-        <form
-          onSubmit={handleSearch}
-          className="flex flex-col sm:flex-row flex-1 max-w-md mx-4 sm:mx-6 items-center sm:items-stretch space-y-2 sm:space-y-0 sm:space-x-2"
-        >
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder={
-                isMobile ? "로봇 검색" : "어떤 로봇을 찾고 계신가요?"
-              }
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <Button type="submit" size="sm" className="w-full sm:w-auto">
-            검색
-          </Button>
-        </form>
-      </div>
+      {isMobile ? (
+        <div className="flex flex-col flex-1 px-4 space-y-3">
+          <form onSubmit={handleSearch} className="w-full">
+            <div className="relative w-full">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder={t.searchPlaceholderMobile}
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </form>
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center space-x-1"
+              onClick={toggleLang}
+            >
+              <Globe className="h-4 w-4" />
+              <span>{lang}</span>
+            </Button>
 
-      {/* 장바구니 */}
-      <Link href="/cart">
-        <Button variant="ghost" size="sm" className="relative">
-          <ShoppingCart className="h-5 w-5" />
-          {/* {cartItemCount > 0 && (
-              <Badge
-                variant="destructive"
-                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 text-xs"
-              >
-                {cartItemCount > 99 ? "99+" : cartItemCount}
-              </Badge>
-            )} */}
-          <span className="hidden sm:ml-2 sm:inline">장바구니</span>
-        </Button>
-      </Link>
+            <Link href="/cart" className="relative">
+              <Button variant="ghost" size="sm">
+                <ShoppingCart className="h-5 w-5" />
+                {cartItemCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 text-[10px]"
+                  >
+                    {cartItemCount > 99 ? "99+" : cartItemCount}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* 검색바 */}
+          <div className="flex flex-1 items-center justify-center px-4">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col sm:flex-row flex-1 max-w-md mx-4 sm:mx-6 items-center sm:items-stretch space-y-2 sm:space-y-0 sm:space-x-2"
+            >
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder={t.searchPlaceholderDesktop}
+                  className="pl-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <Button type="submit" size="sm" className="w-full sm:w-auto">
+                {t.searchButton}
+              </Button>
+            </form>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center space-x-1"
+              onClick={toggleLang}
+            >
+              <Globe className="h-4 w-4" />
+              <span>{lang}</span>
+            </Button>
+
+            {/* 장바구니 */}
+            <Link href="/cart">
+              <Button variant="ghost" size="sm" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {cartItemCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 text-[10px]"
+                  >
+                    {cartItemCount > 99 ? "99+" : cartItemCount}
+                  </Badge>
+                )}
+                <span className="hidden sm:ml-2 sm:inline">{t.cart}</span>
+              </Button>
+            </Link>
+          </div>
+        </>
+      )}
     </header>
   );
 }

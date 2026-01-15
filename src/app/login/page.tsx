@@ -16,6 +16,7 @@ import { signIn } from "next-auth/react";
 import FullWidthSection from "@/components/layout/FullWidthSection";
 import { SNSType } from "@/types";
 import SNSButton from "@/components/common/SNSButton";
+import FormInput from "@/components/common/FormInput";
 
 type LoginForm = {
   email: string;
@@ -79,34 +80,27 @@ export default function LoginPage() {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">이메일</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="example@email.com"
-                    {...register("email")}
-                  />
-                  <p className="text-sm text-red-500">{errors.email?.message}</p>
-                </div>
+                <FormInput
+                  id="email"
+                  type="email"
+                  placeholder="robot@email.com"
+                  registration={register("password")}
+                  error={errors.password?.message}
+                  label="이메일"
+                />
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">비밀번호</Label>
-
-                    <Link href="/reset-password" className="text-sm text-blue-600 hover:underline">
-                      비밀번호 찾기
-                    </Link>
-                  </div>
-
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    {...register("password")}
-                  />
-                  <p className="text-sm text-red-500">{errors.password?.message}</p>
-                </div>
+                <FormInput
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  registration={register("password")}
+                  error={errors.password?.message}
+                  label="비밀번호"
+                >
+                  <Link href="/reset-password" className="text-sm text-blue-600 hover:underline">
+                    비밀번호 찾기
+                  </Link>
+                </FormInput>
 
                 <Button type="submit" className="w-full">
                   로그인

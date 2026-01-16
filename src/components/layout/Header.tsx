@@ -123,7 +123,7 @@ export default function Header() {
 
             <Link href="/login">
               <Button variant="ghost" size="sm" className="px-2">
-                {t("login")}
+                {t("auth.login")}
               </Button>
             </Link>
             <span className="text-gray-300">|</span>

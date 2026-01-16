@@ -42,21 +42,6 @@ async function main() {
       category: { ko: "서비스로봇", en: "Service Robot" },
     },
     {
-      name: { ko: "루미 청소로봇 AI+", en: "Lumi Cleaning Robot AI+" },
-      price: 649000,
-      description: {
-        ko: "AI 매핑과 장애물 회피 기술을 탑재한 프리미엄 로봇청소기. 완벽한 청소를 경험하세요.",
-        en: "Premium robotic vacuum with AI mapping and obstacle avoidance technology. Experience perfect cleaning.",
-      },
-      images: [
-        "https://images.unsplash.com/photo-1754297813553-43eb3a9f65a4?w=500",
-        "https://images.unsplash.com/photo-1754297813495-b1b4d20b8a11?w=500",
-        "https://images.unsplash.com/photo-1699602048528-5311af9da7f6?w=500",
-      ],
-      stock: 78,
-      category: { ko: "청소로봇", en: "Cleaning Robot" },
-    },
-    {
       name: { ko: "가디언 보안로봇", en: "Guardian Security Robot" },
       price: 2890000,
       description: {
@@ -219,6 +204,21 @@ async function main() {
       category: { ko: "스마트홈", en: "Smart Home" },
     },
     {
+      name: { ko: "루미 청소로봇 AI+", en: "Lumi Cleaning Robot AI+" },
+      price: 649000,
+      description: {
+        ko: "AI 매핑과 장애물 회피 기술을 탑재한 프리미엄 로봇청소기. 완벽한 청소를 경험하세요.",
+        en: "Premium robotic vacuum with AI mapping and obstacle avoidance technology. Experience perfect cleaning.",
+      },
+      images: [
+        "https://images.unsplash.com/photo-1762500824496-9094f37873c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxob21lJTIwcm9ib3R8ZW58MXx8fHwxNzY4MzY5MDA1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+        "https://images.unsplash.com/photo-1754297813495-b1b4d20b8a11?w=500",
+        "https://images.unsplash.com/photo-1699602048528-5311af9da7f6?w=500",
+      ],
+      stock: 78,
+      category: { ko: "청소로봇", en: "Cleaning Robot" },
+    },
+    {
       name: { ko: "배달로봇 딜리버리 원", en: "Delivery Robot Delivery One" },
       price: 1490000,
       description: {
@@ -226,6 +226,7 @@ async function main() {
         en: "Autonomous delivery robot for unmanned delivery service. Ensures safe and fast delivery.",
       },
       images: [
+        "https://images.unsplash.com/photo-1602096711412-af3596c8e395?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkZWxpdmVyeSUyMHJvYm90fGVufDF8fHx8MTc2ODM2OTAwNXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
         "https://plus.unsplash.com/premium_photo-1756908689167-fc8d92b3a9e1?w=500",
         "https://images.unsplash.com/photo-1722452323413-b8f5447d4c41?w=500",
       ],

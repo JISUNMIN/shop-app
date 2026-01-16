@@ -97,7 +97,7 @@ export default function LoginPage() {
                   error={errors.password?.message}
                   label="비밀번호"
                 >
-                  <Link href="/reset-password" className="text-sm text-blue-600 hover:underline">
+                  <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
                     비밀번호 찾기
                   </Link>
                 </FormInput>

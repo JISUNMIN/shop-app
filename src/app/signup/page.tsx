@@ -12,6 +12,7 @@ import SNSButton from "@/components/common/SNSButton";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import FormInput from "@/components/common/FormInput";
+import { useTranslation } from "@/context/TranslationContext";
 
 type SignupForm = {
   name: string;
@@ -22,41 +23,44 @@ type SignupForm = {
   agreePrivacy: boolean;
 };
 
-const schema = yup
-  .object({
-    name: yup
-      .string()
-      .required("이름을 입력해주세요.")
-      .max(4, "이름은 4글자 이상 입력할수 없습니다."),
-    email: yup
-      .string()
-      .required("이메일을 입력해주세요.")
-      .email("이메일 형식이 올바르지 않습니다."),
-    password: yup.string().required("비밀번호를 입력해주세요."),
-    passwordConfirm: yup
-      .string()
-      .required("비밀번호를 입력해주세요.")
-      .oneOf([yup.ref("password")], "비밀번호가 일치하지 않습니다."),
-
-    agreeTerms: yup
-      .boolean()
-      .oneOf([true], "이용약관에 동의해주세요.")
-      .required("이용약관에 동의해주세요."),
-    agreePrivacy: yup
-      .boolean()
-      .oneOf([true], "개인정보 수집 및 이용에 동의해주세요.")
-      .required("개인정보 수집 및 이용에 동의해주세요."),
-  })
-  .required();
-
 export default function SignupPage() {
   const router = useRouter();
+  const { auth } = useTranslation();
+
+  const schema = yup
+    .object({
+      name: yup.string().required(auth.validation.nameRequired).max(4, auth.validation.nameMax),
+
+      email: yup
+        .string()
+        .required(auth.validation.emailRequired)
+        .email(auth.validation.emailInvalid),
+
+      password: yup.string().required(auth.validation.passwordRequired),
+
+      passwordConfirm: yup
+        .string()
+        .required(auth.validation.passwordConfirmRequired)
+        .oneOf([yup.ref("password")], auth.validation.passwordMismatch),
+
+      agreeTerms: yup
+        .boolean()
+        .oneOf([true], auth.validation.agreeTermsRequired)
+        .required(auth.validation.agreeTermsRequired),
+
+      agreePrivacy: yup
+        .boolean()
+        .oneOf([true], auth.validation.agreePrivacyRequired)
+        .required(auth.validation.agreePrivacyRequired),
+    })
+    .required();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     control,
-  } = useForm({
+  } = useForm<SignupForm>({
     resolver: yupResolver(schema),
     defaultValues: {
       agreeTerms: false,
@@ -86,11 +90,10 @@ export default function SignupPage() {
         {/* Signup Card */}
         <Card className="w-full max-w-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">회원가입</CardTitle>
-            <CardDescription className="text-center">
-              새로운 계정을 만들어 쇼핑을 시작하세요
-            </CardDescription>
+            <CardTitle className="text-2xl text-center">{auth.signupTitle}</CardTitle>
+            <CardDescription className="text-center">{auth.signupDescription}</CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-4">
             {/* SNS Signup */}
             <div className="space-y-3">
@@ -100,7 +103,6 @@ export default function SignupPage() {
                 type="kakao"
                 onClick={() => handleSNSSignup("kakao")}
               />
-
               <SNSButton
                 className="h-12 gap-3"
                 hasLabel
@@ -114,7 +116,7 @@ export default function SignupPage() {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">또는 이메일로 가입</span>
+                <span className="bg-white px-2 text-gray-500">{auth.orEmailSignup}</span>
               </div>
             </div>
 
@@ -123,12 +125,13 @@ export default function SignupPage() {
               <div className="space-y-2">
                 <FormInput
                   id="name"
-                  placeholder="김로봇"
+                  placeholder={auth.placeholders.nameExample}
                   registration={register("name")}
                   error={errors.name?.message}
-                  label="이름"
+                  label={auth.name}
                 />
               </div>
+
               <div className="space-y-2">
                 <FormInput
                   id="email"
@@ -136,7 +139,7 @@ export default function SignupPage() {
                   placeholder="robot@email.com"
                   registration={register("email")}
                   error={errors.email?.message}
-                  label="이메일"
+                  label={auth.email}
                 />
               </div>
 
@@ -144,11 +147,11 @@ export default function SignupPage() {
                 <FormInput
                   id="password"
                   type="password"
-                  placeholder="8자 이상 입력해주세요"
+                  placeholder={auth.passwordPlaceholder}
                   minLength={8}
-                  registration={register("email")}
+                  registration={register("password")}
                   error={errors.password?.message}
-                  label="비밀번호"
+                  label={auth.password}
                 />
               </div>
 
@@ -156,11 +159,11 @@ export default function SignupPage() {
                 <FormInput
                   id="confirmPassword"
                   type="password"
-                  placeholder="비밀번호를 다시 입력해주세요"
+                  placeholder={auth.confirmPasswordPlaceholder}
                   minLength={8}
                   registration={register("passwordConfirm")}
                   error={errors.passwordConfirm?.message}
-                  label="비밀번호 확인"
+                  label={auth.confirmPassword}
                 />
               </div>
 
@@ -182,7 +185,7 @@ export default function SignupPage() {
                     htmlFor="agreeTerms"
                     className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    <span className="text-red-500">*</span> 이용약관에 동의합니다
+                    <span className="text-red-500">{auth.requiredMark}</span> {auth.agreeTerms}
                   </label>
                 </div>
 
@@ -203,23 +206,24 @@ export default function SignupPage() {
                     htmlFor="agreePrivacy"
                     className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    <span className="text-red-500">*</span> 개인정보 수집 및 이용에 동의합니다
+                    <span className="text-red-500">{auth.requiredMark}</span> {auth.agreePrivacy}
                   </label>
                 </div>
+
                 {errors.agreeTerms?.message && (
                   <p className="text-sm text-red-500">{errors.agreeTerms.message}</p>
                 )}
               </div>
 
               <Button type="submit" className="w-full h-11">
-                회원가입
+                {auth.signupButton}
               </Button>
             </form>
 
             <div className="text-center text-sm">
-              <span className="text-gray-600">이미 계정이 있으신가요? </span>
+              <span className="text-gray-600">{auth.haveAccount} </span>
               <Link href="/login" className="text-blue-600 hover:underline font-medium">
-                로그인
+                {auth.login}
               </Link>
             </div>
           </CardContent>

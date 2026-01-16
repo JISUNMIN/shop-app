@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useCart from "@/hooks/useCart";
-import { useTranslation } from "@/context/TranslationContext";
 import { useLangStore } from "@/store/langStore";
+import { useTranslation } from "react-i18next";
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,7 +19,7 @@ export default function Header() {
   const { listData: cartItems } = useCart();
   const cartItemCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
   const { lang, toggleLang } = useLangStore();
-  const t = useTranslation();
+  const { t } = useTranslation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,9 +41,7 @@ export default function Header() {
     <header className="flex w-full items-center justify-between py-4 px-6 border-b bg-background/95">
       {/* 로고 */}
       <Link href="/" className="flex items-center space-x-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded bg-primary">
-          <Bot className="h-5 w-5 text-primary-foreground" />
-        </div>
+        <Bot className="w-8 h-8" />
         <span className="hidden sm:inline-block font-bold">RoboShop</span>
       </Link>
 
@@ -54,7 +52,7 @@ export default function Header() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder={t.searchPlaceholderMobile}
+                placeholder={t("searchPlaceholderMobile")}
                 className="pl-8"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -93,20 +91,21 @@ export default function Header() {
           <div className="flex flex-1 items-center justify-center px-4">
             <form
               onSubmit={handleSearch}
-              className="flex flex-col sm:flex-row flex-1 max-w-md mx-4 sm:mx-6 items-center sm:items-stretch space-y-2 sm:space-y-0 sm:space-x-2"
+              className="flex flex-col sm:flex-row flex-1 max-w-2xl mx-4 sm:mx-6 items-center sm:items-stretch space-y-2 sm:space-y-0 sm:space-x-2"
             >
               <div className="relative flex-1 w-full">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder={t.searchPlaceholderDesktop}
+                  placeholder={t("searchPlaceholderDesktop")}
                   className="pl-8"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+
               <Button type="submit" size="sm" className="w-full sm:w-auto">
-                {t.searchButton}
+                {t("searchButton")}
               </Button>
             </form>
           </div>
@@ -124,13 +123,13 @@ export default function Header() {
 
             <Link href="/login">
               <Button variant="ghost" size="sm" className="px-2">
-                로그인
+                {t("login")}
               </Button>
             </Link>
             <span className="text-gray-300">|</span>
             <Link href="/signup">
               <Button variant="ghost" size="sm" className="px-2 font-semibold">
-                회원가입
+                {t("auth.signup")}
               </Button>
             </Link>
 
@@ -146,7 +145,7 @@ export default function Header() {
                     {cartItemCount > 99 ? "99+" : cartItemCount}
                   </Badge>
                 )}
-                <span className="hidden sm:ml-2 sm:inline">{t.cart}</span>
+                <span className="hidden sm:ml-2 sm:inline">{t("cart")}</span>
               </Button>
             </Link>
           </div>

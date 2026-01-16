@@ -1,4 +1,86 @@
 {
+  "auth": {
+    "login": "로그인",
+    "loggingIn": "로그인 중...",
+    "signup": "회원가입",
+    "email": "이메일",
+    "password": "비밀번호",
+    "name": "이름",
+
+    "passwordPlaceholder": "8자 이상 입력해주세요",
+    "confirmPassword": "비밀번호 확인",
+    "confirmPasswordPlaceholder": "비밀번호를 다시 입력해주세요",
+
+    "noAccount": "계정이 없으신가요?",
+    "haveAccount": "이미 계정이 있으신가요?",
+
+    "loginDescription": "계정에 로그인하고 쇼핑을 시작하세요",
+    "signupDescription": "새로운 계정을 만들어 쇼핑을 시작하세요",
+
+    "orSnsLogin": "또는 SNS로 로그인",
+    "orEmailSignup": "또는 이메일로 가입",
+
+    "forgotPassword": "비밀번호 찾기",
+    "forgotPasswordValue": "비밀번호 찾기",
+
+    "requiredMark": "*",
+    "agreeTerms": "이용약관에 동의합니다",
+    "agreePrivacy": "개인정보 수집 및 이용에 동의합니다",
+
+    "signupButton": "회원가입",
+    "loginButton": "로그인",
+
+    "signupTitle": "회원가입",
+
+    "placeholders": {
+      "nameExample": "김로봇",
+      "emailExample": "example@email.com"
+    },
+
+    "validation": {
+      "nameRequired": "이름을 입력해주세요.",
+      "nameMax": "이름은 4글자 이상 입력할수 없습니다.",
+      "emailInvalid": "이메일 형식이 올바르지 않습니다.",
+      "emailRequired": "이메일을 입력해주세요.",
+      "passwordRequired": "비밀번호를 입력해주세요.",
+      "passwordConfirmRequired": "비밀번호를 입력해주세요.",
+      "passwordMismatch": "비밀번호가 일치하지 않습니다.",
+      "agreeTermsRequired": "이용약관에 동의해주세요.",
+      "agreePrivacyRequired": "개인정보 수집 및 이용에 동의해주세요."
+    },
+
+    "forgotPasswordTitle": "비밀번호 재설정",
+    "forgotPasswordDescriptionDefault": "가입 시 사용한 이메일 주소를 입력해 주세요.",
+    "forgotPasswordDescriptionSubmitted": "비밀번호 재설정 링크를 발송했습니다. 이메일을 확인해 주세요.",
+
+    "forgotPasswordEmailLabel": "이메일",
+    "forgotPasswordEmailPlaceholder": "example@email.com",
+    "forgotPasswordSubmitButton": "재설정 링크 보내기",
+
+    "forgotPasswordRememberedPassword": "비밀번호가 생각나셨나요?",
+    "forgotPasswordBackToLogin": "로그인 페이지로 돌아가기",
+
+    "forgotPasswordSuccessSentToPrefix": "",
+    "forgotPasswordSuccessSentToSuffix": "로 비밀번호 재설정 링크를 발송했습니다.",
+    "forgotPasswordSuccessInstructionLine1": "이메일을 확인하고 링크를 클릭하여 비밀번호를 재설정하세요.",
+
+    "forgotPasswordResendTitle": "이메일이 보이지 않나요?",
+    "forgotPasswordResendHint": "스팸함을 확인하거나, 몇 분 후 다시 시도해 주세요.",
+    "forgotPasswordResendButton": "링크 다시 보내기",
+    "forgotPasswordTryAnotherEmailButton": "다른 이메일로 다시 시도하기",
+    "forgotPasswordResendAlert": "비밀번호 재설정 링크를 다시 보내드렸습니다.",
+
+    "forgotPasswordHelpTitle": "도움이 필요하신가요?",
+    "forgotPasswordHelpDescription": "계정 복구에 문제가 있는 경우 고객센터(1234-5678)로 문의해주세요."
+  },
+
+  "sns": {
+    "kakao": "카카오톡",
+    "naver": "네이버",
+    "startWith": "{{provider}}으로 시작하기",
+    "loginWith": "{{provider}}로 로그인"
+  },
+
   "searchPlaceholderMobile": "로봇 검색",
   "searchPlaceholderDesktop": "어떤 로봇을 찾고 계신가요?",
   "searchButton": "검색",

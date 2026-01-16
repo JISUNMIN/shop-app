@@ -100,13 +100,13 @@ export default function ProductList() {
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-2xl mb-2">
               {currentParams.search
                 ? formatString(t.searchResults, { query: currentParams.search })
                 : t.allProducts}
             </h1>
             {listData && (
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {formatString(t.totalProducts, {
                   total: listData.total,
                   page: listData.total === 0 ? 0 : listData.page,

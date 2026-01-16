@@ -1,4 +1,84 @@
 {
+  "auth": {
+    "login": "Log in",
+    "loggingIn": "Logging in...",
+    "signup": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+
+    "passwordPlaceholder": "Enter at least 8 characters",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+
+    "loginDescription": "Log in to your account and start shopping",
+    "signupDescription": "Create a new account and start shopping",
+
+    "orSnsLogin": "Or continue with social login",
+    "orEmailSignup": "Or sign up with email",
+
+    "forgotPassword": "Forgot password",
+    "forgotPasswordValue": "forgot password",
+
+    "requiredMark": "*",
+    "agreeTerms": "I agree to the Terms of Service",
+    "agreePrivacy": "I agree to the collection and use of personal information",
+
+    "signupButton": "Sign up",
+    "loginButton": "Log in",
+
+    "signupTitle": "Sign up",
+
+    "placeholders": {
+      "nameExample": "Kim Robot",
+      "emailExample": "example@email.com"
+    },
+
+    "validation": {
+      "nameRequired": "Please enter your name.",
+      "nameMax": "Name must be 4 characters or fewer.",
+      "emailInvalid": "Please enter a valid email address.",
+      "emailRequired": "Please enter your email.",
+      "passwordRequired": "Please enter your password.",
+      "passwordConfirmRequired": "Please re-enter your password.",
+      "passwordMismatch": "Passwords do not match.",
+      "agreeTermsRequired": "Please agree to the Terms of Service.",
+      "agreePrivacyRequired": "Please agree to the collection and use of personal information."
+    },
+
+    "forgotPasswordTitle": "Reset password",
+    "forgotPasswordDescriptionDefault": "Please enter the email address you used to sign up.",
+    "forgotPasswordDescriptionSubmitted": "We've sent you a password reset link. Please check your email.",
+
+    "forgotPasswordEmailLabel": "Email",
+    "forgotPasswordEmailPlaceholder": "example@email.com",
+    "forgotPasswordSubmitButton": "Send reset link",
+
+    "forgotPasswordRememberedPassword": "Remembered your password?",
+    "forgotPasswordBackToLogin": "Back to login page",
+
+    "forgotPasswordSuccessSentToPrefix": "We've sent a password reset link to ",
+    "forgotPasswordSuccessSentToSuffix": ".",
+    "forgotPasswordSuccessInstructionLine1": "Please check your email and click the link to reset your password.",
+
+    "forgotPasswordResendTitle": "Don't see the email?",
+    "forgotPasswordResendHint": "Check your spam folder or try again in a few minutes.",
+    "forgotPasswordResendButton": "Resend link",
+    "forgotPasswordTryAnotherEmailButton": "Try a different email",
+    "forgotPasswordResendAlert": "We've resent the password reset link.",
+
+    "forgotPasswordHelpTitle": "Need help?",
+    "forgotPasswordHelpDescription": "If you have trouble recovering your account, please contact support (1234-5678)."
+  },
+  "sns": {
+    "kakao": "KakaoTalk",
+    "naver": "Naver",
+    "startWith": "Continue with {{provider}}",
+    "loginWith": "Log in with {{provider}}"
+  },
   "searchPlaceholderMobile": "Search robot",
   "searchPlaceholderDesktop": "What robot are you looking for?",
   "searchButton": "Search",

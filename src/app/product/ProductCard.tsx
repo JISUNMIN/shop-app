@@ -33,7 +33,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       className="group"
     >
       <Link href={`/product/${product.id}`}>
-        <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg h-full">
+        <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg h-full py-0 ">
           <div className="relative aspect-square overflow-hidden bg-gray-100">
             <Image
               src={product.images[0] || "/placeholder.jpg"}

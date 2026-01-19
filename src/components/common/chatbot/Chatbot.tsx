@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { getBotResponse } from "./response";
 import { initialBotText, quickReplies } from "./constants";
+import { useTranslation } from "react-i18next";
 
 interface Message {
   id: number;
@@ -16,6 +17,7 @@ interface Message {
 }
 
 export default function Chatbot() {
+  const {t}=useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, text: initialBotText, sender: "bot", timestamp: new Date() },
@@ -25,7 +27,6 @@ export default function Chatbot() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [suggestions, setSuggestions] = useState<string[]>([]);
-
   const [showTooltip, setShowTooltip] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -37,6 +38,7 @@ export default function Chatbot() {
   const handleSendMessage = (text?: string) => {
     const messageText = (text ?? inputValue).trim();
     if (!messageText) return;
+
     setSuggestions([]);
 
     const userMessage: Message = {
@@ -74,6 +76,13 @@ export default function Chatbot() {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const resetToStart = () => {
+    setMessages([{ id: 1, text: initialBotText, sender: "bot", timestamp: new Date() }]);
+    setSuggestions([]);
+    setInputValue("");
+    setIsTyping(false);
   };
 
   useEffect(() => {
@@ -118,7 +127,6 @@ export default function Chatbot() {
               <MessageCircle className="w-6 h-6" />
             </Button>
           </div>
-
           {showTooltip && (
             <div className="absolute bottom-16 right-0 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg whitespace-nowrap animate-bounce">
               💬 궁금한 점이 있으신가요?
@@ -129,7 +137,7 @@ export default function Chatbot() {
       )}
 
       {isOpen && (
-        <Card className="fixed z-50 flex flex-col overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl border border-slate-200 animate-in slide-in-from-bottom-4 duration-200 right-3 bottom-3 w-[calc(100vw-24px)] h-[calc(100vh-24px)] sm:right-6 sm:bottom-6 sm:w-[380px] sm:h-[580px]">
+        <Card className="fixed z-50 flex flex-col overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl border border-slate-200 animate-in slide-in-from-bottom-4 duration-200 right-3 bottom-3 w-[calc(100vw-24px)] h-[calc(100dvh-24px)] sm:right-6 sm:bottom-6 sm:w-[380px] sm:h-[580px]">
           {/* Header */}
           <div className="bg-blue-600 text-white px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -205,50 +213,87 @@ export default function Chatbot() {
               </div>
             )}
 
+            {messages.length !== 1 && (
+              <div onClick={resetToStart} className="flex justify-center">
+                <button className="text-xs text-slate-500 underline underline-offset-4 hover:text-slate-700">
+                  처음으로
+                </button>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
-          {/* 자주 묻는 질문*/}
-          <div className="px-4 py-3 border-t border-slate-200 bg-white">
-            <p className="text-[11px] font-medium text-slate-600 mb-2 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-blue-600" />
-              자주 묻는 질문
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {quickReplies.map((reply, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  className="text-[11px] h-8 rounded-full border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition"
-                  onClick={() => handleSendMessage(reply)}
-                >
-                  {reply}
-                </Button>
-              ))}
-            </div>
-          </div>
+          {/* 카테고리 추천*/}
+          {suggestions.length > 0 && (
+            <div className="px-4 py-3 border-t border-slate-200 bg-white">
+              <p className="text-[11px] font-medium text-slate-600 mb-2 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-blue-600" />
+                카테고리 선택
+              </p>
 
-          <div className="p-5 border-t bg-white">
-            <div className="flex gap-3">
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {suggestions.map((label) => (
+                  <Button
+                    key={label}
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 text-[11px] h-8 rounded-full border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition"
+                    onClick={() => handleSendMessage(label)}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 자주 묻는 질문*/}
+          {messages.length === 1 && (
+            <div className="px-4 py-3 border-t border-slate-200 bg-white">
+              <p className="text-[11px] font-medium text-slate-600 mb-2 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-blue-600" />
+                자주 묻는 질문
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {quickReplies.map((reply, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    className="text-[11px] h-8 rounded-full border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition"
+                    onClick={() => handleSendMessage(reply)}
+                  >
+                    {reply}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="p-3 sm:p-5 border-t bg-white">
+            <div className="flex gap-2 sm:gap-3 items-center">
               <Input
                 ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="메시지를 입력하세요..."
-                className="flex-1 rounded-full border-2 border-gray-200 focus:border-blue-500 px-4 h-11"
+                className="flex-1 rounded-full border-2 border-gray-200 focus:border-blue-500 px-3 sm:px-4 h-10 sm:h-11 text-sm"
               />
               <Button
                 onClick={() => handleSendMessage()}
                 size="icon"
                 disabled={!inputValue.trim()}
-                className="h-11 w-11 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </div>
-            <p className="text-xs text-gray-400 mt-2 text-center">Enter를 눌러 전송</p>
+
+            <p className="hidden sm:block text-xs text-gray-400 mt-2 text-center">
+              Enter를 눌러 전송
+            </p>
           </div>
         </Card>
       )}

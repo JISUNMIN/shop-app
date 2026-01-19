@@ -13,6 +13,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import FormInput from "@/components/common/FormInput";
 import { useTranslation } from "@/context/TranslationContext";
+import useSignup from "@/hooks/useSignup";
 
 type SignupForm = {
   name: string;
@@ -26,6 +27,7 @@ type SignupForm = {
 export default function SignupPage() {
   const router = useRouter();
   const { auth } = useTranslation();
+  const { signupMutate, isSignupPending } = useSignup();
 
   const schema = yup
     .object({
@@ -68,9 +70,12 @@ export default function SignupPage() {
     },
   });
 
-  const onSubmit = (data: SignupForm) => {
+  const onSubmit = async (data: SignupForm) => {
     console.log(data);
-    router.push("/login");
+    try {
+      await signupMutate({ name: data.name, email: data.email, password: data.password });
+      router.push("/login");
+    } catch {}
   };
 
   const handleSNSSignup = (provider: string) => {
@@ -215,9 +220,7 @@ export default function SignupPage() {
                 )}
               </div>
 
-              <Button type="submit" className="w-full h-11">
-                {auth.signupButton}
-              </Button>
+              <Button className="w-full h-11">{auth.signupButton}</Button>
             </form>
 
             <div className="text-center text-sm">

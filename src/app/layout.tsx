@@ -7,6 +7,7 @@ import Header from "@/components/layout/Header";
 import { Toaster } from "@/components/ui/sonner";
 import { TranslationProvider } from "@/context/TranslationContext";
 import I18nProvider from "@/i18n/I18nextProvider";
+import ClientLayout from "@/components/layout/ClientLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Header />
                 <main className="flex-1 w-full max-w-6xl px-4">{children}</main>
               </div>
+              <ClientLayout />
               <Toaster />
             </I18nProvider>
           </QueryProvider>

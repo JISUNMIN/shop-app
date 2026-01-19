@@ -1,98 +1,94 @@
-import { robotCategories } from "./constants";
+// response.ts
+import { ROBOT_CATEGORY_KEYS } from "./constants";
 
 export type BotReply = {
-  text: string;
+  textKey: string;
   suggestions?: string[];
 };
 
-const categoryAnswers: Record<string, string> = {
-  배달로봇:
-    "배달로봇은 음식/물품을 실내·실외에서 자율주행으로 배송하는 로봇입니다. 매장·병원·캠퍼스 등에서 많이 사용돼요.",
-  청소로봇:
-    "청소로봇은 바닥 청소(흡입/물걸레)부터 상업공간 청소까지 자동화해주는 로봇입니다. 공간 규모와 바닥 재질에 따라 선택이 달라요.",
-  "스마트홈 로봇":
-    "스마트홈 로봇은 집 안의 IoT 기기(조명/가전/보안)를 제어하거나 음성 비서 역할을 하는 로봇입니다. 허브/연동 범위가 핵심이에요.",
-  "엔터테인먼트 로봇":
-    "엔터테인먼트 로봇은 대화/리액션/콘텐츠 재생 등으로 즐거움을 주는 로봇입니다. 아이 교육·전시·가정용 동반자 용도로 많이 선택돼요.",
-  물류로봇:
-    "물류로봇은 창고/공장 등에서 물품 이동·피킹·이송을 자동화하는 로봇입니다. 동선과 적재 중량, 자율주행 방식이 중요해요.",
-  의료로봇:
-    "의료로봇은 병원 환경에서 물품 이송, 진료 보조, 재활/케어 등 의료 업무를 지원합니다. 안전성과 운영 시나리오가 핵심입니다.",
-  드론로봇:
-    "드론로봇은 촬영, 점검, 순찰, 농업 방제 등 공중 작업을 수행합니다. 비행 시간과 센서/카메라 구성이 선택 포인트예요.",
-  서비스로봇:
-    "서비스로봇은 매장/호텔/시설 등에서 안내, 서빙, 이동 지원 등 고객 접점을 돕는 로봇입니다. 공간 동선과 상호작용 방식이 중요해요.",
-  휴머노이드:
-    "휴머노이드는 사람 형태로 보행/팔 동작/상호작용이 가능한 로봇입니다. 연구·전시·서비스 데모 등에서 활용됩니다.",
-  펫케어로봇:
-    "펫케어로봇은 반려동물 모니터링, 간식/놀이, 원격 소통 등을 지원합니다. 카메라/자동 급식/상호작용 기능을 중심으로 비교해요.",
-  농업로봇:
-    "농업로봇은 방제·수확·운반 등 농작업을 자동화합니다. 작물 종류와 작업 환경(하우스/노지)에 따라 적합한 모델이 달라요.",
-  교육로봇:
-    "교육로봇은 코딩/메이커/STEAM 교육에 쓰이며, 연령대에 맞는 난이도와 커리큘럼 지원 여부가 중요합니다.",
-  보안로봇:
-    "보안로봇은 실내·실외 순찰, 감시, 이상 감지 등을 수행합니다. 야간 운용(열화상/IR), 주행 안정성이 주요 포인트예요.",
-  반려로봇:
-    "반려로봇은 대화/감정 표현/교감 중심으로 사용되는 동반자 로봇입니다. 상호작용 품질과 콘텐츠/대화 경험이 선택 기준이에요.",
+export type RobotCategoryKey = (typeof ROBOT_CATEGORY_KEYS)[number];
+export type TFn = (key: string, options?: Record<string, any>) => string;
+
+const includesAny = (text: string, keywords: string[]) => {
+  return keywords.some((k) => k && text.includes(k));
 };
 
-export const getBotResponse = (userMessage: string): BotReply => {
+const splitKeywords = (...parts: string[]) =>
+  parts
+    .flatMap((p) => (p || "").toLowerCase().split("|"))
+    .map((v) => v.trim())
+    .filter(Boolean);
+
+const isCategoryKey = (v: string): v is RobotCategoryKey => {
+  return (ROBOT_CATEGORY_KEYS as readonly string[]).includes(v);
+};
+
+const categoryToAnswerKey = (categoryKey: RobotCategoryKey) => {
+  const base = categoryKey.replace(/^category_/, "");
+  return `chatbot.answer_${base}`;
+};
+
+export const getBotResponse = (userMessage: string, t: TFn): BotReply => {
   const message = userMessage.trim();
-
-  if (robotCategories.includes(message)) {
-    return {
-      text:
-        categoryAnswers[message] ??
-        `${message} 관련 로봇을 안내해드릴게요. 제품 특징/기능에 따라 선택 포인트가 달라요.`,
-    };
-  }
-
   const lower = message.toLowerCase();
 
-  if (lower.includes("배송") || lower.includes("기간")) {
+  if (isCategoryKey(message)) {
+    return { textKey: categoryToAnswerKey(message) };
+  }
+
+  const shippingKeywords = splitKeywords(
+    t("chatbot.keyword_shipping"),
+    t("chatbot.keyword_delivery"),
+    t("chatbot.keyword_shipping_time")
+  );
+
+  const recommendKeywords = splitKeywords(
+    t("chatbot.keyword_recommend"),
+    t("chatbot.keyword_suggest")
+  );
+
+  const paymentKeywords = splitKeywords(
+    t("chatbot.keyword_payment"),
+    t("chatbot.keyword_pay_method")
+  );
+
+  const returnKeywords = splitKeywords(t("chatbot.keyword_return"), t("chatbot.keyword_exchange"));
+
+  const priceKeywords = splitKeywords(t("chatbot.keyword_price"), t("chatbot.keyword_discount"));
+
+  const greetingKeywords = splitKeywords(t("chatbot.keyword_hello"), "hello", "hi");
+  const thanksKeywords = splitKeywords(t("chatbot.keyword_thanks"));
+
+  if (includesAny(lower, shippingKeywords)) {
+    return { textKey: "chatbot.shipping_answer" };
+  }
+
+  if (includesAny(lower, recommendKeywords)) {
     return {
-      text: "배송은 주문 후 2-3일 정도 소요됩니다. 일부 지역은 추가 시간이 걸릴 수 있습니다. 무료배송은 50만원 이상 구매 시 적용됩니다.",
+      textKey: "chatbot.recommend_prompt",
+      suggestions: [...ROBOT_CATEGORY_KEYS],
     };
   }
 
-  if (lower.includes("추천") || lower.includes("어떤")) {
-    return {
-      text: "원하시는 로봇 종류를 선택해보세요",
-      suggestions: robotCategories,
-    };
+  if (includesAny(lower, paymentKeywords)) {
+    return { textKey: "chatbot.payment_answer" };
   }
 
-  if (lower.includes("결제") || lower.includes("방법")) {
-    return {
-      text: "신용카드, 체크카드, 계좌이체, 무통장입금을 지원합니다. 최대 12개월 무이자 할부도 가능합니다.",
-    };
+  if (includesAny(lower, returnKeywords)) {
+    return { textKey: "chatbot.return_exchange_answer" };
   }
 
-  if (lower.includes("반품") || lower.includes("교환")) {
-    return {
-      text: "상품 수령 후 7일 이내 반품/교환이 가능합니다. 단, 제품 사용 흔적이 있거나 포장이 훼손된 경우 반품이 어려울 수 있습니다.",
-    };
+  if (includesAny(lower, priceKeywords)) {
+    return { textKey: "chatbot.price_discount_answer" };
   }
 
-  if (lower.includes("가격") || lower.includes("할인")) {
-    return {
-      text: "현재 전 상품 신규 회원 10% 할인 이벤트 진행 중입니다! 상품 페이지에서 자세한 가격을 확인하실 수 있습니다.",
-    };
+  if (includesAny(lower, greetingKeywords)) {
+    return { textKey: "chatbot.greeting_answer" };
   }
 
-  if (lower.includes("안녕") || lower.includes("hello") || lower.includes("hi")) {
-    return {
-      text: "안녕하세요! RoboShop 고객지원 봇입니다. 무엇을 도와드릴까요?",
-    };
+  if (includesAny(lower, thanksKeywords)) {
+    return { textKey: "chatbot.thanks_answer" };
   }
 
-  if (lower.includes("감사") || lower.includes("고마")) {
-    return {
-      text: "천만에요! 더 궁금하신 점이 있으시면 언제든지 물어보세요. 😊",
-    };
-  }
-
-  return {
-    text: "죄송합니다. 정확한 답변을 드리기 어렵습니다. 고객센터(1234-5678)로 연락주시면 더 자세한 상담이 가능합니다.",
-  };
+  return { textKey: "chatbot.unknown_answer" };
 };

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { getBotResponse } from "./response";
-import { initialBotText, quickReplies } from "./constants";
+import { QUICK_REPLY_KEYS, initialBotText } from "./constants";
 import { useTranslation } from "react-i18next";
 
 interface Message {
@@ -17,11 +17,18 @@ interface Message {
 }
 
 export default function Chatbot() {
-  const {t}=useTranslation();
+  const { t } = useTranslation();
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: initialBotText, sender: "bot", timestamp: new Date() },
+    {
+      id: 1,
+      text: initialBotText,
+      sender: "bot",
+      timestamp: new Date(),
+    },
   ]);
+
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,8 +43,9 @@ export default function Chatbot() {
   };
 
   const handleSendMessage = (text?: string) => {
-    const messageText = (text ?? inputValue).trim();
-    if (!messageText) return;
+    const raw = (text ?? inputValue).trim();
+    if (!raw) return;
+    const messageText = raw;
 
     setSuggestions([]);
 
@@ -53,11 +61,11 @@ export default function Chatbot() {
     setIsTyping(true);
 
     setTimeout(() => {
-      const reply = getBotResponse(messageText);
+      const reply = getBotResponse(messageText, t);
 
       const botResponse: Message = {
         id: Date.now() + 1,
-        text: reply.text,
+        text: reply.textKey,
         sender: "bot",
         timestamp: new Date(),
       };
@@ -101,8 +109,8 @@ export default function Chatbot() {
       setShowTooltip(true);
       localStorage.setItem(key, "1");
 
-      const t = setTimeout(() => setShowTooltip(false), 5000);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => setShowTooltip(false), 5000);
+      return () => clearTimeout(timer);
     }
   }, []);
 
@@ -127,9 +135,10 @@ export default function Chatbot() {
               <MessageCircle className="w-6 h-6" />
             </Button>
           </div>
+
           {showTooltip && (
             <div className="absolute bottom-16 right-0 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg whitespace-nowrap animate-bounce">
-              💬 궁금한 점이 있으신가요?
+              {t("chatbot.tooltip_question")}
               <div className="absolute -bottom-1 right-6 w-2 h-2 bg-gray-900 rotate-45"></div>
             </div>
           )}
@@ -144,11 +153,12 @@ export default function Chatbot() {
               <div className="w-10 h-10 bg-white/15 rounded-full flex items-center justify-center">
                 <Bot className="w-5 h-5 text-white" />
               </div>
+
               <div>
                 <h3 className="font-semibold text-base flex items-center gap-2">RoboShop AI</h3>
                 <p className="text-[11px] text-white/80 flex items-center gap-1">
                   <span className="w-2 h-2 bg-emerald-300 rounded-full" />
-                  온라인
+                  {t("chatbot.status_online")}
                 </p>
               </div>
             </div>
@@ -183,7 +193,10 @@ export default function Chatbot() {
                       : "bg-white text-slate-800 border border-slate-200 rounded-tl-md"
                   }`}
                 >
-                  <p className="text-[13px] whitespace-pre-wrap leading-relaxed">{message.text}</p>
+                  <p className="text-[13px] whitespace-pre-wrap leading-relaxed">
+                    {message.sender === "bot" ? t(message.text) : message.text}
+                  </p>
+
                   <p
                     className={`text-[11px] mt-1.5 ${
                       message.sender === "user" ? "text-white/70" : "text-slate-400"
@@ -216,7 +229,7 @@ export default function Chatbot() {
             {messages.length !== 1 && (
               <div onClick={resetToStart} className="flex justify-center">
                 <button className="text-xs text-slate-500 underline underline-offset-4 hover:text-slate-700">
-                  처음으로
+                  {t("chatbot.reset_to_start")}
                 </button>
               </div>
             )}
@@ -224,47 +237,48 @@ export default function Chatbot() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* 카테고리 추천*/}
+          {/* 카테고리 추천 */}
           {suggestions.length > 0 && (
             <div className="px-4 py-3 border-t border-slate-200 bg-white">
               <p className="text-[11px] font-medium text-slate-600 mb-2 flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-blue-600" />
-                카테고리 선택
+                {t("chatbot.category_select")}
               </p>
 
               <div className="flex gap-2 overflow-x-auto pb-1">
-                {suggestions.map((label) => (
+                {suggestions.map((key) => (
                   <Button
-                    key={label}
+                    key={key}
                     variant="outline"
                     size="sm"
                     className="shrink-0 text-[11px] h-8 rounded-full border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition"
-                    onClick={() => handleSendMessage(label)}
+                    onClick={() => handleSendMessage(key)}
                   >
-                    {label}
+                    {t(`chatbot.${key}`)}
                   </Button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* 자주 묻는 질문*/}
+          {/* 자주 묻는 질문 */}
           {messages.length === 1 && (
             <div className="px-4 py-3 border-t border-slate-200 bg-white">
               <p className="text-[11px] font-medium text-slate-600 mb-2 flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-blue-600" />
-                자주 묻는 질문
+                {t("chatbot.faq_title")}
               </p>
+
               <div className="flex flex-wrap gap-2">
-                {quickReplies.map((reply, index) => (
+                {QUICK_REPLY_KEYS.map((key) => (
                   <Button
-                    key={index}
+                    key={key}
                     variant="outline"
                     size="sm"
                     className="text-[11px] h-8 rounded-full border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition"
-                    onClick={() => handleSendMessage(reply)}
+                    onClick={() => handleSendMessage(t(key))}
                   >
-                    {reply}
+                    {t(key)}
                   </Button>
                 ))}
               </div>
@@ -278,9 +292,10 @@ export default function Chatbot() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="메시지를 입력하세요..."
+                placeholder={t("chatbot.input_placeholder")}
                 className="flex-1 rounded-full border-2 border-gray-200 focus:border-blue-500 px-3 sm:px-4 h-10 sm:h-11 text-sm"
               />
+
               <Button
                 onClick={() => handleSendMessage()}
                 size="icon"
@@ -292,7 +307,7 @@ export default function Chatbot() {
             </div>
 
             <p className="hidden sm:block text-xs text-gray-400 mt-2 text-center">
-              Enter를 눌러 전송
+              {t("chatbot.hint_press_enter")}
             </p>
           </div>
         </Card>

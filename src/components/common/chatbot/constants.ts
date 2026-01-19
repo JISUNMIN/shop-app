@@ -1,26 +1,26 @@
-export const quickReplies = [
-  "배송 기간이 얼마나 걸리나요?",
-  "로봇 추천해주세요",
-  "결제 방법은?",
-  "반품/교환 정책은?",
-];
+// constants.ts
+export const ROBOT_CATEGORY_KEYS = [
+  "category_delivery_robot",
+  "category_cleaning_robot",
+  "category_smart_home_robot",
+  "category_entertainment_robot",
+  "category_logistics_robot",
+  "category_medical_robot",
+  "category_drone_robot",
+  "category_service_robot",
+  "category_humanoid",
+  "category_pet_care_robot",
+  "category_agriculture_robot",
+  "category_education_robot",
+  "category_security_robot",
+  "category_companion_robot",
+] as const;
 
-export const initialBotText =
-  "안녕하세요! RoboShop 고객지원입니다. 무엇을 도와드릴까요?";
+export const initialBotText = "chatbot.initial_bot_text";
 
-export const robotCategories = [
-  "배달로봇",
-  "청소로봇",
-  "스마트홈 로봇",
-  "엔터테인먼트 로봇",
-  "물류로봇",
-  "의료로봇",
-  "드론로봇",
-  "서비스로봇",
-  "휴머노이드",
-  "펫케어로봇",
-  "농업로봇",
-  "교육로봇",
-  "보안로봇",
-  "반려로봇",
-];
+export const QUICK_REPLY_KEYS = [
+  "chatbot.quickreply_shipping_time",
+  "chatbot.quickreply_recommend_robot",
+  "chatbot.quickreply_payment_methods",
+  "chatbot.quickreply_return_exchange_policy",
+] as const;

@@ -6,6 +6,16 @@
     "email": "Email",
     "password": "Password",
     "name": "Name",
+    "userId": "User ID",
+    "mobileNumber": "Mobile number",
+    "mobileVerification": "Mobile verification",
+    "emailOptional": "Email (optional)",
+    "sendCode": "Send code",
+    "resendCode": "Resend",
+    "verify": "Verify",
+    "verified": "Verified",
+    "sending": "Sending...",
+    "verifying": "Verifying...",
 
     "passwordPlaceholder": "Enter at least 8 characters",
     "confirmPassword": "Confirm password",
@@ -31,22 +41,38 @@
     "loginButton": "Log in",
 
     "signupTitle": "Sign up",
+    "optional": "optional",
 
     "placeholders": {
+      "userIdPlaceholder": "Enter your user ID (4-16 characters)",
       "nameExample": "Kim Robot",
-      "emailExample": "example@email.com"
+      "emailExample": "example@email.com",
+      "mobileNumberExample": "Enter your mobile number",
+      "mobileCodeExample": "Enter the verification code"
     },
 
     "validation": {
+      "userIdRequired": "Please enter your user ID.",
       "nameRequired": "Please enter your name.",
-      "nameMax": "Name must be 4 characters or fewer.",
+
+      "nameMaxLength": "Name must be 16 characters or fewer.",
+      "minLength4": "Must be at least 4 characters.",
+      "maxLength16": "Must be 16 characters or fewer.",
+
+      "mobileNumberRequired": "Please enter your mobile number.",
+      "mobileNumberInvalid": "Please enter a valid mobile number.",
+      "mobileCodeRequired": "Please enter the verification code.",
+      "mobileCodeInvalid": "Please enter a valid verification code.",
+      "sendCodeFirst": "Please send the verification code first.",
+
       "emailInvalid": "Please enter a valid email address.",
-      "emailRequired": "Please enter your email.",
       "passwordRequired": "Please enter your password.",
       "passwordConfirmRequired": "Please re-enter your password.",
       "passwordMismatch": "Passwords do not match.",
       "agreeTermsRequired": "Please agree to the Terms of Service.",
-      "agreePrivacyRequired": "Please agree to the collection and use of personal information."
+      "agreePrivacyRequired": "Please agree to the collection and use of personal information.",
+
+      "userIdInvalid": "User ID can only contain letters and numbers."
     },
 
     "forgotPasswordTitle": "Reset password",

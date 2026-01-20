@@ -14,36 +14,66 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import FormInput from "@/components/common/FormInput";
 import { useTranslation } from "@/context/TranslationContext";
 import useSignup from "@/hooks/useSignup";
+import { useState } from "react";
 
 type SignupForm = {
+  userId: string;
   name: string;
   email: string;
   password: string;
   passwordConfirm: string;
   agreeTerms: boolean;
   agreePrivacy: boolean;
+  mobileNumber: string;
+  mobileCode: string;
 };
 
 export default function SignupPage() {
   const router = useRouter();
   const { auth } = useTranslation();
   const { signupMutate, isSignupPending } = useSignup();
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [mobileVerified, setMobileVerified] = useState(false);
 
   const schema = yup
     .object({
-      name: yup.string().required(auth.validation.nameRequired).max(4, auth.validation.nameMax),
-
-      email: yup
+      userId: yup
         .string()
-        .required(auth.validation.emailRequired)
-        .email(auth.validation.emailInvalid),
-
-      password: yup.string().required(auth.validation.passwordRequired),
+        .required(auth.validation.userIdRequired)
+        .matches(/^[a-zA-Z0-9]+$/, auth.validation.userIdInvalid)
+        .min(4, auth.validation.minLength4)
+        .max(16, auth.validation.maxLength16),
+      password: yup
+        .string()
+        .required(auth.validation.passwordRequired)
+        .min(8, auth.passwordPlaceholder),
 
       passwordConfirm: yup
         .string()
         .required(auth.validation.passwordConfirmRequired)
+        .min(8, auth.passwordPlaceholder)
         .oneOf([yup.ref("password")], auth.validation.passwordMismatch),
+
+      mobileNumber: yup
+        .string()
+        .required(auth.validation.mobileNumberRequired)
+        .transform((value) => (value ? value.replace(/-/g, "").trim() : value))
+        .matches(/^\d{10,11}$/, auth.validation.mobileNumberInvalid),
+
+      mobileCode: yup
+        .string()
+        .required(auth.validation.mobileCodeRequired)
+        .transform((value) => (value ? value.trim() : value))
+        .matches(/^\d{4,6}$/, auth.validation.mobileCodeInvalid),
+
+      name: yup
+        .string()
+        .required(auth.validation.nameRequired)
+        .max(4, auth.validation.nameMaxLength),
+
+      email: yup.string().notRequired().email(auth.validation.emailInvalid),
 
       agreeTerms: yup
         .boolean()
@@ -62,6 +92,10 @@ export default function SignupPage() {
     handleSubmit,
     formState: { errors },
     control,
+
+    getValues,
+    setError,
+    clearErrors,
   } = useForm<SignupForm>({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -81,6 +115,93 @@ export default function SignupPage() {
   const handleSNSSignup = (provider: string) => {
     console.log(`${provider} 회원가입 시도`);
     router.push("/");
+  };
+
+  const handleSendCode = async () => {
+    const mobileNumber = getValues("mobileNumber")?.trim();
+
+    if (!mobileNumber) {
+      setError("mobileNumber", {
+        type: "manual",
+        message: auth.validation.mobileNumberRequired,
+      });
+      return;
+    }
+
+    // 숫자만 허용 입력이지만 혹시 몰라 한번 더 안전하게
+    if (!/^\d{10,11}$/.test(mobileNumber)) {
+      setError("mobileNumber", {
+        type: "manual",
+        message: auth.validation.mobileNumberInvalid,
+      });
+      return;
+    }
+
+    clearErrors("mobileNumber");
+    setIsSendingCode(true);
+
+    try {
+      // TODO: 인증번호 발송 API 호출
+      // await sendMobileCode({ mobileNumber });
+
+      setCodeSent(true);
+      setMobileVerified(false);
+      clearErrors("mobileCode");
+    } catch (e: any) {
+      setError("mobileNumber", {
+        type: "manual",
+        message: e?.message ?? auth.validation.mobileNumberInvalid,
+      });
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    const mobileNumber = getValues("mobileNumber")?.trim();
+    const mobileCode = getValues("mobileCode")?.trim();
+
+    if (!codeSent) {
+      setError("mobileCode", {
+        type: "manual",
+        message: auth.validation.sendCodeFirst,
+      });
+      return;
+    }
+
+    if (!mobileCode) {
+      setError("mobileCode", {
+        type: "manual",
+        message: auth.validation.mobileCodeRequired,
+      });
+      return;
+    }
+
+    if (!/^\d{4,6}$/.test(mobileCode)) {
+      setError("mobileCode", {
+        type: "manual",
+        message: auth.validation.mobileCodeInvalid,
+      });
+      return;
+    }
+
+    clearErrors("mobileCode");
+    setIsVerifyingCode(true);
+
+    try {
+      // TODO: 인증번호 확인 API 호출
+      // await verifyMobileCode({ mobileNumber, mobileCode });
+
+      setMobileVerified(true);
+    } catch (e: any) {
+      setMobileVerified(false);
+      setError("mobileCode", {
+        type: "manual",
+        message: e?.message ?? auth.validation.mobileCodeInvalid,
+      });
+    } finally {
+      setIsVerifyingCode(false);
+    }
   };
 
   return (
@@ -129,22 +250,11 @@ export default function SignupPage() {
             <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <FormInput
-                  id="name"
-                  placeholder={auth.placeholders.nameExample}
-                  registration={register("name")}
-                  error={errors.name?.message}
-                  label={auth.name}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <FormInput
-                  id="email"
-                  type="email"
-                  placeholder="robot@email.com"
-                  registration={register("email")}
-                  error={errors.email?.message}
-                  label={auth.email}
+                  id="userId"
+                  placeholder={auth.placeholders.userIdPlaceholder}
+                  registration={register("userId")}
+                  error={errors.userId?.message}
+                  label={auth.userId}
                 />
               </div>
 
@@ -153,7 +263,6 @@ export default function SignupPage() {
                   id="password"
                   type="password"
                   placeholder={auth.passwordPlaceholder}
-                  minLength={8}
                   registration={register("password")}
                   error={errors.password?.message}
                   label={auth.password}
@@ -165,10 +274,84 @@ export default function SignupPage() {
                   id="confirmPassword"
                   type="password"
                   placeholder={auth.confirmPasswordPlaceholder}
-                  minLength={8}
                   registration={register("passwordConfirm")}
                   error={errors.passwordConfirm?.message}
                   label={auth.confirmPassword}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <FormInput
+                  id="name"
+                  placeholder={auth.placeholders.nameExample}
+                  registration={register("name")}
+                  error={errors.name?.message}
+                  label={auth.name}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <FormInput
+                  id="mobileNumber"
+                  placeholder={auth.placeholders.mobileNumberExample}
+                  registration={register("mobileNumber", {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "");
+                    },
+                  })}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={11}
+                  error={errors.mobileNumber?.message}
+                  label={auth.mobileNumber}
+                  rightElement={
+                    <Button
+                      type="button"
+                      className="h-10 px-3 whitespace-nowrap"
+                      onClick={handleSendCode}
+                      disabled={isSendingCode}
+                    >
+                      {isSendingCode ? auth.sending : auth.sendCode}
+                    </Button>
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <FormInput
+                  id="mobileCode"
+                  label={auth.mobileVerification}
+                  placeholder={auth.placeholders.mobileCodeExample}
+                  registration={register("mobileCode", {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "");
+                    },
+                  })}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  error={errors.mobileCode?.message}
+                  rightElement={
+                    <Button
+                      type="button"
+                      className="h-10 px-3 whitespace-nowrap"
+                      onClick={handleVerifyCode}
+                      disabled={isVerifyingCode}
+                    >
+                      {isVerifyingCode ? auth.verifying : auth.verify}
+                    </Button>
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <FormInput
+                  id="email"
+                  type="email"
+                  placeholder="robot@email.com"
+                  registration={register("email")}
+                  error={errors.email?.message}
+                  label={`${auth.email}(${auth.optional})`}
                 />
               </div>
 

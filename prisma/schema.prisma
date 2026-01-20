@@ -5,25 +5,30 @@ generator client {
 
 datasource db {
     provider  = "postgresql"
-   url       = env("DATABASE_URL")
+    url       = env("DATABASE_URL")
     directUrl = env("DIRECT_URL")
 }
 
 
 model User {
-    id Int @id @default(autoincrement())
-    name String
-    email String @unique
-    password String? // 소셜 로그인은 비밀번호가 없음
-    accounts Account[]
-    createdAt DateTime @default(now())
-    updateAt DateTime @updatedAt
-}
+  id       Int     @id @default(autoincrement())
 
+  userId   String?  @unique   
+  name     String?
+  email    String? @unique  
+  phone    String? @unique 
+  password String?      
+
+  phoneVerifiedAt DateTime? 
+  accounts Account[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 model Account {
   id                Int    @id @default(autoincrement())
-  userId            Int
-  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userPkId          Int
+  user              User   @relation(fields: [userPkId], references: [id], onDelete: Cascade)
 
   provider          String
   providerAccountId String

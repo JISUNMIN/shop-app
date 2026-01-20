@@ -6,6 +6,16 @@
     "email": "이메일",
     "password": "비밀번호",
     "name": "이름",
+    "userId": "아이디",
+    "mobileNumber": "핸드폰번호",
+    "mobileVerification": "핸드폰 인증(인증번호 입력/확인)",
+    "emailOptional": "이메일(선택)",
+    "sendCode": "인증번호 받기",
+    "resendCode": "재전송",
+    "verify": "인증하기",
+    "verified": "완료",
+    "sending": "전송중...",
+    "verifying": "확인중...",
 
     "passwordPlaceholder": "8자 이상 입력해주세요",
     "confirmPassword": "비밀번호 확인",
@@ -31,22 +41,38 @@
     "loginButton": "로그인",
 
     "signupTitle": "회원가입",
+    "optional": "선택",
 
     "placeholders": {
+      "userIdPlaceholder": "아이디를 입력해주세요 (4~16자)",
       "nameExample": "김로봇",
-      "emailExample": "example@email.com"
+      "emailExample": "example@email.com",
+      "mobileNumberExample": "핸드폰번호를 입력해주세요",
+      "mobileCodeExample": "인증번호를 입력해주세요"
     },
 
     "validation": {
+      "userIdRequired": "아이디를 입력해주세요.",
       "nameRequired": "이름을 입력해주세요.",
-      "nameMax": "이름은 4글자 이상 입력할수 없습니다.",
+
+      "nameMaxLength": "이름은 10자 이내로 입력해주세요.",
+      "minLength4": "4자 이상 입력해주세요.",
+      "maxLength16": "16자 이내로 입력해주세요.",
+
+      "mobileNumberRequired": "핸드폰번호를 입력해주세요.",
+      "mobileNumberInvalid": "올바른 핸드폰번호를 입력해주세요.",
+      "mobileCodeRequired": "인증번호를 입력해주세요.",
+      "mobileCodeInvalid": "인증번호 형식이 올바르지 않습니다.",
+      "sendCodeFirst": "먼저 인증번호를 발송해주세요.",
+
       "emailInvalid": "이메일 형식이 올바르지 않습니다.",
-      "emailRequired": "이메일을 입력해주세요.",
       "passwordRequired": "비밀번호를 입력해주세요.",
-      "passwordConfirmRequired": "비밀번호를 입력해주세요.",
+      "passwordConfirmRequired": "비밀번호를 다시 입력해주세요.",
       "passwordMismatch": "비밀번호가 일치하지 않습니다.",
       "agreeTermsRequired": "이용약관에 동의해주세요.",
-      "agreePrivacyRequired": "개인정보 수집 및 이용에 동의해주세요."
+      "agreePrivacyRequired": "개인정보 수집 및 이용에 동의해주세요.",
+
+      "userIdInvalid": "아이디는 영문과 숫자만 입력 가능합니다."
     },
 
     "forgotPasswordTitle": "비밀번호 재설정",

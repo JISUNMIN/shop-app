@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bot } from "lucide-react";
+import { Bot, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,78 +12,109 @@ import SNSButton from "@/components/common/SNSButton";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import FormInput from "@/components/common/FormInput";
-import { useTranslation } from "@/context/TranslationContext";
+
 import useSignup from "@/hooks/useSignup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import usePhoneVerification from "@/hooks/usePhoneVerification";
+import { getApiMessage } from "@/lib/otp";
+import { useTranslation } from "react-i18next";
 
 type SignupForm = {
   userId: string;
-  name: string;
-  email: string;
   password: string;
   passwordConfirm: string;
-  agreeTerms: boolean;
-  agreePrivacy: boolean;
   mobileNumber: string;
   mobileCode: string;
+  name: string;
+  email?: string | undefined;
+  agreeTerms: boolean;
+  agreePrivacy: boolean;
 };
 
 export default function SignupPage() {
   const router = useRouter();
-  const { auth } = useTranslation();
+  const { t } = useTranslation();
   const { signupMutate, isSignupPending } = useSignup();
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
   const [mobileVerified, setMobileVerified] = useState(false);
+  const [resendCooldownSec, setResendCooldownSec] = useState(0);
+  const [otpExpiresSec, setOtpExpiresSec] = useState(0);
+
+  const formattedTime = `${Math.floor(otpExpiresSec / 60)
+    .toString()
+    .padStart(2, "0")}:${(otpExpiresSec % 60).toString().padStart(2, "0")}`;
+
+  const getSendCodeButtonText = () => {
+    if (mobileVerified) return t("auth.sendCode");
+
+    if (resendCooldownSec > 0) {
+      return t("auth.resendInSeconds", { seconds: resendCooldownSec });
+    }
+    if (isSendingCode) return t("auth.sending");
+
+    return t("auth.sendCode");
+  };
+
+  const {
+    sendPhoneCodeMutate,
+    isSendPhoneCodePending,
+    verifyPhoneCodeMutate,
+    isVerifyPhoneCodePending,
+  } = usePhoneVerification();
 
   const schema = yup
     .object({
       userId: yup
         .string()
-        .required(auth.validation.userIdRequired)
-        .matches(/^[a-zA-Z0-9]+$/, auth.validation.userIdInvalid)
-        .min(4, auth.validation.minLength4)
-        .max(16, auth.validation.maxLength16),
+        .required(t("auth.validation.userIdRequired"))
+        .matches(/^[a-zA-Z0-9]+$/, t("auth.validation.userIdInvalid"))
+        .min(4, t("auth.validation.minLength4"))
+        .max(16, t("auth.validation.maxLength16")),
       password: yup
         .string()
-        .required(auth.validation.passwordRequired)
-        .min(8, auth.passwordPlaceholder),
+        .required(t("auth.validation.passwordRequired"))
+        .min(8, t("auth.passwordPlaceholder")),
 
       passwordConfirm: yup
         .string()
-        .required(auth.validation.passwordConfirmRequired)
-        .min(8, auth.passwordPlaceholder)
-        .oneOf([yup.ref("password")], auth.validation.passwordMismatch),
+        .required(t("auth.validation.passwordConfirmRequired"))
+        .min(8, t("auth.passwordPlaceholder"))
+        .oneOf([yup.ref("password")], t("auth.validation.passwordMismatch")),
 
       mobileNumber: yup
         .string()
-        .required(auth.validation.mobileNumberRequired)
+        .required(t("auth.validation.mobileNumberRequired"))
         .transform((value) => (value ? value.replace(/-/g, "").trim() : value))
-        .matches(/^\d{10,11}$/, auth.validation.mobileNumberInvalid),
+        .matches(/^\d{11}$/, t("auth.validation.mobileNumberInvalid")),
 
       mobileCode: yup
         .string()
-        .required(auth.validation.mobileCodeRequired)
+        .required(t("auth.validation.mobileCodeRequired"))
         .transform((value) => (value ? value.trim() : value))
-        .matches(/^\d{4,6}$/, auth.validation.mobileCodeInvalid),
+        .matches(/^\d{4,6}$/, t("auth.validation.mobileCodeInvalid")),
 
       name: yup
         .string()
-        .required(auth.validation.nameRequired)
-        .max(4, auth.validation.nameMaxLength),
+        .required(t("auth.validation.nameRequired"))
+        .max(4, t("auth.validation.nameMaxLength")),
 
-      email: yup.string().notRequired().email(auth.validation.emailInvalid),
+      email: yup
+        .string()
+        .transform((v) => (v?.trim() === "" ? undefined : v?.trim()))
+        .optional()
+        .email(t("auth.validation.emailInvalid")),
 
       agreeTerms: yup
         .boolean()
-        .oneOf([true], auth.validation.agreeTermsRequired)
-        .required(auth.validation.agreeTermsRequired),
+        .oneOf([true], t("auth.validation.agreeTermsRequired"))
+        .required(t("auth.validation.agreeTermsRequired")),
 
       agreePrivacy: yup
         .boolean()
-        .oneOf([true], auth.validation.agreePrivacyRequired)
-        .required(auth.validation.agreePrivacyRequired),
+        .oneOf([true], t("auth.validation.agreePrivacyRequired"))
+        .required(t("auth.validation.agreePrivacyRequired")),
     })
     .required();
 
@@ -94,9 +125,11 @@ export default function SignupPage() {
     control,
 
     getValues,
+    setValue,
     setError,
     clearErrors,
-  } = useForm<SignupForm>({
+    trigger,
+  } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       agreeTerms: false,
@@ -107,7 +140,8 @@ export default function SignupPage() {
   const onSubmit = async (data: SignupForm) => {
     console.log(data);
     try {
-      await signupMutate({ name: data.name, email: data.email, password: data.password });
+      const { userId, password, name, mobileNumber, email } = data;
+      await signupMutate({ userId, password, name, mobileNumber, email });
       router.push("/login");
     } catch {}
   };
@@ -117,46 +151,43 @@ export default function SignupPage() {
     router.push("/");
   };
 
+  // 코드 전송
   const handleSendCode = async () => {
+    const isValid = await trigger("mobileNumber");
+    if (!isValid) return;
     const mobileNumber = getValues("mobileNumber")?.trim();
-
-    if (!mobileNumber) {
-      setError("mobileNumber", {
-        type: "manual",
-        message: auth.validation.mobileNumberRequired,
-      });
-      return;
-    }
-
-    // 숫자만 허용 입력이지만 혹시 몰라 한번 더 안전하게
-    if (!/^\d{10,11}$/.test(mobileNumber)) {
-      setError("mobileNumber", {
-        type: "manual",
-        message: auth.validation.mobileNumberInvalid,
-      });
-      return;
-    }
-
-    clearErrors("mobileNumber");
     setIsSendingCode(true);
 
     try {
-      // TODO: 인증번호 발송 API 호출
-      // await sendMobileCode({ mobileNumber });
+      const res = await sendPhoneCodeMutate({ phone: mobileNumber });
+      const { code } = res;
+
+      if (!res?.ok) {
+        throw new Error(res?.message ?? t("auth.validation.mobileNumberInvalid"));
+      }
 
       setCodeSent(true);
-      setMobileVerified(false);
-      clearErrors("mobileCode");
+      setValue("mobileCode", code!!);
+      setOtpExpiresSec(res.expiresInSec ?? 0);
     } catch (e: any) {
+      const msg = getApiMessage(e, t, t("auth.validation.mobileNumberInvalid"));
+
       setError("mobileNumber", {
         type: "manual",
-        message: e?.message ?? auth.validation.mobileNumberInvalid,
+        message: msg,
       });
+
+      if (e?.response?.status === 429) {
+        const sec = e?.response?.data?.retryAfterSec;
+        if (typeof sec === "number") setResendCooldownSec(sec);
+      }
     } finally {
+      clearErrors("mobileCode");
       setIsSendingCode(false);
     }
   };
 
+  // 코드 확인
   const handleVerifyCode = async () => {
     const mobileNumber = getValues("mobileNumber")?.trim();
     const mobileCode = getValues("mobileCode")?.trim();
@@ -164,7 +195,7 @@ export default function SignupPage() {
     if (!codeSent) {
       setError("mobileCode", {
         type: "manual",
-        message: auth.validation.sendCodeFirst,
+        message: t("auth.validation.sendCodeFirst"),
       });
       return;
     }
@@ -172,7 +203,7 @@ export default function SignupPage() {
     if (!mobileCode) {
       setError("mobileCode", {
         type: "manual",
-        message: auth.validation.mobileCodeRequired,
+        message: t("auth.validation.mobileCodeRequired"),
       });
       return;
     }
@@ -180,7 +211,7 @@ export default function SignupPage() {
     if (!/^\d{4,6}$/.test(mobileCode)) {
       setError("mobileCode", {
         type: "manual",
-        message: auth.validation.mobileCodeInvalid,
+        message: t("auth.validation.mobileCodeInvalid"),
       });
       return;
     }
@@ -189,20 +220,41 @@ export default function SignupPage() {
     setIsVerifyingCode(true);
 
     try {
-      // TODO: 인증번호 확인 API 호출
-      // await verifyMobileCode({ mobileNumber, mobileCode });
+      const res = await verifyPhoneCodeMutate({
+        phone: mobileNumber,
+        code: mobileCode,
+      });
+
+      if (!res?.ok) {
+        throw new Error(res?.message ?? t("auth.validation.mobileCodeInvalid"));
+      }
 
       setMobileVerified(true);
     } catch (e: any) {
       setMobileVerified(false);
+      const msg = getApiMessage(e, t, t("auth.validation.mobileCodeInvalid"));
+
       setError("mobileCode", {
         type: "manual",
-        message: e?.message ?? auth.validation.mobileCodeInvalid,
+        message: msg,
       });
     } finally {
+      clearErrors("mobileNumber");
       setIsVerifyingCode(false);
     }
   };
+
+  useEffect(() => {
+    if (resendCooldownSec <= 0 || mobileVerified) return;
+    const t = setInterval(() => setResendCooldownSec((p) => (p > 0 ? p - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [resendCooldownSec]);
+
+  useEffect(() => {
+    if (otpExpiresSec <= 0 || mobileVerified) return;
+    const t = setInterval(() => setOtpExpiresSec((p) => (p > 0 ? p - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [otpExpiresSec]);
 
   return (
     <FullWidthSection>
@@ -216,8 +268,8 @@ export default function SignupPage() {
         {/* Signup Card */}
         <Card className="w-full max-w-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">{auth.signupTitle}</CardTitle>
-            <CardDescription className="text-center">{auth.signupDescription}</CardDescription>
+            <CardTitle className="text-2xl text-center">{t("auth.signupTitle")}</CardTitle>
+            <CardDescription className="text-center">{t("auth.signupDescription")}</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-4">
@@ -242,19 +294,19 @@ export default function SignupPage() {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">{auth.orEmailSignup}</span>
+                <span className="bg-white px-2 text-gray-500">{t("auth.orEmailSignup")}</span>
               </div>
             </div>
 
-            {/* Email Signup Form */}
+            {/* 일반 회원가입*/}
             <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <FormInput
                   id="userId"
-                  placeholder={auth.placeholders.userIdPlaceholder}
+                  placeholder={t("auth.placeholders.userIdPlaceholder")}
                   registration={register("userId")}
                   error={errors.userId?.message}
-                  label={auth.userId}
+                  label={t("auth.userId")}
                 />
               </div>
 
@@ -262,10 +314,10 @@ export default function SignupPage() {
                 <FormInput
                   id="password"
                   type="password"
-                  placeholder={auth.passwordPlaceholder}
+                  placeholder={t("auth.passwordPlaceholder")}
                   registration={register("password")}
                   error={errors.password?.message}
-                  label={auth.password}
+                  label={t("auth.password")}
                 />
               </div>
 
@@ -273,27 +325,28 @@ export default function SignupPage() {
                 <FormInput
                   id="confirmPassword"
                   type="password"
-                  placeholder={auth.confirmPasswordPlaceholder}
+                  placeholder={t("auth.confirmPasswordPlaceholder")}
                   registration={register("passwordConfirm")}
                   error={errors.passwordConfirm?.message}
-                  label={auth.confirmPassword}
+                  label={t("auth.confirmPassword")}
                 />
               </div>
-
+              {/* 이름*/}
               <div className="space-y-2">
                 <FormInput
                   id="name"
-                  placeholder={auth.placeholders.nameExample}
+                  placeholder={t("auth.placeholders.nameExample")}
                   registration={register("name")}
                   error={errors.name?.message}
-                  label={auth.name}
+                  label={t("auth.name")}
                 />
               </div>
 
+              {/* 핸드폰 번호*/}
               <div className="space-y-2">
                 <FormInput
                   id="mobileNumber"
-                  placeholder={auth.placeholders.mobileNumberExample}
+                  placeholder={t("auth.placeholders.mobileNumberExample")}
                   registration={register("mobileNumber", {
                     onChange: (e) => {
                       e.target.value = e.target.value.replace(/\D/g, "");
@@ -301,27 +354,28 @@ export default function SignupPage() {
                   })}
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  maxLength={11}
+                  minLength={11}
                   error={errors.mobileNumber?.message}
-                  label={auth.mobileNumber}
+                  label={t("auth.mobileNumber")}
+                  disabled={mobileVerified}
                   rightElement={
                     <Button
                       type="button"
                       className="h-10 px-3 whitespace-nowrap"
                       onClick={handleSendCode}
-                      disabled={isSendingCode}
+                      disabled={isSendingCode || resendCooldownSec > 0 || mobileVerified}
                     >
-                      {isSendingCode ? auth.sending : auth.sendCode}
+                      {getSendCodeButtonText()}
                     </Button>
                   }
                 />
               </div>
-
+              {/* 핸드폰 인증*/}
               <div className="space-y-2">
                 <FormInput
                   id="mobileCode"
-                  label={auth.mobileVerification}
-                  placeholder={auth.placeholders.mobileCodeExample}
+                  label={t("auth.mobileVerification")}
+                  placeholder={t("auth.placeholders.mobileCodeExample")}
                   registration={register("mobileCode", {
                     onChange: (e) => {
                       e.target.value = e.target.value.replace(/\D/g, "");
@@ -331,19 +385,36 @@ export default function SignupPage() {
                   pattern="[0-9]*"
                   maxLength={6}
                   error={errors.mobileCode?.message}
+                  disabled={mobileVerified}
                   rightElement={
                     <Button
                       type="button"
                       className="h-10 px-3 whitespace-nowrap"
                       onClick={handleVerifyCode}
-                      disabled={isVerifyingCode}
+                      disabled={mobileVerified}
                     >
-                      {isVerifyingCode ? auth.verifying : auth.verify}
+                      {isVerifyingCode ? t("auth.verifying") : t("auth.verify")}
                     </Button>
                   }
                 />
+                {/* 남은 시간(타이머) */}
+                {codeSent && !mobileVerified && (
+                  <div
+                    className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
+                      otpExpiresSec > 0 ? "bg-red-50 text-red-700" : "bg-gray-50 text-gray-600"
+                    }`}
+                  >
+                    <Clock className="h-4 w-4" />
+                    <span className="font-semibold">
+                      {otpExpiresSec > 0
+                        ? t("auth.otpRemainingTime", { time: formattedTime })
+                        : t("auth.otpExpired")}
+                    </span>
+                  </div>
+                )}
               </div>
 
+              {/* 이메일 */}
               <div className="space-y-2">
                 <FormInput
                   id="email"
@@ -351,10 +422,11 @@ export default function SignupPage() {
                   placeholder="robot@email.com"
                   registration={register("email")}
                   error={errors.email?.message}
-                  label={`${auth.email}(${auth.optional})`}
+                  label={`${t("auth.email")}(${t("auth.optional")})`}
                 />
               </div>
 
+              {/* 약관 동의 */}
               <div className="space-y-3 pt-2">
                 <div className="flex items-start space-x-2">
                   <Controller
@@ -373,7 +445,8 @@ export default function SignupPage() {
                     htmlFor="agreeTerms"
                     className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    <span className="text-red-500">{auth.requiredMark}</span> {auth.agreeTerms}
+                    <span className="text-red-500">{t("auth.requiredMark")}</span>
+                    {t("auth.agreeTerms")}
                   </label>
                 </div>
 
@@ -394,7 +467,8 @@ export default function SignupPage() {
                     htmlFor="agreePrivacy"
                     className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    <span className="text-red-500">{auth.requiredMark}</span> {auth.agreePrivacy}
+                    <span className="text-red-500">{t("auth.requiredMark")}</span>{" "}
+                    {t("auth.agreePrivacy")}
                   </label>
                 </div>
 
@@ -403,13 +477,13 @@ export default function SignupPage() {
                 )}
               </div>
 
-              <Button className="w-full h-11">{auth.signupButton}</Button>
+              <Button className="w-full h-11">{t("auth.signupButton")}</Button>
             </form>
 
             <div className="text-center text-sm">
-              <span className="text-gray-600">{auth.haveAccount} </span>
+              <span className="text-gray-600">{t("auth.haveAccount")} </span>
               <Link href="/login" className="text-blue-600 hover:underline font-medium">
-                {auth.login}
+                {t("auth.login")}
               </Link>
             </div>
           </CardContent>

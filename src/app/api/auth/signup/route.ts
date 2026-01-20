@@ -4,23 +4,34 @@ import bcrypt from "bcryptjs";
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, userId, mobileNumber, email, password } = await request.json();
+    const normalizedEmail = typeof email === "string" ? email.trim() : "";
+    const emailOrNull = normalizedEmail.length > 0 ? normalizedEmail : null;
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "email/password required" }, { status: 400 });
+    if (!password) {
+      return NextResponse.json({ error: "password required" }, { status: 400 });
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findUnique({ where: { userId } });
     if (existing) {
       return NextResponse.json({ error: "Email already in use" }, { status: 409 });
+    }
+
+    if (emailOrNull) {
+      const existingEmail = await prisma.user.findUnique({ where: { email: emailOrNull } });
+      if (existingEmail) {
+        return NextResponse.json({ error: "Email already in use" }, { status: 409 });
+      }
     }
 
     const hashed = await bcrypt.hash(password, 12);
 
     const user = await prisma.user.create({
       data: {
+        userId,
         name: name ?? null,
-        email,
+        phone: mobileNumber,
+        email: emailOrNull,
         password: hashed,
       },
       select: { id: true, name: true, email: true, createdAt: true },

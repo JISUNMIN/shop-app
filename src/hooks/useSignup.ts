@@ -9,24 +9,30 @@ import { toast } from "sonner";
 const SIGNUP_API_PATH = "/auth/signup";
 
 type SignupPayload = {
-  name?: string | null;
-  email: string;
+  userId: string;
   password: string;
+  name?: string | null;
+  mobileNumber?: string | null;
+  email?: string;
 };
 
 const useSignup = () => {
   const { t } = useTranslation();
 
-  const { mutateAsync: signupMutate, isPending: isSignupPending } = useMutation<SignupPayload, Error, SignupPayload>({
+  const { mutateAsync: signupMutate, isPending: isSignupPending } = useMutation<
+    SignupPayload,
+    Error,
+    SignupPayload
+  >({
     mutationFn: async (data) => {
       const res = await axiosSession.post<SignupPayload>(SIGNUP_API_PATH, data);
       return res.data;
     },
     onSuccess: () => {
-      toast.success(t("signup.success"));
+      toast.success(t("auth.signupSuccess"));
     },
     onError: (err) => {
-      toast.error(t("signup.fail"));
+      toast.error(t("auth.signupfail"));
       console.error(err);
     },
   });

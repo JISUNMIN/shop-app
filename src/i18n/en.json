@@ -43,6 +43,14 @@
     "signupTitle": "Sign up",
     "optional": "optional",
 
+    "mobileCodeSent": "Verification code has been sent.",
+    "mobileCodeSendFail": "Failed to send verification code.",
+    "mobileVerified": "Phone verification completed.",
+    "mobileVerifyFail": "Invalid verification code.",
+    "resendInSeconds": "Resend in {{seconds}}s",
+    "otpRemainingTime": "Time left {{time}}",
+    "otpExpired": "The verification code has expired. Please resend it.",
+
     "placeholders": {
       "userIdPlaceholder": "Enter your user ID (4-16 characters)",
       "nameExample": "Kim Robot",
@@ -74,6 +82,25 @@
 
       "userIdInvalid": "User ID can only contain letters and numbers."
     },
+    "serverError": {
+      "phoneInvalid": "Invalid phone number",
+      "phoneOrCodeInvalid": "Invalid phone or code",
+
+      "phoneAlreadyVerified": "Already verified",
+      "phoneResendCooldown": "Please try again shortly.",
+      "phoneTooManyResendRequests": "Too many resend requests",
+
+      "phoneNoVerificationSession": "No verification session. Please send code first.",
+      "phoneCodeExpired": "Code expired. Please resend.",
+      "phoneTooManyAttempts": "Too many attempts. Please resend code.",
+      "phoneInvalidCode": "Invalid code",
+
+      "serverError": "Server error",
+      "userIdAlreadyExists": "This ID already exists."
+    },
+
+    "signupSuccess": "Sign-up completed successfully.",
+    "signupfail": "Sign-up failed. Please try again.",
 
     "forgotPasswordTitle": "Reset password",
     "forgotPasswordDescriptionDefault": "Please enter the email address you used to sign up.",

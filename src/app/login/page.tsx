@@ -15,23 +15,20 @@ import FullWidthSection from "@/components/layout/FullWidthSection";
 import { SNSType } from "@/types";
 import SNSButton from "@/components/common/SNSButton";
 import FormInput from "@/components/common/FormInput";
-import { useTranslation } from "@/context/TranslationContext";
+import { useTranslation } from "react-i18next";
 
 type LoginForm = {
-  email: string;
+  userId: string;
   password: string;
 };
 
 export default function LoginPage() {
   const router = useRouter();
-  const { auth } = useTranslation();
+  const { t } = useTranslation();
   const schema = yup
     .object({
-      email: yup
-        .string()
-        .email(auth.validation.emailInvalid)
-        .required(auth.validation.emailRequired),
-      password: yup.string().required(auth.validation.passwordRequired),
+      userId: yup.string().required(t("auth.validation.userIdRequired")),
+      password: yup.string().required(t("auth.validation.passwordRequired")),
     })
     .required();
 
@@ -73,18 +70,19 @@ export default function LoginPage() {
             {/* Login Card */}
             <Card>
               <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl text-center">{auth.login}</CardTitle>
-                <CardDescription className="text-center">{auth.loginDescription}</CardDescription>
+                <CardTitle className="text-2xl text-center">{t("auth.login")}</CardTitle>
+                <CardDescription className="text-center">
+                  {t("auth.loginDescription")}
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-4">
                 <FormInput
-                  id="email"
-                  type="email"
-                  placeholder="robot@email.com"
-                  registration={register("password")}
-                  error={errors.password?.message}
-                  label={auth.email}
+                  id="userId"
+                  placeholder="userId"
+                  registration={register("userId")}
+                  error={errors.userId?.message}
+                  label={t("auth.userId")}
                 />
 
                 <FormInput
@@ -93,15 +91,15 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   registration={register("password")}
                   error={errors.password?.message}
-                  label={auth.password}
+                  label={t("auth.password")}
                 >
                   <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
-                    {auth.forgotPassword}
+                    {t("auth.forgotPassword")}
                   </Link>
                 </FormInput>
 
                 <Button type="submit" className="w-full">
-                  {auth.login}
+                  {t("auth.login")}
                 </Button>
 
                 {/* <Button type="submit" className="w-full" disabled={isSubmitting}>
@@ -113,7 +111,7 @@ export default function LoginPage() {
                     <span className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500"> {auth.orSnsLogin}</span>
+                    <span className="bg-white px-2 text-gray-500"> {t("auth.orSnsLogin")}</span>
                   </div>
                 </div>
 
@@ -123,9 +121,9 @@ export default function LoginPage() {
                 </div>
 
                 <div className="text-center text-sm">
-                  <span className="text-gray-600 mr-1">{auth.noAccount}</span>
+                  <span className="text-gray-600 mr-1">{t("auth.noAccount")}</span>
                   <Link href="/signup" className="text-blue-600 hover:underline font-medium">
-                    {auth.signup}
+                    {t("auth.signup")}
                   </Link>
                 </div>
               </CardContent>

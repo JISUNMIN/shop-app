@@ -69,8 +69,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ ok: true }, { status: 200 });
-  } catch (err: any) {
-    console.error("[phone/verify] error:", err);
+  } catch  {
     return NextResponse.json(
       { ok: false, messageKey: "auth.serverError.serverError" },
       { status: 500 }

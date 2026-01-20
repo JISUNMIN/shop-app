@@ -7,7 +7,7 @@ export type BotReply = {
 };
 
 export type RobotCategoryKey = (typeof ROBOT_CATEGORY_KEYS)[number];
-export type TFn = (key: string, options?: Record<string, any>) => string;
+export type TFn = (key: string, options?: Record<string, unknown>) => string;
 
 const includesAny = (text: string, keywords: string[]) => {
   return keywords.some((k) => k && text.includes(k));

@@ -34,7 +34,16 @@ type SignupForm = {
 export default function SignupPage() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { signupMutate, isSignupPending } = useSignup();
+  // const { signupMutate, isSignupPending } = useSignup();
+  const { signupMutate } = useSignup();
+  //   const {
+  //   sendPhoneCodeMutate,
+  //   isSendPhoneCodePending,
+  //   verifyPhoneCodeMutate,
+  //   isVerifyPhoneCodePending,
+  // } = usePhoneVerification();
+  const { sendPhoneCodeMutate, verifyPhoneCodeMutate } = usePhoneVerification();
+
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
@@ -56,13 +65,6 @@ export default function SignupPage() {
 
     return t("auth.sendCode");
   };
-
-  const {
-    sendPhoneCodeMutate,
-    isSendPhoneCodePending,
-    verifyPhoneCodeMutate,
-    isVerifyPhoneCodePending,
-  } = usePhoneVerification();
 
   const schema = yup
     .object({
@@ -167,9 +169,9 @@ export default function SignupPage() {
       }
 
       setCodeSent(true);
-      setValue("mobileCode", code!!);
+      setValue("mobileCode", code!);
       setOtpExpiresSec(res.expiresInSec ?? 0);
-    } catch (e: any) {
+    } catch (e: unknown) {
       const msg = getApiMessage(e, t, t("auth.validation.mobileNumberInvalid"));
 
       setError("mobileNumber", {
@@ -230,7 +232,7 @@ export default function SignupPage() {
       }
 
       setMobileVerified(true);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMobileVerified(false);
       const msg = getApiMessage(e, t, t("auth.validation.mobileCodeInvalid"));
 
@@ -248,13 +250,13 @@ export default function SignupPage() {
     if (resendCooldownSec <= 0 || mobileVerified) return;
     const t = setInterval(() => setResendCooldownSec((p) => (p > 0 ? p - 1 : 0)), 1000);
     return () => clearInterval(t);
-  }, [resendCooldownSec]);
+  }, [resendCooldownSec, mobileVerified]);
 
   useEffect(() => {
     if (otpExpiresSec <= 0 || mobileVerified) return;
     const t = setInterval(() => setOtpExpiresSec((p) => (p > 0 ? p - 1 : 0)), 1000);
     return () => clearInterval(t);
-  }, [otpExpiresSec]);
+  }, [otpExpiresSec, mobileVerified]);
 
   return (
     <FullWidthSection>

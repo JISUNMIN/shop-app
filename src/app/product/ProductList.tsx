@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import useProducts from "@/hooks/useProducts";
 import ProductCard from "./ProductCard";
@@ -19,13 +19,7 @@ import ErrorMessage from "@/components/ErrorMessage";
 import { useTranslation } from "@/context/TranslationContext";
 import { formatString } from "@/utils/helper";
 
-const validSorts = [
-  "newest",
-  "oldest",
-  "price_asc",
-  "price_desc",
-  "name",
-] as const;
+const validSorts = ["newest", "oldest", "price_asc", "price_desc", "name"] as const;
 type SortType = (typeof validSorts)[number];
 
 export default function ProductList() {
@@ -42,12 +36,14 @@ export default function ProductList() {
     ? (sortParam as SortType)
     : "newest";
 
-  const currentParams = {
-    search: searchParam,
-    page: pageParam,
-    sort,
-    category: categoryParam,
-  };
+  const currentParams = useMemo(() => {
+    return {
+      search: searchParam,
+      page: pageParam,
+      sort,
+      category: categoryParam,
+    };
+  }, [searchParam, pageParam, categoryParam, sort]);
 
   const { listData, isListLoading, listError } = useProducts(currentParams);
 
@@ -82,22 +78,13 @@ export default function ProductList() {
   );
 
   if (listError) {
-    return (
-      <ErrorMessage
-        message={t.errorLoading}
-        onRetry={() => window.location.reload()}
-      />
-    );
+    return <ErrorMessage message={t.errorLoading} onRetry={() => window.location.reload()} />;
   }
 
   return (
     <div className="container py-8">
       {/* 헤더 섹션 */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl mb-2">
@@ -158,10 +145,7 @@ export default function ProductList() {
               {currentParams.search ? t.noProductsSearch : t.noProductsDefault}
             </p>
             {currentParams.search && (
-              <Button
-                onClick={() => router.push("/")}
-                className="mt-4 cursor-pointer"
-              >
+              <Button onClick={() => router.push("/")} className="mt-4 cursor-pointer">
                 {t.viewAllProducts}
               </Button>
             )}
@@ -187,28 +171,23 @@ export default function ProductList() {
               {t.prev}
             </Button>
 
-            {Array.from(
-              { length: Math.min(5, listData.totalPages) },
-              (_, i) => {
-                const startPage = Math.max(1, currentParams.page - 2);
-                const pageNumber = startPage + i;
+            {Array.from({ length: Math.min(5, listData.totalPages) }, (_, i) => {
+              const startPage = Math.max(1, currentParams.page - 2);
+              const pageNumber = startPage + i;
 
-                if (pageNumber > listData.totalPages) return null;
+              if (pageNumber > listData.totalPages) return null;
 
-                return (
-                  <Button
-                    key={pageNumber}
-                    variant={
-                      currentParams.page === pageNumber ? "default" : "outline"
-                    }
-                    size="sm"
-                    onClick={() => handlePageChange(pageNumber)}
-                  >
-                    {pageNumber}
-                  </Button>
-                );
-              }
-            )}
+              return (
+                <Button
+                  key={pageNumber}
+                  variant={currentParams.page === pageNumber ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePageChange(pageNumber)}
+                >
+                  {pageNumber}
+                </Button>
+              );
+            })}
 
             <Button
               variant="outline"

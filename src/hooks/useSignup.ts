@@ -1,7 +1,6 @@
 // src/hooks/useSignup.ts
 
 import axiosSession from "@/lib/axiosSession";
-import type { User } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

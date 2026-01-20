@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (err: any) {
+  } catch {
     return NextResponse.json({ ok: false, messageKey: "auth.serverError.serverError" }, { status: 500 });
   }
 }

@@ -40,7 +40,6 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 
   return (
     <Carousel
-      className="w-full"
       plugins={[plugin.current]}
       onMouseEnter={plugin.current.stop}
       onMouseLeave={() => plugin.current.play()}
@@ -53,9 +52,9 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
               <div
                 onClick={clickable ? () => handleBannerClick(banner) : undefined}
                 tabIndex={clickable ? 0 : undefined}
-                className={`relative w-full h-[450px] overflow-hidden rounded-xl ${
+                className={`relative w-full overflow-hidden rounded-xl ${
                   clickable ? "cursor-pointer" : ""
-                }`}
+                } aspect-[16/9] sm:aspect-[21/9]`}
               >
                 <Image
                   src={banner.src}
@@ -71,8 +70,8 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
         })}
       </CarouselContent>
 
-      <CarouselPrevious />
-      <CarouselNext />
+      <CarouselPrevious className="hidden lg:flex"/>
+      <CarouselNext className="hidden lg:flex"/>
     </Carousel>
   );
 }

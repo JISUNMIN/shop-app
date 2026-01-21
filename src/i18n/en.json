@@ -1,6 +1,7 @@
 {
   "auth": {
-    "login": "Log in",
+    "login": "Login",
+    "logout": "Logout",
     "loggingIn": "Logging in...",
     "signup": "Sign up",
     "email": "Email",
@@ -16,6 +17,7 @@
     "verified": "Verified",
     "sending": "Sending...",
     "verifying": "Verifying...",
+    "logoutfail": "Logout failed.",
 
     "passwordPlaceholder": "Enter at least 8 characters",
     "confirmPassword": "Confirm password",

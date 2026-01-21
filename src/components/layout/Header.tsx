@@ -11,8 +11,11 @@ import { useRouter } from "next/navigation";
 import useCart from "@/hooks/useCart";
 import { useLangStore } from "@/store/langStore";
 import { useTranslation } from "react-i18next";
+import { LogoutButton } from "../common/LogoutButton";
+import { useSession } from "next-auth/react";
 
 export default function Header() {
+  const { data: session } = useSession();
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
@@ -20,6 +23,7 @@ export default function Header() {
   const cartItemCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
   const { lang, toggleLang } = useLangStore();
   const { t } = useTranslation();
+  const user = session?.user;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,11 +125,14 @@ export default function Header() {
               <span>{lang}</span>
             </Button>
 
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="px-2">
-                {t("auth.login")}
-              </Button>
-            </Link>
+            {!user && (
+              <Link href="/login">
+                <Button variant="ghost" size="sm" className="px-2">
+                  {t("auth.login")}
+                </Button>
+              </Link>
+            )}
+
             <span className="text-gray-300">|</span>
             <Link href="/signup">
               <Button variant="ghost" size="sm" className="px-2 font-semibold">
@@ -148,6 +155,8 @@ export default function Header() {
                 <span className="hidden sm:ml-2 sm:inline">{t("cart")}</span>
               </Button>
             </Link>
+
+            <LogoutButton />
           </div>
         </>
       )}

@@ -16,6 +16,8 @@ import { SNSType } from "@/types";
 import SNSButton from "@/components/common/SNSButton";
 import FormInput from "@/components/common/FormInput";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { useState } from "react";
 
 type LoginForm = {
   userId: string;
@@ -25,6 +27,7 @@ type LoginForm = {
 export default function LoginPage() {
   const router = useRouter();
   const { t } = useTranslation();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const schema = yup
     .object({
       userId: yup.string().required(t("auth.validation.userIdRequired")),
@@ -40,8 +43,21 @@ export default function LoginPage() {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data: LoginForm) => {
-    console.log(data);
+  const onSubmit = async (data: LoginForm) => {
+    setIsLoggingIn(true);
+    const res = await signIn("credentials", {
+      userId: data.userId,
+      password: data.password,
+      redirect: false,
+    });
+
+    setIsLoggingIn(false);
+
+    if (res?.error) {
+      toast.error(t("auth.logoutfail"));
+      return;
+    }
+
     router.push("/");
   };
 
@@ -61,13 +77,13 @@ export default function LoginPage() {
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
           <div className="w-full max-w-md">
-            {/* Logo */}
+            {/* 로고 */}
             <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
               <Bot className="w-10 h-10" />
               <span className="text-2xl font-bold">RoboShop</span>
             </Link>
 
-            {/* Login Card */}
+            {/* 카드 영역 */}
             <Card>
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl text-center">{t("auth.login")}</CardTitle>
@@ -98,20 +114,16 @@ export default function LoginPage() {
                   </Link>
                 </FormInput>
 
-                <Button type="submit" className="w-full">
-                  {t("auth.login")}
+                <Button type="submit" className="w-full" disabled={isLoggingIn}>
+                  {isLoggingIn ? t("auth.loggingIn") : t("auth.login")}
                 </Button>
-
-                {/* <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? {auth.loggingIn} : {auth.login}}
-              </Button>  */}
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500"> {t("auth.orSnsLogin")}</span>
+                    <span className="bg-white px-2 text-gray-500">{t("auth.orSnsLogin")}</span>
                   </div>
                 </div>
 

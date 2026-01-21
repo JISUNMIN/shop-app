@@ -1,6 +1,7 @@
 {
   "auth": {
     "login": "로그인",
+    "logout": "로그아웃",
     "loggingIn": "로그인 중...",
     "signup": "회원가입",
     "email": "이메일",
@@ -16,6 +17,7 @@
     "verified": "완료",
     "sending": "전송중...",
     "verifying": "확인중...",
+    "logoutfail": "로그아웃에 실패했습니다.",
 
     "passwordPlaceholder": "8자 이상 입력해주세요",
     "confirmPassword": "비밀번호 확인",

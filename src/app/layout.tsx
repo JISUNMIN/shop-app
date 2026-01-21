@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TranslationProvider } from "@/context/TranslationContext";
 import I18nProvider from "@/i18n/I18nextProvider";
 import ClientLayout from "@/components/layout/ClientLayout";
+import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body className={inter.className}>
+        <SessionProvider>
         <TranslationProvider>
           <QueryProvider>
             <I18nProvider>
@@ -32,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </I18nProvider>
           </QueryProvider>
         </TranslationProvider>
+        </SessionProvider>
       </body>
     </html>
   );

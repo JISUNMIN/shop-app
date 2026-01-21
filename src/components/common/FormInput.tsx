@@ -1,11 +1,12 @@
 import React, { InputHTMLAttributes, ReactNode } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { UseFormRegisterReturn } from "react-hook-form";
 
 type FormInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "id" | "children"> & {
   id: string;
   type?: "email" | "password" | "text";
-  registration: ReturnType<any>;
+  registration: UseFormRegisterReturn;
   label?: string;
   placeholder?: string;
   error?: string;

@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import usePhoneVerification from "@/hooks/usePhoneVerification";
 import { getApiMessage } from "@/lib/otp";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
 
 type SignupForm = {
   userId: string;
@@ -179,9 +180,11 @@ export default function SignupPage() {
         message: msg,
       });
 
-      if (e?.response?.status === 429) {
-        const sec = e?.response?.data?.retryAfterSec;
-        if (typeof sec === "number") setResendCooldownSec(sec);
+      if (axios.isAxiosError(e) && e.response?.status === 429) {
+        const sec = e.response.data?.retryAfterSec;
+        if (typeof sec === "number") {
+          setResendCooldownSec(sec);
+        }
       }
     } finally {
       clearErrors("mobileCode");

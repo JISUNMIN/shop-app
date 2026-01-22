@@ -24,7 +24,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!userId || !password) return null;
 
         const user = await prisma.user.findUnique({ where: { userId } });
-        console.log("user", user);
 
         if (!user?.password) return null;
 
@@ -34,17 +33,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return { id: user.id, name: user.name, userId: user.userId };
       },
     }),
-
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID!,
       clientSecret: process.env.KAKAO_CLIENT_SECRET!,
+      authorization: {
+        url: "https://kauth.kakao.com/oauth/authorize",
+        params: { prompt: "login", scope: "profile_nickname" },
+      },
     }),
     NaverProvider({
       clientId: process.env.NAVER_CLIENT_ID!,
       clientSecret: process.env.NAVER_CLIENT_SECRET!,
     }),
   ],
-
   callbacks: {
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) return `${baseUrl}${url}`;

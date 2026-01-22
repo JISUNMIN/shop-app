@@ -9,7 +9,7 @@ import { TranslationProvider } from "@/context/TranslationContext";
 import I18nProvider from "@/i18n/I18nextProvider";
 import ClientLayout from "@/components/layout/ClientLayout";
 
-import { auth } from "~/auth";
+import { auth } from "@/auth";
 import SessionProvider from "@/providers/SessionProvider";
 
 const inter = Inter({ subsets: ["latin"] });

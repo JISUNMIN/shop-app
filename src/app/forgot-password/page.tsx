@@ -97,7 +97,6 @@ export default function ForgotPasswordPage() {
                     variant="outline"
                     className="w-full"
                     onClick={() => {
-                      console.log("Resending email to:", email);
                       alert(auth.forgotPasswordResendAlert);
                     }}
                   >

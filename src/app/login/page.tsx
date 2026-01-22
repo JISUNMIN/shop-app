@@ -12,7 +12,6 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signIn } from "next-auth/react";
 import FullWidthSection from "@/components/layout/FullWidthSection";
-import { SNSType } from "@/types";
 import SNSButton from "@/components/common/SNSButton";
 import FormInput from "@/components/common/FormInput";
 import { useTranslation } from "react-i18next";
@@ -59,17 +58,6 @@ export default function LoginPage() {
     }
 
     router.push("/");
-  };
-
-  const openSocialLoginPopup = async (provider: SNSType) => {
-    const res = await signIn(provider, {
-      callbackUrl: "/",
-      redirect: false,
-    });
-
-    if (!res?.url) return;
-
-    window.open(res.url, "snsLogin", "width=500,height=700");
   };
 
   return (
@@ -128,8 +116,8 @@ export default function LoginPage() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <SNSButton type="kakao" onClick={() => openSocialLoginPopup("kakao")} />
-                  <SNSButton type="naver" onClick={() => openSocialLoginPopup("naver")} />
+                  <SNSButton type="kakao" />
+                  <SNSButton type="naver" />
                 </div>
 
                 <div className="text-center text-sm">

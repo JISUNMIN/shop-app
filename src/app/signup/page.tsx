@@ -149,11 +149,6 @@ export default function SignupPage() {
     } catch {}
   };
 
-  const handleSNSSignup = (provider: string) => {
-    console.log(`${provider} 회원가입 시도`);
-    router.push("/");
-  };
-
   // 코드 전송
   const handleSendCode = async () => {
     const isValid = await trigger("mobileNumber");
@@ -280,18 +275,8 @@ export default function SignupPage() {
           <CardContent className="space-y-4">
             {/* SNS Signup */}
             <div className="space-y-3">
-              <SNSButton
-                className="h-12 gap-3"
-                hasLabel
-                type="kakao"
-                onClick={() => handleSNSSignup("kakao")}
-              />
-              <SNSButton
-                className="h-12 gap-3"
-                hasLabel
-                type="naver"
-                onClick={() => handleSNSSignup("naver")}
-              />
+              <SNSButton className="h-12 gap-3" hasLabel type="kakao" />
+              <SNSButton className="h-12 gap-3" hasLabel type="naver" />
             </div>
 
             <div className="relative">

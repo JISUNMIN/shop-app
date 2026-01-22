@@ -1,9 +1,33 @@
 "use client";
+
 import { signOut } from "next-auth/react";
 import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
+import { LogOut, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export function LogoutButton() {
   const { t } = useTranslation();
-  return <Button onClick={() => signOut({ callbackUrl: "/" })}>{t("auth.logout")}</Button>;
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await signOut({ callbackUrl: "/" });
+  };
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      className="px-2 flex items-center gap-1"
+      onClick={handleLogout}
+      disabled={isLoggingOut}
+    >
+      {isLoggingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+      <span className="hidden sm:inline">
+        {isLoggingOut ? t("auth.loggingOut") : t("auth.logout")}
+      </span>
+    </Button>
+  );
 }

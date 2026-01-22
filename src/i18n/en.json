@@ -17,7 +17,8 @@
     "verified": "Verified",
     "sending": "Sending...",
     "verifying": "Verifying...",
-    "logoutfail": "Logout failed.",
+    "loginfail": "Login failed.",
+    "loggingOut": "Logging out...",
 
     "passwordPlaceholder": "Enter at least 8 characters",
     "confirmPassword": "Confirm password",

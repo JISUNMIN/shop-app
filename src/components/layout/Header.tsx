@@ -113,7 +113,7 @@ export default function Header() {
               </Button>
             </form>
           </div>
-
+          {/* 지구본(언어변경) */}
           <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
@@ -125,6 +125,7 @@ export default function Header() {
               <span>{lang}</span>
             </Button>
 
+            {/* 로그인*/}
             {!user && (
               <Link href="/login">
                 <Button variant="ghost" size="sm" className="px-2">
@@ -133,13 +134,19 @@ export default function Header() {
               </Link>
             )}
 
-            <span className="text-gray-300">|</span>
-            <Link href="/signup">
-              <Button variant="ghost" size="sm" className="px-2 font-semibold">
-                {t("auth.signup")}
-              </Button>
-            </Link>
-
+            {/* 회원가입 */}
+            {!user && (
+              <>
+                <span className="text-gray-300">|</span>
+                <Link href="/signup">
+                  <Button variant="ghost" size="sm" className="px-2 font-semibold">
+                    {t("auth.signup")}
+                  </Button>
+                </Link>
+              </>
+            )}
+            {/* 로그아웃 */}
+            {user && <LogoutButton />}
             {/* 장바구니 */}
             <Link href="/cart">
               <Button variant="ghost" size="sm" className="relative">
@@ -155,8 +162,6 @@ export default function Header() {
                 <span className="hidden sm:ml-2 sm:inline">{t("cart")}</span>
               </Button>
             </Link>
-
-            <LogoutButton />
           </div>
         </>
       )}

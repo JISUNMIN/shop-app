@@ -54,7 +54,7 @@ export default function LoginPage() {
     setIsLoggingIn(false);
 
     if (res?.error) {
-      toast.error(t("auth.logoutfail"));
+      toast.error(t("auth.loginfail"));
       return;
     }
 

@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import type { NextRequest } from "next/server";
 
-export default auth((req) => {
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname === "/login" && req.auth) {
-    return NextResponse.redirect(new URL("/", req.url));
+  if (pathname === "/login") {
+    const hasSession = req.cookies.get("authjs.session-token");
+
+    if (hasSession) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   }
 
   return NextResponse.next();
-});
+}
 
-export const config = {
-  matcher: ["/login"],
-};
+export const config = { matcher: ["/login"] };

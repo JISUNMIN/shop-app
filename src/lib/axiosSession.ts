@@ -1,3 +1,4 @@
+// src/lib/axios.ts
 import axios, { InternalAxiosRequestConfig } from "axios";
 
 const SESSION_ID_KEY = "roboshop-session";
@@ -7,19 +8,17 @@ const getSessionId = (): string => {
 
   let sessionId = localStorage.getItem(SESSION_ID_KEY);
   if (!sessionId) {
-    sessionId = `session_${Date.now()}_${Math.random()
-      .toString(36)
-      .substring(2)}`;
+    sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
     localStorage.setItem(SESSION_ID_KEY, sessionId);
   }
   return sessionId;
 };
 
-const axiosSession = axios.create({
+const axiosInstance = axios.create({
   baseURL: "/api",
 });
 
-axiosSession.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     config.headers = config.headers ?? {};
 
@@ -27,13 +26,12 @@ axiosSession.interceptors.request.use(
 
     // GET이 아닌 요청이면 Content-Type 추가
     if (config.method && config.method.toLowerCase() !== "get") {
-      (config.headers as Record<string, string>)["Content-Type"] =
-        "application/json";
+      (config.headers as Record<string, string>)["Content-Type"] = "application/json";
     }
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
-export default axiosSession;
+export default axiosInstance;

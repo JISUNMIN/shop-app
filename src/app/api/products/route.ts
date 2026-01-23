@@ -15,24 +15,40 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     const where: Prisma.ProductWhereInput = {};
+    const and: Prisma.ProductWhereInput[] = [];
 
+    // 검색 조건
     if (search) {
-      where.OR = [
-        { name: { path: ["ko"], string_contains: search } },
-        { description: { path: ["ko"], string_contains: search } },
-        { name: { path: ["en"], string_contains: search } },
-        { description: { path: ["en"], string_contains: search } },
-      ];
+      and.push({
+        OR: [
+          { name: { path: ["ko"], string_contains: search } },
+          { description: { path: ["ko"], string_contains: search } },
+          { name: { path: ["en"], string_contains: search } },
+          { description: { path: ["en"], string_contains: search } },
+        ],
+      });
     }
 
     if (category) {
-      where.category = {
-        equals: category,
-      };
+      const categoryList = category
+        .split(",")
+        .map((c) => c.trim())
+        .filter(Boolean);
+
+      if (categoryList.length > 0) {
+        and.push({
+          OR: categoryList.flatMap((c) => [
+            { category: { path: ["en"], equals: c } },
+            { category: { path: ["ko"], equals: c } },
+          ]),
+        });
+      }
     }
 
-    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" }; // 기본값: 최신순
+    if (and.length > 0) where.AND = and;
 
+    // 정렬
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" }; // 기본값: 최신순
     switch (sort) {
       case "oldest":
         orderBy = { createdAt: "asc" };

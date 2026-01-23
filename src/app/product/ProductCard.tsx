@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "@/types";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { formatPrice, formatString } from "@/utils/helper";
 import { useTranslation } from "@/context/TranslationContext";
 import { useLangStore } from "@/store/langStore";
@@ -16,20 +16,17 @@ interface ProductCardProps {
   index?: number;
 }
 
-export default function ProductCard({ product, index = 0 }: ProductCardProps) {
+export default function ProductCard({ product}: ProductCardProps) {
   const t = useTranslation();
   const { lang } = useLangStore();
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.3,
-        delay: index * 0.1,
-        ease: "easeOut",
-      }}
-      whileHover={{ y: -4 }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+      animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
+      whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className="group"
     >
       <Link href={`/product/${product.id}`}>

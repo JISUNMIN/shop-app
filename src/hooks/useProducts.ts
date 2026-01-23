@@ -1,7 +1,7 @@
 // src/hooks/useProducts.ts
 import { useQuery } from "@tanstack/react-query";
-import axios from "@/lib/axios";
 import { Product, SearchParams, ApiResponse } from "@/types";
+import axiosInstance from "@/lib/axiosSession";
 
 const PRODUCTS_API_PATH = "/products";
 
@@ -22,7 +22,7 @@ const useProducts = (params?: SearchParams, targetId?: number) => {
       if (params?.sort) searchParams.set("sort", params.sort);
       if (params?.category) searchParams.set("category", params.category);
 
-      const res = await axios.get<ApiResponse<Product[]>>(
+      const res = await axiosInstance.get<ApiResponse<Product[]>>(
         `${PRODUCTS_API_PATH}?${searchParams.toString()}`
       );
       return res.data;
@@ -39,7 +39,7 @@ const useProducts = (params?: SearchParams, targetId?: number) => {
   } = useQuery<Product, Error>({
     queryKey: ["products", "detail", targetId],
     queryFn: async () => {
-      const res = await axios.get<Product>(`${PRODUCTS_API_PATH}/${targetId}`);
+      const res = await axiosInstance.get<Product>(`${PRODUCTS_API_PATH}/${targetId}`);
       return res.data;
     },
     enabled: !!targetId,

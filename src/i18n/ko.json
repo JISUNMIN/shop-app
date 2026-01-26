@@ -209,7 +209,18 @@
     "keyword_hello": "안녕|하이|헬로",
     "keyword_thanks": "감사|고마|고맙"
   },
-
+  "mypage": {
+    "tabs": {
+      "dashboard": "Dashboard",
+      "orders": "Order history",
+      "coupons": "Coupons",
+      "wishlist": "Wishlist",
+      "points": "Points",
+      "address": "Shipping addresses",
+      "profile": "My profile",
+      "password": "Change password"
+    }
+  },
   "searchPlaceholderMobile": "로봇 검색",
   "searchPlaceholderDesktop": "어떤 로봇을 찾고 계신가요?",
   "searchButton": "검색",

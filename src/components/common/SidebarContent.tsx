@@ -2,11 +2,11 @@
 "use client";
 
 import React from "react";
-import { ChevronRight, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "./LogoutButton";
+import { useTranslation } from "react-i18next";
 
 export type TabType =
   | "dashboard"
@@ -20,7 +20,7 @@ export type TabType =
 
 type MenuItem = {
   id: TabType;
-  label: string;
+  labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
 };
 
@@ -37,6 +37,7 @@ export default function SidebarContent({
   onSelectTab,
   setMobileMenuOpen,
 }: SidebarContentProps) {
+    const { t } = useTranslation(); 
   return (
     <>
       {/* 사용자 정보 */}
@@ -79,7 +80,7 @@ export default function SidebarContent({
                 }`}
               >
                 <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium">{t(item.labelKey)}</span>
                 <ChevronRight className="w-4 h-4 ml-auto" />
               </button>
             );

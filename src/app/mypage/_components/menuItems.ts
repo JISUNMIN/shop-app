@@ -2,12 +2,12 @@ import { User, Lock, Gift, Package, Heart, MapPin, CreditCard } from "lucide-rea
 import type { TabType } from "@/components/common/SidebarContent";
 
 export const menuItems = [
-  { id: "dashboard" as TabType, label: "대시보드", icon: User },
-  { id: "orders" as TabType, label: "주문내역", icon: Package },
-  { id: "coupons" as TabType, label: "할인쿠폰", icon: Gift },
-  { id: "wishlist" as TabType, label: "찜한상품", icon: Heart },
-  { id: "points" as TabType, label: "적립금", icon: CreditCard },
-  { id: "address" as TabType, label: "배송지관리", icon: MapPin },
-  { id: "profile" as TabType, label: "내정보", icon: User },
-  { id: "password" as TabType, label: "비밀번호변경", icon: Lock },
+  { id: "dashboard" as TabType, labelKey: "mypage.tabs.dashboard", icon: User },
+  { id: "orders" as TabType, labelKey: "mypage.tabs.orders", icon: Package },
+  { id: "coupons" as TabType, labelKey: "mypage.tabs.coupons", icon: Gift },
+  { id: "wishlist" as TabType, labelKey: "mypage.tabs.wishlist", icon: Heart },
+  { id: "points" as TabType, labelKey: "mypage.tabs.points", icon: CreditCard },
+  { id: "address" as TabType, labelKey: "mypage.tabs.address", icon: MapPin },
+  { id: "profile" as TabType, labelKey: "mypage.tabs.profile", icon: User },
+  { id: "password" as TabType, labelKey: "mypage.tabs.password", icon: Lock },
 ] as const;

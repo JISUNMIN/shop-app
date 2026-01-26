@@ -207,6 +207,18 @@
     "keyword_hello": "hello|hi",
     "keyword_thanks": "thanks|thank you"
   },
+    "mypage": {
+    "tabs": {
+      "dashboard": "대시보드",
+      "orders": "주문내역",
+      "coupons": "할인쿠폰",
+      "wishlist": "찜한상품",
+      "points": "적립금",
+      "address": "배송지관리",
+      "profile": "내정보",
+      "password": "비밀번호변경"
+    }
+  },
   "searchPlaceholderMobile": "Search robot",
   "searchPlaceholderDesktop": "What robot are you looking for?",
   "searchButton": "Search",

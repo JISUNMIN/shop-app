@@ -10,10 +10,9 @@ import DashboardTab from "@/app/mypage/tabs/DashboardTab";
 import OrdersTab from "@/app/mypage/tabs/OrdersTab";
 import CouponsTab from "@/app/mypage/tabs/CouponsTab";
 import WishlistTab from "@/app/mypage/tabs/WishlistTab";
-import PointsTab from "@/app/mypage/tabs/PointsTab";
+// import PointsTab from "@/app/mypage/tabs/PointsTab";
 import AddressTab from "@/app/mypage/tabs/AddressTab";
 import ProfileTab from "@/app/mypage/tabs/ProfileTab";
-import PasswordTab from "@/app/mypage/tabs/PasswordTab";
 
 import { menuItems } from "./menuItems";
 import { coupons, orders, wishlist } from "./mockData";
@@ -70,13 +69,12 @@ export default function MyPageShell() {
 
               {activeTab === "wishlist" && <WishlistTab wishlist={wishlist} />}
 
-              {activeTab === "points" && <PointsTab />}
+              {/* {activeTab === "points" && <PointsTab />} */}
 
               {activeTab === "address" && <AddressTab />}
 
               {activeTab === "profile" && <ProfileTab />}
 
-              {activeTab === "password" && <PasswordTab />}
             </Card>
           </div>
         </div>

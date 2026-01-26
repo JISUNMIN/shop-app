@@ -13,7 +13,7 @@ export type TabType =
   | "orders"
   | "coupons"
   | "wishlist"
-  | "points"
+  // | "points"
   | "profile"
   | "password"
   | "address";

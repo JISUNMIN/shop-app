@@ -35,12 +35,12 @@ export default function DashboardTab({
           <p className="text-sm opacity-90">사용 가능 쿠폰</p>
           <p className="text-3xl font-bold mt-1">{couponCount}장</p>
         </Card>
-
+{/* 
         <Card className="p-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white">
           <CreditCard className="w-8 h-8 mb-2 opacity-80" />
           <p className="text-sm opacity-90">적립금</p>
           <p className="text-3xl font-bold mt-1">{pointsLabel}</p>
-        </Card>
+        </Card> */}
       </div>
 
       <h2 className="text-lg md:text-xl font-bold mb-4">최근 주문</h2>

@@ -1,29 +1,38 @@
-// src/components/layout/Header.tsx
+// components/layout/Header.tsx
 "use client";
 
 import Link from "next/link";
-import { Search, ShoppingCart, Bot, Globe } from "lucide-react";
+import { Search, ShoppingCart, Bot, Globe, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useCart from "@/hooks/useCart";
 import { useLangStore } from "@/store/langStore";
 import { useTranslation } from "react-i18next";
-import { LogoutButton } from "../common/LogoutButton";
 import { useSession } from "next-auth/react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import SidebarContent, { TabType } from "@/components/common/SidebarContent";
+import MypageButton from "../common/MypageButton";
+import { menuItems } from "@/app/mypage/_components/menuItems";
 
 export default function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const { data: session } = useSession();
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [isMobile, setIsMobile] = useState(false);
   const { listData: cartItems } = useCart();
   const cartItemCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
   const { lang, toggleLang } = useLangStore();
   const { t } = useTranslation();
   const user = session?.user;
+  const activeTab = (searchParams.get("tab") as TabType) || "dashboard";
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +41,17 @@ export default function Header() {
     } else {
       router.push("/");
     }
+  };
+
+  const handleSelectTab = (tab: TabType) => {
+    if (pathname === "/mypage") {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", tab);
+      router.replace(`/mypage?${params.toString()}`);
+    } else {
+      router.push(`/mypage?tab=${tab}`);
+    }
+    setMobileMenuOpen(false);
   };
 
   useEffect(() => {
@@ -43,11 +63,34 @@ export default function Header() {
 
   return (
     <header className="flex w-full items-center justify-between py-4 px-6 border-b bg-background/95">
-      {/* 로고 */}
-      <Link href="/" className="flex items-center space-x-2">
-        <Bot className="w-8 h-8" />
-        <span className="hidden sm:inline-block font-bold">RoboShop</span>
-      </Link>
+      {/* 로고 + 모바일 햄버거 메뉴 */}
+      <div className="flex items-center space-x-2">
+        {user && (
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="lg:hidden">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+
+            <SheetContent side="left" className="w-80 overflow-y-auto">
+              <div className="mt-6">
+                <SidebarContent
+                  menuItems={menuItems}
+                  activeTab={activeTab}
+                  onSelectTab={handleSelectTab}
+                  setMobileMenuOpen={setMobileMenuOpen}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
+
+        <Link href="/" className="flex items-center space-x-2">
+          <Bot className="w-8 h-8" />
+          <span className="hidden sm:inline-block font-bold">RoboShop</span>
+        </Link>
+      </div>
 
       {isMobile ? (
         <div className="flex flex-col flex-1 px-4 space-y-3">
@@ -63,6 +106,7 @@ export default function Header() {
               />
             </div>
           </form>
+
           <div className="flex justify-end space-x-2">
             <Button
               variant="ghost"
@@ -145,8 +189,8 @@ export default function Header() {
                 </Link>
               </>
             )}
-            {/* 로그아웃 */}
-            {user && <LogoutButton />}
+            {/* 마이페이지 */}
+            {user && <MypageButton />}
             {/* 장바구니 */}
             <Link href="/cart">
               <Button variant="ghost" size="sm" className="relative">

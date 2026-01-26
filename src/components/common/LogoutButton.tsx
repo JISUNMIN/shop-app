@@ -17,10 +17,8 @@ export function LogoutButton() {
 
   return (
     <Button
-      type="button"
-      variant="ghost"
-      size="sm"
-      className="px-2 flex items-center gap-1"
+          variant="outline"
+        className="w-full mt-4 text-red-600 border-red-300 hover:bg-red-50"
       onClick={handleLogout}
       disabled={isLoggingOut}
     >

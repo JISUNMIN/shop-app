@@ -20,6 +20,10 @@
     "loginfail": "Login failed.",
     "loggingOut": "Logging out...",
 
+    "checkDuplicate": "Check",
+    "checking": "Checking...",
+    "checked": "Checked",
+
     "passwordPlaceholder": "Enter at least 8 characters",
     "confirmPassword": "Confirm password",
     "confirmPasswordPlaceholder": "Confirm your password",
@@ -69,6 +73,10 @@
       "nameMaxLength": "Name must be 16 characters or fewer.",
       "minLength4": "Must be at least 4 characters.",
       "maxLength16": "Must be 16 characters or fewer.",
+
+      "userIdDuplicated": "This user ID is already in use.",
+      "userIdCheckRequired": "Please check user ID availability.",
+      "userIdCheckFailed": "Failed to check user ID availability.",
 
       "mobileNumberRequired": "Please enter your mobile number.",
       "mobileNumberInvalid": "Please enter a valid mobile number.",

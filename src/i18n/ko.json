@@ -20,6 +20,10 @@
     "loginfail": "로그인에 실패했습니다.",
     "loggingOut": "로그아웃 중...",
 
+    "checkDuplicate": "중복확인",
+    "checking": "확인중...",
+    "checked": "확인완료",
+
     "passwordPlaceholder": "8자 이상 입력해주세요",
     "confirmPassword": "비밀번호 확인",
     "confirmPasswordPlaceholder": "비밀번호를 다시 입력해주세요",
@@ -69,6 +73,10 @@
       "nameMaxLength": "이름은 10자 이내로 입력해주세요.",
       "minLength4": "4자 이상 입력해주세요.",
       "maxLength16": "16자 이내로 입력해주세요.",
+
+      "userIdDuplicated": "이미 사용 중인 아이디입니다.",
+      "userIdCheckRequired": "아이디 중복확인을 해주세요.",
+      "userIdCheckFailed": "아이디 중복확인에 실패했습니다.",
 
       "mobileNumberRequired": "핸드폰번호를 입력해주세요.",
       "mobileNumberInvalid": "올바른 핸드폰번호를 입력해주세요.",

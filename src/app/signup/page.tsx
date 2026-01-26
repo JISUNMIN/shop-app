@@ -35,14 +35,15 @@ type SignupForm = {
 export default function SignupPage() {
   const router = useRouter();
   const { t } = useTranslation();
-  // const { signupMutate, isSignupPending } = useSignup();
-  const { signupMutate } = useSignup();
+
+  const { signupMutate, checkUserIdMutate, isCheckUserIdPending } = useSignup();
   //   const {
   //   sendPhoneCodeMutate,
   //   isSendPhoneCodePending,
   //   verifyPhoneCodeMutate,
   //   isVerifyPhoneCodePending,
   // } = usePhoneVerification();
+
   const { sendPhoneCodeMutate, verifyPhoneCodeMutate } = usePhoneVerification();
 
   const [isSendingCode, setIsSendingCode] = useState(false);
@@ -51,6 +52,8 @@ export default function SignupPage() {
   const [mobileVerified, setMobileVerified] = useState(false);
   const [resendCooldownSec, setResendCooldownSec] = useState(0);
   const [otpExpiresSec, setOtpExpiresSec] = useState(0);
+  const [userIdChecked, setUserIdChecked] = useState(false);
+  const [checkedUserId, setCheckedUserId] = useState<string | null>(null);
 
   const formattedTime = `${Math.floor(otpExpiresSec / 60)
     .toString()
@@ -126,12 +129,12 @@ export default function SignupPage() {
     handleSubmit,
     formState: { errors },
     control,
-
     getValues,
     setValue,
     setError,
     clearErrors,
     trigger,
+    watch,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -140,8 +143,61 @@ export default function SignupPage() {
     },
   });
 
+  const userIdWatch = watch("userId");
+
+  const handleCheckUserId = async () => {
+    const isValid = await trigger("userId");
+    if (!isValid) return;
+
+    const userId = getValues("userId")?.trim();
+    if (!userId) return;
+
+    try {
+      const res = await checkUserIdMutate({ userId });
+
+      if (!res?.ok) {
+        setUserIdChecked(false);
+        setCheckedUserId(null);
+        setError("userId", {
+          type: "manual",
+          message: t("auth.validation.userIdCheckFailed"),
+        });
+        return;
+      }
+
+      if (!res.available) {
+        setUserIdChecked(false);
+        setCheckedUserId(null);
+        setError("userId", {
+          type: "manual",
+          message: t("auth.validation.userIdDuplicated"),
+        });
+        return;
+      }
+
+      clearErrors("userId");
+      setUserIdChecked(true);
+      setCheckedUserId(userId);
+    } catch {
+      setUserIdChecked(false);
+      setCheckedUserId(null);
+      setError("userId", {
+        type: "manual",
+        message: t("auth.validation.userIdCheckFailed"),
+      });
+    }
+  };
+
   const onSubmit = async (data: SignupForm) => {
-    console.log(data);
+    const currentUserId = (data.userId ?? "").trim();
+    if (!userIdChecked || checkedUserId !== currentUserId) {
+      setError("userId", {
+        type: "manual",
+        message: t("auth.validation.userIdCheckRequired"),
+      });
+      return;
+    }
+
     try {
       const { userId, password, name, mobileNumber, email } = data;
       await signupMutate({ userId, password, name, mobileNumber, email });
@@ -245,15 +301,22 @@ export default function SignupPage() {
   };
 
   useEffect(() => {
+    if (!checkedUserId) return;
+    if ((userIdWatch ?? "").trim() !== checkedUserId) {
+      setUserIdChecked(false);
+    }
+  }, [userIdWatch, checkedUserId]);
+
+  useEffect(() => {
     if (resendCooldownSec <= 0 || mobileVerified) return;
-    const t = setInterval(() => setResendCooldownSec((p) => (p > 0 ? p - 1 : 0)), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setResendCooldownSec((p) => (p > 0 ? p - 1 : 0)), 1000);
+    return () => clearInterval(timer);
   }, [resendCooldownSec, mobileVerified]);
 
   useEffect(() => {
     if (otpExpiresSec <= 0 || mobileVerified) return;
-    const t = setInterval(() => setOtpExpiresSec((p) => (p > 0 ? p - 1 : 0)), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setOtpExpiresSec((p) => (p > 0 ? p - 1 : 0)), 1000);
+    return () => clearInterval(timer);
   }, [otpExpiresSec, mobileVerified]);
 
   return (
@@ -294,9 +357,28 @@ export default function SignupPage() {
                 <FormInput
                   id="userId"
                   placeholder={t("auth.placeholders.userIdPlaceholder")}
-                  registration={register("userId")}
+                  registration={register("userId", {
+                    onChange: () => {
+                      setUserIdChecked(false);
+                      setCheckedUserId(null);
+                    },
+                  })}
                   error={errors.userId?.message}
                   label={t("auth.userId")}
+                  rightElement={
+                    <Button
+                      type="button"
+                      className="h-10 px-3 whitespace-nowrap"
+                      onClick={handleCheckUserId}
+                      disabled={isCheckUserIdPending}
+                    >
+                      {isCheckUserIdPending
+                        ? t("auth.checking")
+                        : userIdChecked
+                          ? t("auth.checked")
+                          : t("auth.checkDuplicate")}
+                    </Button>
+                  }
                 />
               </div>
 
@@ -321,6 +403,7 @@ export default function SignupPage() {
                   label={t("auth.confirmPassword")}
                 />
               </div>
+
               {/* 이름*/}
               <div className="space-y-2">
                 <FormInput
@@ -360,6 +443,7 @@ export default function SignupPage() {
                   }
                 />
               </div>
+
               {/* 핸드폰 인증*/}
               <div className="space-y-2">
                 <FormInput
@@ -387,6 +471,7 @@ export default function SignupPage() {
                     </Button>
                   }
                 />
+
                 {/* 남은 시간(타이머) */}
                 {codeSent && !mobileVerified && (
                   <div

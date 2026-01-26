@@ -37,7 +37,7 @@ export default function SidebarContent({
   onSelectTab,
   setMobileMenuOpen,
 }: SidebarContentProps) {
-    const { t } = useTranslation(); 
+  const { t } = useTranslation();
   return (
     <>
       {/* 사용자 정보 */}
@@ -50,14 +50,6 @@ export default function SidebarContent({
             <p className="font-bold text-lg">김로봇</p>
             <p className="text-sm text-gray-500">robot@shop.com</p>
           </div>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <Badge variant="outline" className="text-purple-600 border-purple-300">
-            VIP 회원
-          </Badge>
-          <Badge variant="outline" className="text-blue-600 border-blue-300">
-            누적 3회 구매
-          </Badge>
         </div>
       </Card>
 
@@ -74,9 +66,7 @@ export default function SidebarContent({
                   setMobileMenuOpen?.(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id
-                    ? "bg-black text-white"
-                    : "hover:bg-gray-100 text-gray-700"
+                  activeTab === item.id ? "bg-black text-white" : "hover:bg-gray-100 text-gray-700"
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -88,7 +78,7 @@ export default function SidebarContent({
         </nav>
       </Card>
 
-   <LogoutButton/>
+      <LogoutButton />
     </>
   );
 }

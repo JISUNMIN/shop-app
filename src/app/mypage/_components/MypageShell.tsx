@@ -40,7 +40,7 @@ export default function MyPageShell() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="max-w-7xl mx-auto px-4 py-4 md:py-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
         <div className="flex gap-6">
           {/* 데스크톱 사이드바 */}
           <div className="hidden lg:block w-72 flex-shrink-0">
@@ -80,7 +80,7 @@ export default function MyPageShell() {
             </Card>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

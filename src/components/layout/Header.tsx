@@ -74,7 +74,7 @@ export default function Header() {
             </SheetTrigger>
 
             <SheetContent side="left" className="w-80 overflow-y-auto">
-              <div className="mt-6">
+              <div className="mt-12">
                 <SidebarContent
                   menuItems={menuItems}
                   activeTab={activeTab}

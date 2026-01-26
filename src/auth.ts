@@ -30,7 +30,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;
 
-        return { id: user.id, name: user.name, userId: user.userId };
+        return { id: user.id, name: user.name, email: user.email, userId: user.userId };
       },
     }),
     KakaoProvider({
@@ -47,10 +47,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      if (new URL(url).origin === baseUrl) return url;
-      return baseUrl;
+    async jwt({ token, user, account }) {
+      if (account) {
+        token.provider = account.provider; // "kakao" | "naver" | "credentials"
+      }
+
+      if (user) {
+        token.id = user.id;
+        token.userId = user.userId;
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (!token.id) return session;
+
+      session.user.id = token.id;
+      session.user.userId = token.userId;
+      session.user.provider = token.provider;
+
+      return session;
     },
   },
 });

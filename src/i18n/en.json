@@ -217,7 +217,8 @@
       "address": "Shipping addresses",
       "profile": "My profile",
       "password": "Change password"
-    }
+    },
+    "user": "User"
   },
   "searchPlaceholderMobile": "Search robot",
   "searchPlaceholderDesktop": "What robot are you looking for?",
@@ -239,6 +240,7 @@
   "next": "Next",
   "errorLoading": "Failed to load products.",
   "sortPlaceholder": "Sort",
+  "categoriesSelected": "{{count}} categories selected",
 
   "soldOut": "Sold Out",
   "onlyLeft": "Only {{count}} left",
@@ -270,6 +272,7 @@
 
   "cartLoadError": "Unable to load the cart.",
   "cartRobotCount": "{{count}} robots in your cart",
+  "all": "All",
   "selectAll": "Select all",
   "deleteSelected": "Delete selected",
   "deleteAll": "Delete all",

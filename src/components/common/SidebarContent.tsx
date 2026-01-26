@@ -4,9 +4,10 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "./LogoutButton";
 import { useTranslation } from "react-i18next";
+import { useSession } from "next-auth/react";
+import { getAvatarText } from "@/utils/helper";
 
 export type TabType =
   | "dashboard"
@@ -38,17 +39,21 @@ export default function SidebarContent({
   setMobileMenuOpen,
 }: SidebarContentProps) {
   const { t } = useTranslation();
+  const { data: session } = useSession();
+  const user = session?.user;
   return (
     <>
       {/* 사용자 정보 */}
       <Card className="p-6 mb-6">
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-            김
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white text-2xl font-bold">
+            {getAvatarText(user?.name)}
           </div>
           <div>
-            <p className="font-bold text-lg">김로봇</p>
-            <p className="text-sm text-gray-500">robot@shop.com</p>
+            <p className="font-bold text-lg">
+              {user?.name ?? `${user?.provider} ${t("mypage.user")}`}
+            </p>
+            <p className="text-sm text-gray-500"> {user?.email ?? ""}</p>
           </div>
         </div>
       </Card>

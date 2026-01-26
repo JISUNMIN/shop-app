@@ -144,8 +144,8 @@ export default function ProductList() {
             {/* 상태 표시 */}
             <div className="text-sm text-gray-500">
               {selectedCategories.length === 0
-                ? "전체상품"
-                : `${selectedCategories.length}개 카테고리 선택됨`}
+                ? t("allProducts")
+                : t("categoriesSelected", { count: selectedCategories.length })}
             </div>
 
             <div className="flex gap-2 flex-wrap">
@@ -155,7 +155,7 @@ export default function ProductList() {
                 className="cursor-pointer hover:bg-gray-100"
                 onClick={handleAllClick}
               >
-                전체
+                {t("all")}
               </Badge>
 
               {/* 카테고리 멀티 선택 */}

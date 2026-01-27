@@ -1,7 +1,7 @@
 // app/order/_components/OrderShell.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -9,11 +9,10 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 
-import type { Address, Agreements, Coupon, OrderItem } from "@/app/order/_components/types";
+import type { Address, Agreements, Coupon, OrderItem } from "@/types";
 import {
   initialAddresses,
   mockCoupons,
-  mockOrderItems,
   ORDER_AVAILABLE_POINTS,
   ORDER_DELIVERY_FEE,
   ORDER_FREE_SHIPPING_THRESHOLD,
@@ -29,7 +28,10 @@ import { OrderSummarySection } from "@/app/order/_components/sections/OrderSumma
 
 import { AddressCreateDialog } from "@/app/order/_components/dialogs/AddressCreateDialog";
 import { CouponSelectDialog } from "@/app/order/_components/dialogs/CouponSelectDialog";
+
 import useCart from "@/hooks/useCart";
+import { formatCartItems } from "@/utils/cart";
+import type { LocalizedText } from "@/types";
 
 export type PaymentMethod = "card" | "bank" | "kakao" | "naver";
 
@@ -50,29 +52,21 @@ export type OrderFormValues = {
 
 export default function OrderShell() {
   const router = useRouter();
-  const {
-    listData: cartItems,
-    isListLoading,
-    listError,
-    removeFromCartMutate,
-    isRemovePending,
-  } = useCart();
+  const { listData: cartItems, removeFromCartMutate } = useCart();
+
   const { t, i18n } = useTranslation();
-  const lang = i18n.language;
+  const lang = i18n.language as keyof LocalizedText;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [orderedItems, setOrderedItems] = useState<
-    { id: string; name: string; quantity: number; price: number }[]
-  >([]);
-  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
-  const selectedCartItems = cartItems?.filter((item) => selectedItems[item.id]) || [];
+  const [orderedItems, setOrderedItems] = useState<OrderItem[]>([]);
 
   const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
 
-  const orderItems: OrderItem[] = mockOrderItems;
   const coupons: Coupon[] = mockCoupons;
+
+  const orderItems = useMemo(() => formatCartItems(cartItems ?? [], lang), [cartItems, lang]);
 
   const methods = useForm<OrderFormValues>({
     mode: "onChange",
@@ -107,9 +101,10 @@ export default function OrderShell() {
 
   const couponDiscount = useMemo(() => {
     if (!selectedCoupon) return 0;
-    if (selectedCoupon.type === "percent")
-      return Math.floor((subtotal * (selectedCoupon.discount as number)) / 100);
-    return selectedCoupon.discount as number;
+    if (selectedCoupon.type === "percent") {
+      return Math.floor((subtotal * Number(selectedCoupon.discount)) / 100);
+    }
+    return Number(selectedCoupon.discount);
   }, [selectedCoupon, subtotal]);
 
   const pointsMax = useMemo(
@@ -117,13 +112,15 @@ export default function OrderShell() {
     [subtotal, couponDiscount],
   );
 
-  // points 보정
-  if (!usePoints && pointsToUse !== 0) {
-    setValue("pointsToUse", 0, { shouldDirty: true, shouldValidate: true });
-  }
-  if (usePoints && pointsToUse > pointsMax) {
-    setValue("pointsToUse", pointsMax, { shouldDirty: true, shouldValidate: true });
-  }
+  useEffect(() => {
+    if (!usePoints && pointsToUse !== 0) {
+      setValue("pointsToUse", 0, { shouldDirty: true, shouldValidate: true });
+      return;
+    }
+    if (usePoints && pointsToUse > pointsMax) {
+      setValue("pointsToUse", pointsMax, { shouldDirty: true, shouldValidate: true });
+    }
+  }, [usePoints, pointsToUse, pointsMax, setValue]);
 
   const pointsDiscount = usePoints ? pointsToUse : 0;
   const totalDiscount = couponDiscount + pointsDiscount;
@@ -150,13 +147,7 @@ export default function OrderShell() {
       ? addresses.map((a) => ({ ...a, isDefault: false }))
       : addresses;
 
-    setAddresses([
-      ...updated,
-      {
-        id: newId,
-        ...newAddress,
-      },
-    ]);
+    setAddresses([...updated, { id: newId, ...newAddress }]);
 
     if (newAddress.isDefault) setValue("selectedAddressId", newId, { shouldDirty: true });
 
@@ -171,16 +162,10 @@ export default function OrderShell() {
       return;
     }
 
-    const formattedItems = cartItems?.map((item) => ({
-      id: item.id,
-      name: item.product.name[lang],
-      quantity: item.quantity,
-      price: item.product.price,
-    }));
-    setOrderedItems(formattedItems);
+    setOrderedItems(orderItems);
 
     // 장바구니에서 제거
-    cartItems.forEach((item) => removeFromCartMutate({ itemId: item.id, showToast: false }));
+    cartItems?.forEach((item) => removeFromCartMutate({ itemId: item.id, showToast: false }));
 
     setIsModalOpen(true);
   };
@@ -218,7 +203,6 @@ export default function OrderShell() {
               />
 
               <OrderPaymentSection />
-
               <OrderAgreementsSection />
             </div>
 

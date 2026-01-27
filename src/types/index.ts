@@ -12,7 +12,7 @@ export interface Product {
 }
 
 export interface CartItem {
-  id: string;
+  id: number;
   productId: string;
   quantity: number;
   sessionId: string;
@@ -20,6 +20,15 @@ export interface CartItem {
   updatedAt: Date;
   product: Product;
 }
+
+export interface OrderItemView {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string[];
+}
+
 
 export interface Order {
   id: string;
@@ -66,4 +75,28 @@ export interface LocalizedText {
   en: string;
 }
 
-export type SNSType  = "kakao" | "naver" | "google";
+export type SNSType = "kakao" | "naver" | "google";
+
+export interface Address {
+  id: number;
+  name: string;
+  recipient: string;
+  phone: string;
+  address: string;
+  detailAddress: string;
+  isDefault: boolean;
+}
+
+export interface Coupon {
+  id: number;
+  name: string;
+  discount: number | string;
+  minOrder: number;
+  type: "percent" | "fixed";
+}
+
+export type Agreements = {
+  terms: boolean;
+  privacy: boolean;
+  payment: boolean;
+};

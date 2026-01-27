@@ -1,6 +1,6 @@
 // app/order/_components/order.mock.ts
 
-import type { Address, Coupon, OrderItem } from "@/app/order/_components/types";
+import type { Address, Coupon } from "@/types";
 
 export const initialAddresses: Address[] = [
   {
@@ -20,25 +20,6 @@ export const initialAddresses: Address[] = [
     address: "서울시 서초구 서초대로 100",
     detailAddress: "AI타워 5층",
     isDefault: false,
-  },
-];
-
-export const mockOrderItems: OrderItem[] = [
-  {
-    id: 1,
-    name: "Delivery Robot",
-    price: 1490000,
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1722452323413-b8f5447d4c41?w=200",
-    stock: 10,
-  },
-  {
-    id: 2,
-    name: "Smart Home Hub Robot",
-    price: 889000,
-    quantity: 2,
-    image: "https://images.unsplash.com/photo-1762500824496-9094f37873c4?w=200",
-    stock: 5,
   },
 ];
 

@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-import type { Address, OrderItem } from "@/app/order/_components/types";
+import type { Address, OrderItem } from "@/types";
 
 interface Props {
   subtotal: number;
@@ -103,7 +103,11 @@ export function OrderSummarySection({
           </span>
         </div>
 
-        <Button onClick={onSubmit} className="w-full h-14 text-lg font-bold" disabled={!selectedAddress || hasOutOfStock}>
+        <Button
+          onClick={onSubmit}
+          className="w-full h-14 text-lg font-bold"
+          disabled={!selectedAddress || hasOutOfStock}
+        >
           {t("order.summary.pay", { amount: finalAmount.toLocaleString() })}
         </Button>
 

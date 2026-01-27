@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-import type { OrderItem } from "@/app/order/_components/types";
+import type { OrderItem } from "@/types";
 
 export function OrderItemsSection({ orderItems }: { orderItems: OrderItem[] }) {
   const { t } = useTranslation();

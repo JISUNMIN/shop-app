@@ -17,7 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 
-import type { Address } from "@/app/order/_components/types";
+import type { Address } from "@/types";
 import type { OrderFormValues } from "@/app/order/_components/OrderShell";
 
 interface Props {

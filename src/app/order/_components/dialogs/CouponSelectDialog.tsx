@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { Coupon } from "@/app/order/_components/types";
+import type { Coupon } from "@/types";
 import type { OrderFormValues } from "@/app/order/_components/OrderShell";
 
 interface Props {
@@ -35,7 +35,9 @@ export function CouponSelectDialog({ open, onOpenChange, coupons, subtotal }: Pr
               onOpenChange(false);
             }}
             className={`p-4 rounded-lg border-2 cursor-pointer ${
-              selectedCouponId === null ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"
+              selectedCouponId === null
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200 hover:border-gray-300"
             }`}
           >
             <p className="font-semibold">{t("order.couponDialog.none")}</p>
@@ -56,8 +58,8 @@ export function CouponSelectDialog({ open, onOpenChange, coupons, subtotal }: Pr
                   !canUse
                     ? "opacity-50 cursor-not-allowed"
                     : selectedCouponId === coupon.id
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">

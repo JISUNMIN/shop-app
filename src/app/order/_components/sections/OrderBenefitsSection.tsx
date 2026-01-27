@@ -5,10 +5,9 @@ import { useFormContext } from "react-hook-form";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import type { Coupon } from "@/app/order/_components/types";
+import type { Coupon } from "@/types";
 import type { OrderFormValues } from "@/app/order/_components/OrderShell";
 
 interface Props {
@@ -39,7 +38,11 @@ export function OrderBenefitsSection({
       <div className="space-y-4">
         <div>
           <Label>{t("order.coupon.label")}</Label>
-          <Button variant="outline" className="w-full mt-2 justify-between" onClick={onOpenCouponDialog}>
+          <Button
+            variant="outline"
+            className="w-full mt-2 justify-between"
+            onClick={onOpenCouponDialog}
+          >
             <span className="inline-flex items-center gap-2">
               <Gift className="w-4 h-4 text-orange-500" />
               {selectedCoupon
@@ -53,7 +56,7 @@ export function OrderBenefitsSection({
           </Button>
         </div>
 
-        <div>
+        {/* <div>
           <div className="flex items-center justify-between mb-2">
             <Label>{t("order.points.label")}</Label>
             <p className="text-sm text-gray-600">
@@ -105,7 +108,7 @@ export function OrderBenefitsSection({
               {t("order.points.max", { max: pointsMax.toLocaleString() })}
             </p>
           )}
-        </div>
+        </div> */}
       </div>
     </Card>
   );

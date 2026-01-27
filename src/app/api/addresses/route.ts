@@ -27,6 +27,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const count = await prisma.address.count({ where: { userId } });
+    if (count >= 5) {
+      return NextResponse.json({ error: "Maximum address limit reached" }, { status: 400 });
+    }
+
     const body = await request.json();
     const { label, name, phone, zip, address1, address2, memo, isDefault } = body;
 

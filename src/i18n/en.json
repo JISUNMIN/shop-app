@@ -245,7 +245,8 @@
     "shipping": {
       "title": "Shipping Address",
       "newAddress": "New address",
-      "default": "Default"
+      "default": "Default",
+      "maxAddress": "You can register up to 5 delivery addresses"
     },
 
     "deliveryMemo": {

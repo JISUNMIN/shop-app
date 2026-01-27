@@ -1,5 +1,5 @@
 // app/order/_components/sections/OrderShippingSection.tsx
-import { Truck, Plus, CheckCircle2, Trash2 } from "lucide-react"; 
+import { Truck, Plus, CheckCircle2, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Controller, useFormContext } from "react-hook-form";
 
@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type { Address } from "@/types";
 import type { OrderFormValues } from "@/app/order/_components/OrderShell";
-import useAddress from "@/hooks/useAddress"; 
+import useAddress from "@/hooks/useAddress";
 
 interface Props {
   addresses: Address[];
@@ -30,7 +30,7 @@ export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) 
   const { t } = useTranslation();
   const { control, watch, setValue, register } = useFormContext<OrderFormValues>();
 
-  const { removeAddressMutate, isRemovePending } = useAddress(); 
+  const { removeAddressMutate, isRemovePending } = useAddress();
 
   const selectedAddressId = watch("selectedAddressId");
   const deliveryMemo = watch("deliveryMemo");
@@ -62,11 +62,19 @@ export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) 
           <h2 className="text-lg md:text-xl font-bold">{t("order.shipping.title")}</h2>
         </div>
 
-        <Button variant="outline" size="sm" onClick={onOpenAddressDialog}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onOpenAddressDialog}
+          disabled={addresses?.length >= 5}
+        >
           <Plus className="w-4 h-4 mr-1" />
           {t("order.shipping.newAddress")}
         </Button>
       </div>
+      {addresses?.length >= 5 && (
+        <p className="text-xs text-gray-500 mt-1">{t("order.shipping.maxAddress")}</p>
+      )}
 
       <div className="space-y-3">
         {addresses?.map((address) => (
@@ -99,8 +107,8 @@ export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) 
                   variant="ghost"
                   size="icon"
                   disabled={isRemovePending}
-                  onClick={() => {     
-                     handleDelete(address.id);
+                  onClick={() => {
+                    handleDelete(address.id);
                   }}
                 >
                   <Trash2 className="w-4 h-4" />

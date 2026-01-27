@@ -246,7 +246,8 @@
     "shipping": {
       "title": "배송지 정보",
       "newAddress": "새 배송지",
-      "default": "기본배송지"
+      "default": "기본배송지",
+      "maxAddress": "배송지는 최대 5개까지 등록할 수 있어요"
     },
 
     "deliveryMemo": {

@@ -81,7 +81,7 @@ export default function CartSummary({
               {formatString(t("price"), {
                 price: helperFormatPrice(30000 - totalPrice, lang),
               })}
-            </span>{" "}
+            </span>
             {t("freeShippingMessage")}
           </div>
         )}

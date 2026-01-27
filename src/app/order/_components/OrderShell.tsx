@@ -67,7 +67,6 @@ export default function OrderShell() {
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
   const selectedCartItems = cartItems?.filter((item) => selectedItems[item.id]) || [];
 
-
   const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
@@ -172,16 +171,18 @@ export default function OrderShell() {
       return;
     }
 
-      const formattedItems = cartItems?.map((item) => ({
-        id: item.id,
-        name: item.product.name[lang],
-        quantity: item.quantity,
-        price: item.product.price,
-      }));
-      setOrderedItems(formattedItems);
+    const formattedItems = cartItems?.map((item) => ({
+      id: item.id,
+      name: item.product.name[lang],
+      quantity: item.quantity,
+      price: item.product.price,
+    }));
+    setOrderedItems(formattedItems);
 
-      setIsModalOpen(true);
-  
+    // 장바구니에서 제거
+    cartItems.forEach((item) => removeFromCartMutate({ itemId: item.id, showToast: false }));
+
+    setIsModalOpen(true);
   };
 
   return (

@@ -90,10 +90,6 @@ export default function CartPage() {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => router.back()} className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                {t.back}
-              </Button>
               <div>
                 <h1 className="text-2xl font-bold sm:text-xl">{t.cart}</h1>
                 <p className="text-muted-foreground text-sm sm:text-xs">

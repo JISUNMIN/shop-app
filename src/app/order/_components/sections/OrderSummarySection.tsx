@@ -103,16 +103,6 @@ export function OrderSummarySection({
           </span>
         </div>
 
-        <div className="bg-blue-50 p-3 rounded-lg mb-4">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">{t("order.summary.earnPoints")}</span>
-            <span className="text-blue-600 font-semibold">
-              +{earnPoints.toLocaleString()}
-              {t("order.common.won")}
-            </span>
-          </div>
-        </div>
-
         <Button onClick={onSubmit} className="w-full h-14 text-lg font-bold" disabled={!selectedAddress || hasOutOfStock}>
           {t("order.summary.pay", { amount: finalAmount.toLocaleString() })}
         </Button>

@@ -228,6 +228,131 @@
     },
     "user": "User"
   },
+
+  "order": {
+    "order": "Place Order",
+    "title": "Order / Payment",
+
+    "common": {
+      "won": " KRW",
+      "select": "Select",
+      "cancel": "Cancel",
+      "use": "Use",
+      "view": "View",
+      "search": "Search"
+    },
+
+    "shipping": {
+      "title": "Shipping Address",
+      "newAddress": "New address",
+      "default": "Default"
+    },
+
+    "deliveryMemo": {
+      "label": "Delivery instructions",
+      "placeholder": "Please enter delivery instructions",
+      "options": {
+        "custom": "Custom",
+        "frontDoor": "Leave at the door",
+        "guardOffice": "Leave with the guard",
+        "parcelBox": "Put in the parcel box",
+        "callBefore": "Call before delivery",
+        "callIfAbsent": "Call if absent"
+      }
+    },
+
+    "items": {
+      "title": "Order items",
+      "count": "{{count}} item(s)",
+      "qty": "Qty: {{qty}}",
+      "outOfStock": "(Out of stock: {{stock}} left)"
+    },
+
+    "benefits": {
+      "title": "Discounts & Benefits"
+    },
+
+    "coupon": {
+      "label": "Coupon",
+      "select": "Select a coupon",
+      "selected": "{{name}} (-{{discount}} KRW)"
+    },
+
+    "couponDialog": {
+      "title": "Select a coupon",
+      "none": "Do not use a coupon",
+      "minOrder": "Valid for orders over {{amount}} KRW",
+      "noLimit": "No minimum order",
+      "notEnough": "Minimum order not met ({{remain}} KRW short)"
+    },
+
+    "points": {
+      "label": "Points",
+      "available": "Available: {{points}} KRW",
+      "placeholder": "Points to use",
+      "useAll": "All",
+      "max": "Max available: {{max}} KRW"
+    },
+
+    "payment": {
+      "title": "Payment method",
+      "methods": {
+        "card": "Credit / Debit card",
+        "bank": "Bank transfer",
+        "kakao": "KakaoPay",
+        "naver": "NaverPay"
+      }
+    },
+
+    "agreements": {
+      "title": "Agreements",
+      "all": "Agree to all",
+      "terms": "[Required] Terms of service",
+      "privacy": "[Required] Privacy policy",
+      "payment": "[Required] Electronic financial transactions"
+    },
+
+    "summary": {
+      "title": "Payment summary",
+      "subtotal": "Subtotal",
+      "deliveryFee": "Shipping",
+      "free": "Free",
+      "freeShippingHint": "Add {{remain}} KRW more for free shipping",
+      "couponDiscount": "Coupon discount",
+      "pointsDiscount": "Points",
+      "finalAmount": "Total",
+      "earnPoints": "Points to earn",
+      "pay": "Pay {{amount}} KRW",
+      "outOfStockBanner": "Some items are out of stock. Please adjust quantities.",
+      "infoTitle": "Order info",
+      "info1": "• Delivery in 2–3 business days after ordering",
+      "info2": "• Contact customer service if any delivery issues occur",
+      "info3": "• Returns/exchanges within 7 days of receiving the item"
+    },
+
+    "addressDialog": {
+      "title": "Add a new address",
+      "name": "Label",
+      "namePlaceholder": "e.g., Home, Office",
+      "recipient": "Recipient",
+      "recipientPlaceholder": "Recipient name",
+      "phone": "Phone",
+      "phonePlaceholder": "010-0000-0000",
+      "address": "Address",
+      "addressPlaceholder": "Search address",
+      "detailAddress": "Address line 2",
+      "detailAddressPlaceholder": "Enter details",
+      "setDefault": "Set as default address",
+      "add": "Add"
+    },
+
+    "alert": {
+      "requiredFields": "Please fill in all required fields.",
+      "requiredAgreements": "Please agree to the required terms.",
+      "outOfStock": "Some items are out of stock: {{names}}",
+      "paymentDone": "Payment completed!\nFinal amount: {{finalAmount}} KRW\nPoints to earn: {{earnPoints}} KRW"
+    }
+  },
   "searchPlaceholderMobile": "Search robot",
   "searchPlaceholderDesktop": "What robot are you looking for?",
   "searchButton": "Search",
@@ -298,7 +423,6 @@
   "free": "Free",
   "totalPayment": "Total Payment",
   "freeShippingMessage": "Free shipping if you buy more!",
-  "order": "Place Order",
   "deliveryNote1": "• Orders placed before 2 PM on weekdays ship the same day",
   "deliveryNote2": "• Additional shipping fees apply for Jeju and remote areas",
   "deliveryNote3": "• Robot installation service available upon inquiry",

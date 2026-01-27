@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
 
 import useCart from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CartSkeleton, EmptyCart, CartSummary, CartItem } from "@/app/cart";
 import ErrorMessage from "@/components/ErrorMessage";
-import OrderCompleteModal from "@/app/order/complete/OrderCompleteModal";
 import { useTranslation } from "@/context/TranslationContext";
 import { formatString } from "@/utils/helper";
 import { useLangStore } from "@/store/langStore";
@@ -30,50 +28,16 @@ export default function CartPage() {
   const t = useTranslation();
 
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [orderedItems, setOrderedItems] = useState<
-    { id: string; name: string; quantity: number; price: number }[]
-  >([]);
 
   const selectedCartItems = cartItems?.filter((item) => selectedItems[item.id]) || [];
 
   const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = selectedCartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
-    0
+    0,
   );
   const shippingFee = totalPrice >= 30000 ? 0 : 3000;
   const finalPrice = totalPrice + shippingFee;
-
-  const handleOrder = async () => {
-    try {
-      if (selectedCartItems.length === 0) {
-        toast.error(t.selectOrderItem);
-        return;
-      }
-
-      const formattedItems = selectedCartItems.map((item) => ({
-        id: item.id,
-        name: item.product.name[lang],
-        quantity: item.quantity,
-        price: item.product.price,
-      }));
-      setOrderedItems(formattedItems);
-
-      setIsModalOpen(true);
-
-      // 장바구니에서 제거
-      selectedCartItems.forEach((item) =>
-        removeFromCartMutate({ itemId: item.id, showToast: false })
-      );
-
-      setSelectedItems({});
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : t.orderFailedDescription;
-
-      toast.error(t.orderFailed, { description: message });
-    }
-  };
 
   const handleCheckChange = (itemId: string, checked: boolean) => {
     setSelectedItems((prev) => ({ ...prev, [itemId]: checked }));
@@ -209,19 +173,13 @@ export default function CartPage() {
                   totalPrice={totalPrice}
                   shippingFee={shippingFee}
                   finalPrice={finalPrice}
-                  onOrder={handleOrder}
+                  onOrder={() => router.push("order")}
                 />
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      <OrderCompleteModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        orderedItems={orderedItems}
-      />
     </>
   );
 }

@@ -26,11 +26,32 @@ export async function POST(request: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     const body = await request.json();
     const { label, name, phone, zip, address1, address2, memo, isDefault } = body;
 
-    const address = await prisma.address.create({
-      data: { userId, label, name, phone, zip, address1, address2, memo, isDefault },
+    const address = await prisma.$transaction(async (tx) => {
+      // 새 주소가 기본배송지면 기존 기본배송지 전부 해제
+      if (isDefault) {
+        await tx.address.updateMany({
+          where: { userId, isDefault: true },
+          data: { isDefault: false },
+        });
+      }
+
+      return tx.address.create({
+        data: {
+          userId,
+          label,
+          name,
+          phone,
+          zip,
+          address1,
+          address2,
+          memo,
+          isDefault: Boolean(isDefault),
+        },
+      });
     });
 
     return NextResponse.json(address);

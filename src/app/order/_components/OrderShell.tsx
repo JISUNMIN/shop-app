@@ -9,7 +9,7 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 
-import type { Address, Agreements, Coupon, OrderItem } from "@/types";
+import type { Agreements, Coupon, OrderItem } from "@/types";
 import {
   mockCoupons,
   ORDER_AVAILABLE_POINTS,
@@ -203,11 +203,7 @@ export default function OrderShell() {
           </div>
         </main>
 
-        <AddressCreateDialog
-          open={showAddressDialog}
-          onOpenChange={setShowAddressDialog}
-          onSubmit={() => setShowAddressDialog(false)}
-        />
+        <AddressCreateDialog open={showAddressDialog} onOpenChange={setShowAddressDialog} />
 
         <CouponSelectDialog
           open={showCouponDialog}

@@ -1,9 +1,7 @@
 // src/hooks/useAddress.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { Address } from "@/types";
 import axiosSession from "@/lib/axiosSession";
-import { useTranslation } from "@/context/TranslationContext";
 
 const ADDRESS_API_PATH = "/addresses";
 
@@ -17,8 +15,6 @@ type AddAddressParams = {
   zip?: string;
   memo?: string;
 };
-
-type UpdateCartParams = { itemId: string; quantity: number };
 
 const useAddress = () => {
   const queryClient = useQueryClient();
@@ -47,37 +43,22 @@ const useAddress = () => {
       const res = await axiosSession.post<Address>(ADDRESS_API_PATH, data);
       return res.data;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["address", "list"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["address", "list"] }),
   });
 
-//   배송지 수량 수정
-//   const { mutateAsync: updateAddressMutate, isPending: isUpdatePending } =
-//     useMutation<Address, Error, UpdateCartParams>({
-//       mutationFn: async (data) => {
-//         const res = await axiosSession.patch<Address>(ADDRESS_API_PATH, data);
-//         return res.data;
-//       },
-//       onSuccess: () => {
-//         queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
-//         toast.success(t.quantityChanged);
-//       },
-//       onError: () => toast.error(t.quantityChangeFail),
-//     });
-
-//    배송지 삭제
-//   const { mutateAsync: removeFromCartMutate, isPending: isRemovePending } =
-//     useMutation<void, Error, { itemId: string; showToast?: boolean }>({
-//       mutationFn: async ({ itemId }) => {
-//         await axiosSession.delete(`${ADDRESS_API_PATH}?itemId=${itemId}`);
-//       },
-//       onSuccess: (_, variables) => {
-//         const { showToast = true } = variables;
-//         queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
-//         if (showToast) toast.success(t.removedFromCart);
-//       },
-//       onError: () => toast.error(t.removeFail),
-//     });
+  // 배송지 삭제
+  const { mutateAsync: removeAddressMutate, isPending: isRemovePending } = useMutation<
+    void,
+    Error,
+    { addressId: number }
+  >({
+    mutationFn: async ({ addressId }) => {
+      await axiosSession.delete(`${ADDRESS_API_PATH}/${addressId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["address", "list"] });
+    },
+  });
 
   return {
     // list
@@ -87,7 +68,10 @@ const useAddress = () => {
     listError,
     // add
     addAddressMutate,
-    isAddPending,// // update
+    isAddPending,
+    // remove
+    removeAddressMutate,
+    isRemovePending,
   };
 };
 

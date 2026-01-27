@@ -1,5 +1,5 @@
 // app/order/_components/sections/OrderShippingSection.tsx
-import { Truck, Plus, CheckCircle2 } from "lucide-react";
+import { Truck, Plus, CheckCircle2, Trash2 } from "lucide-react"; 
 import { useTranslation } from "react-i18next";
 import { Controller, useFormContext } from "react-hook-form";
 
@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type { Address } from "@/types";
 import type { OrderFormValues } from "@/app/order/_components/OrderShell";
+import useAddress from "@/hooks/useAddress"; 
 
 interface Props {
   addresses: Address[];
@@ -28,6 +29,8 @@ interface Props {
 export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) {
   const { t } = useTranslation();
   const { control, watch, setValue, register } = useFormContext<OrderFormValues>();
+
+  const { removeAddressMutate, isRemovePending } = useAddress(); 
 
   const selectedAddressId = watch("selectedAddressId");
   const deliveryMemo = watch("deliveryMemo");
@@ -40,6 +43,16 @@ export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) 
     { value: "callBefore", label: t("order.deliveryMemo.options.callBefore") },
     { value: "callIfAbsent", label: t("order.deliveryMemo.options.callIfAbsent") },
   ];
+
+  const handleDelete = async (addressId: number) => {
+    await removeAddressMutate({ addressId });
+
+    if (selectedAddressId === addressId) {
+      const remaining = (addresses ?? []).filter((a) => a.id !== addressId);
+      const nextId = remaining.find((a) => a.isDefault)?.id ?? remaining[0]?.id ?? null;
+      setValue("selectedAddressId", nextId as any, { shouldDirty: true });
+    }
+  };
 
   return (
     <Card className="p-4 md:p-6">
@@ -75,9 +88,24 @@ export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) 
                   </Badge>
                 )}
               </div>
-              {selectedAddressId === address.id && (
-                <CheckCircle2 className="w-5 h-5 text-blue-500" />
-              )}
+
+              <div className="flex items-center gap-2">
+                {selectedAddressId === address.id && (
+                  <CheckCircle2 className="w-5 h-5 text-blue-500" />
+                )}
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={isRemovePending}
+                  onClick={() => {     
+                     handleDelete(address.id);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
             <p className="text-sm text-gray-600 mb-1">

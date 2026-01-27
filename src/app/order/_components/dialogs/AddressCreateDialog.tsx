@@ -29,10 +29,9 @@ export type NewAddressFormValues = {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: NewAddressFormValues) => void;
 }
 
-export function AddressCreateDialog({ open, onOpenChange, onSubmit }: Props) {
+export function AddressCreateDialog({ open, onOpenChange }: Props) {
   const { t } = useTranslation();
   const { addAddressMutate } = useAddress();
 
@@ -76,9 +75,8 @@ export function AddressCreateDialog({ open, onOpenChange, onSubmit }: Props) {
 
   const submit = handleSubmit((data) => {
     reset();
-
-    console.log("data", data);
     addAddressMutate(data);
+    onOpenChange(false);
   });
 
   return (

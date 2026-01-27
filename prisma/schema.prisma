@@ -1,32 +1,37 @@
 // prisma/schema.prisma
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider  = "postgresql"
-    url       = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
 
-  userId   String?  @unique   
-  name     String?
-  email    String? @unique  
+  userId        String?  @unique
+  name          String?
+  email         String?  @unique
   emailVerified DateTime? @map("email_verified")
-  phone    String? @unique 
-  password String?      
+  phone         String?  @unique
+  password      String?
 
-  phoneVerifiedAt DateTime? 
+  phoneVerifiedAt DateTime?
+
   accounts Account[]
   sessions Session[]
 
+  orders      Order[]
+  addresses   Address[]
+  cartItems   CartItem[]
+  wishlist    WishlistItem[]
+  userCoupons UserCoupon[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 
   @@map("users")
 }
@@ -44,21 +49,21 @@ model Account {
   scope              String?
   id_token           String? @db.Text
   session_state      String?
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
-
 
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique @map("session_token")
   userId       String   @map("user_id")
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("sessions")
 }
 
@@ -66,86 +71,210 @@ model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
-model PhoneVerification {
-  id           Int      @id @default(autoincrement())
-  phone        String   @unique
-  codeHash     String
-  expiresAt    DateTime
-  attempts     Int      @default(0)
-  resendCount  Int      @default(0)
-  lastSentAt   DateTime @default(now())
-  verifiedAt   DateTime?
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model PhoneVerification {
+  id          Int      @id @default(autoincrement())
+  phone       String   @unique
+  codeHash    String
+  expiresAt   DateTime
+  attempts    Int      @default(0)
+  resendCount Int      @default(0)
+  lastSentAt  DateTime @default(now())
+  verifiedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-
 model Product {
-    id          Int      @id @default(autoincrement())
-    name        Json // { "ko": "로봇", "en": "Robot" }
-    price       Float
-    description Json? // { "ko": "설명", "en": "Description" }
-    images      String[]
-    stock       Int      @default(0)
-    category    Json? // { "ko": "청소로봇", "en": "Cleaning Robot" }
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  name        Json     // { "ko": "로봇", "en": "Robot" }
+  price       Float
+  description Json?    // { "ko": "설명", "en": "Description" }
+  images      String[]
+  stock       Int      @default(0)
+  category    Json?    // { "ko": "청소로봇", "en": "Cleaning Robot" }
 
-    cartItems  CartItem[]
-    orderItems OrderItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-    @@map("products")
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+  wishlistItems WishlistItem[]
+
+  @@map("products")
 }
 
 model CartItem {
-    id        Int      @id @default(autoincrement())
-    productId Int
-    quantity  Int
-    sessionId String // 사용자 세션 기반으로 장바구니 관리
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  productId Int
+  quantity  Int
 
-    product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sessionId String?
+  userId    String?
 
-    @@unique([productId, sessionId])
-    @@map("cart_items")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, sessionId])
+  @@unique([productId, userId])
+
+  @@index([userId])
+  @@index([sessionId])
+  @@map("cart_items")
 }
 
 model Order {
-    id          Int         @id @default(autoincrement())
-    sessionId   String
-    totalAmount Float
-    status      OrderStatus @default(PENDING)
-    createdAt   DateTime    @default(now())
-    updatedAt   DateTime    @updatedAt
+  id            Int         @id @default(autoincrement())
 
-    orderItems OrderItem[]
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@map("orders")
+  totalAmount   Float
+  discountAmount Float      @default(0)
+
+  status        OrderStatus @default(PAID)
+
+  couponId      Int?
+  coupon        Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
+
+  shipName      String
+  shipPhone     String
+  shipZip       String?
+  shipAddress1  String
+  shipAddress2  String?
+  shipMemo      String?
+
+  paidAt        DateTime?
+  deliveredAt   DateTime?
+  refundedAt    DateTime?
+  returnedAt    DateTime?
+  trackingNumber String?
+  carrier        String?
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  orderItems    OrderItem[]
+
+  @@index([userId, createdAt])
+  @@map("orders")
 }
 
 model OrderItem {
-    id        Int   @id @default(autoincrement())
-    orderId   Int
-    productId Int
-    quantity  Int
-    price     Float
+  id        Int   @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
 
-    order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-    product Product @relation(fields: [productId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
 
-    @@map("order_items")
+  @@map("order_items")
+}
+
+model Address {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label       String?  // "집", "회사"
+  name        String
+  phone       String
+
+  zip         String?
+  address1    String
+  address2    String?
+  memo        String?
+
+  isDefault   Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@map("addresses")
+}
+
+model Coupon {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  name      String
+
+  discountType  CouponDiscountType
+  discountValue Float
+
+  minOrderAmount    Float?
+  maxDiscountAmount Float?
+
+  startsAt DateTime?
+  endsAt   DateTime?
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userCoupons UserCoupon[]
+  orders      Order[]
+
+  @@map("coupons")
+}
+
+model UserCoupon {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  couponId  Int
+
+  status    UserCouponStatus @default(AVAILABLE)
+  issuedAt  DateTime @default(now())
+  usedAt    DateTime?
+  orderId   Int?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("user_coupons")
+}
+
+model WishlistItem {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  productId Int
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId, createdAt])
+  @@map("wishlist_items")
 }
 
 enum OrderStatus {
-    PENDING
-    CONFIRMED
-    SHIPPED
-    DELIVERED
-    CANCELLED
+  PAID       // 결제완료
+  SHIPPING   // 배송중
+  DELIVERED  // 배송완료
+  REFUNDED   // 환불
+  RETURNED   // 반품
+}
+
+enum CouponDiscountType {
+  PERCENT
+  AMOUNT
+}
+
+enum UserCouponStatus {
+  AVAILABLE
+  USED
+  EXPIRED
+  REVOKED
 }

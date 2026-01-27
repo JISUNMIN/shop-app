@@ -30,6 +30,7 @@ export default function CartPage() {
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
 
   const selectedCartItems = cartItems?.filter((item) => selectedItems[item.id]) || [];
+  const selectedIds = selectedCartItems.map((i) => i.id);
 
   const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = selectedCartItems.reduce(
@@ -53,6 +54,12 @@ export default function CartPage() {
     const idsToDelete = Object.keys(selectedItems).filter((id) => selectedItems[id]);
     idsToDelete.forEach((id) => removeFromCartMutate({ itemId: id }));
     setSelectedItems({});
+  };
+
+  const onOrder = () => {
+    const params = new URLSearchParams();
+    params.set("itemIds", selectedIds.join(","));
+    router.push(`/order?${params.toString()}`);
   };
 
   useEffect(() => {
@@ -169,7 +176,7 @@ export default function CartPage() {
                   totalPrice={totalPrice}
                   shippingFee={shippingFee}
                   finalPrice={finalPrice}
-                  onOrder={() => router.push("order")}
+                  onOrder={onOrder}
                 />
               </div>
             </motion.div>

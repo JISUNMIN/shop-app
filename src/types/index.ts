@@ -94,9 +94,3 @@ export interface Coupon {
   minOrder: number;
   type: "percent" | "fixed";
 }
-
-export type Agreements = {
-  terms: boolean;
-  privacy: boolean;
-  payment: boolean;
-};

@@ -2,14 +2,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 
-import type { Agreements, Coupon, OrderItem } from "@/types";
+import type { Coupon } from "@/types";
 import {
   mockCoupons,
   ORDER_AVAILABLE_POINTS,
@@ -22,7 +22,6 @@ import { OrderShippingSection } from "@/app/order/_components/sections/OrderShip
 import { OrderItemsSection } from "@/app/order/_components/sections/OrderItemsSection";
 import { OrderBenefitsSection } from "@/app/order/_components/sections/OrderBenefitsSection";
 import { OrderPaymentSection } from "@/app/order/_components/sections/OrderPaymentSection";
-import { OrderAgreementsSection } from "@/app/order/_components/sections/OrderAgreementsSection";
 import { OrderSummarySection } from "@/app/order/_components/sections/OrderSummarySection";
 
 import { AddressCreateDialog } from "@/app/order/_components/dialogs/AddressCreateDialog";
@@ -46,27 +45,41 @@ export type OrderFormValues = {
 
   usePoints: boolean;
   pointsToUse: number;
-
-  agreements: Agreements;
 };
 
 export default function OrderShell() {
   const router = useRouter();
   const { listData: cartItems, removeFromCartMutate } = useCart();
   const { listData: addressList } = useAddress();
+  const searchParams = useSearchParams();
 
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [orderedItems, setOrderedItems] = useState<OrderItem[]>([]);
 
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
 
   const coupons: Coupon[] = mockCoupons;
 
-  const orderItems = useMemo(() => formatCartItems(cartItems ?? [], lang), [cartItems, lang]);
+  const itemIdsParam = searchParams.get("itemIds");
+  const selectedIdSet = useMemo(() => {
+    const ids = (itemIdsParam ?? "")
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+    return new Set(ids);
+  }, [itemIdsParam]);
+
+  const selectedCartItems = useMemo(() => {
+    return cartItems?.filter((item) => selectedIdSet.has(String(item.id)));
+  }, [cartItems, itemIdsParam, selectedIdSet]);
+
+  const orderItems = useMemo(
+    () => formatCartItems(selectedCartItems ?? [], lang),
+    [selectedCartItems, lang],
+  );
 
   const methods = useForm<OrderFormValues>({
     mode: "onChange",
@@ -78,7 +91,6 @@ export default function OrderShell() {
       selectedCouponId: null,
       usePoints: false,
       pointsToUse: 0,
-      agreements: { terms: false, privacy: false, payment: false },
     },
   });
 
@@ -134,20 +146,11 @@ export default function OrderShell() {
     [addressList, selectedAddressId],
   );
 
-  const handleOrderSubmit = async () => {
-    const { agreements } = getValues();
-
-    if (!agreements.terms || !agreements.privacy || !agreements.payment) {
-      alert(t("order.alert.requiredAgreements"));
-      return;
-    }
-
-    setOrderedItems(orderItems);
-
+  const onClosesOrderModal = async () => {
     // 장바구니에서 제거
-    cartItems?.forEach((item) => removeFromCartMutate({ itemId: item.id, showToast: false }));
-
-    setIsModalOpen(true);
+    orderItems?.forEach((item) => removeFromCartMutate({ itemId: item.id, showToast: false }));
+    setIsModalOpen(false);
+    router.push("/");
   };
 
   return (
@@ -183,7 +186,6 @@ export default function OrderShell() {
               />
 
               <OrderPaymentSection />
-              <OrderAgreementsSection />
             </div>
 
             <div className="lg:col-span-1">
@@ -197,7 +199,7 @@ export default function OrderShell() {
                 orderItems={orderItems}
                 selectedAddress={selectedAddress}
                 freeShippingThreshold={ORDER_FREE_SHIPPING_THRESHOLD}
-                onSubmit={handleOrderSubmit}
+                onClose={() => setIsModalOpen(true)}
               />
             </div>
           </div>
@@ -214,8 +216,8 @@ export default function OrderShell() {
 
         <OrderCompleteModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          orderedItems={orderedItems}
+          onClose={onClosesOrderModal}
+          orderedItems={orderItems}
         />
       </div>
     </FormProvider>

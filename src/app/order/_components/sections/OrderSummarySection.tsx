@@ -19,7 +19,7 @@ interface Props {
   orderItems: OrderItem[];
   selectedAddress?: Address;
 
-  onSubmit: () => void;
+  onClose: () => void;
   freeShippingThreshold: number;
 }
 
@@ -29,10 +29,9 @@ export function OrderSummarySection({
   couponDiscount,
   pointsDiscount,
   finalAmount,
-  earnPoints,
   orderItems,
   selectedAddress,
-  onSubmit,
+  onClose,
   freeShippingThreshold,
 }: Props) {
   const { t } = useTranslation();
@@ -104,7 +103,7 @@ export function OrderSummarySection({
         </div>
 
         <Button
-          onClick={onSubmit}
+          onClick={onClose}
           className="w-full h-14 text-lg font-bold"
           disabled={!selectedAddress || hasOutOfStock}
         >

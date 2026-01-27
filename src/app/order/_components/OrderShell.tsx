@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 
 import type { Address, Agreements, Coupon, OrderItem } from "@/types";
 import {
-  initialAddresses,
   mockCoupons,
   ORDER_AVAILABLE_POINTS,
   ORDER_DELIVERY_FEE,
@@ -32,6 +31,7 @@ import { CouponSelectDialog } from "@/app/order/_components/dialogs/CouponSelect
 import useCart from "@/hooks/useCart";
 import { formatCartItems } from "@/utils/cart";
 import type { LocalizedText } from "@/types";
+import useAddress from "@/hooks/useAddress";
 
 export type PaymentMethod = "card" | "bank" | "kakao" | "naver";
 
@@ -53,6 +53,7 @@ export type OrderFormValues = {
 export default function OrderShell() {
   const router = useRouter();
   const { listData: cartItems, removeFromCartMutate } = useCart();
+  const { listData: addressList } = useAddress();
 
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
@@ -60,7 +61,6 @@ export default function OrderShell() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderedItems, setOrderedItems] = useState<OrderItem[]>([]);
 
-  const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
 
@@ -71,7 +71,7 @@ export default function OrderShell() {
   const methods = useForm<OrderFormValues>({
     mode: "onChange",
     defaultValues: {
-      selectedAddressId: addresses.find((a) => a.isDefault)?.id ?? addresses[0]?.id ?? 1,
+      selectedAddressId: addressList?.find((a) => a.isDefault)?.id ?? addressList?.[0]?.id ?? 1,
       deliveryMemo: "custom", // key
       customMemo: "",
       paymentMethod: "card",
@@ -130,29 +130,9 @@ export default function OrderShell() {
   const earnPoints = Math.floor(finalAmount * 0.05);
 
   const selectedAddress = useMemo(
-    () => addresses.find((a) => a.id === selectedAddressId),
-    [addresses, selectedAddressId],
+    () => addressList?.find((a) => a.id === selectedAddressId),
+    [addressList, selectedAddressId],
   );
-
-  const handleAddAddress = (newAddress: {
-    name: string;
-    recipient: string;
-    phone: string;
-    address: string;
-    detailAddress: string;
-    isDefault: boolean;
-  }) => {
-    const newId = Math.max(...addresses.map((a) => a.id), 0) + 1;
-    const updated = newAddress.isDefault
-      ? addresses.map((a) => ({ ...a, isDefault: false }))
-      : addresses;
-
-    setAddresses([...updated, { id: newId, ...newAddress }]);
-
-    if (newAddress.isDefault) setValue("selectedAddressId", newId, { shouldDirty: true });
-
-    setShowAddressDialog(false);
-  };
 
   const handleOrderSubmit = async () => {
     const { agreements } = getValues();
@@ -188,7 +168,7 @@ export default function OrderShell() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <OrderShippingSection
-                addresses={addresses}
+                addresses={addressList}
                 onOpenAddressDialog={() => setShowAddressDialog(true)}
               />
 
@@ -226,7 +206,7 @@ export default function OrderShell() {
         <AddressCreateDialog
           open={showAddressDialog}
           onOpenChange={setShowAddressDialog}
-          onSubmit={handleAddAddress}
+          onSubmit={() => setShowAddressDialog(false)}
         />
 
         <CouponSelectDialog

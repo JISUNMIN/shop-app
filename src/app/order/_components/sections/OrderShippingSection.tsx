@@ -56,7 +56,7 @@ export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) 
       </div>
 
       <div className="space-y-3">
-        {addresses.map((address) => (
+        {addresses?.map((address) => (
           <div
             key={address.id}
             onClick={() => setValue("selectedAddressId", address.id, { shouldDirty: true })}
@@ -68,7 +68,7 @@ export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) 
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-2">
-                <p className="font-bold">{address.name}</p>
+                <p className="font-bold">{address.label}</p>
                 {address.isDefault && (
                   <Badge variant="outline" className="text-blue-600 border-blue-300">
                     {t("order.shipping.default")}
@@ -81,7 +81,7 @@ export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) 
             </div>
 
             <p className="text-sm text-gray-600 mb-1">
-              {address.recipient} · {address.phone}
+              {address.name} · {address.phone}
             </p>
             <p className="text-sm text-gray-600">
               {address.address} {address.detailAddress}
@@ -90,43 +90,47 @@ export function OrderShippingSection({ addresses, onOpenAddressDialog }: Props) 
         ))}
       </div>
 
-      <Separator className="my-4" />
+      {addresses?.length > 0 && (
+        <>
+          <Separator className="my-4" />
 
-      <div className="space-y-4">
-        <div>
-          <Label>{t("order.deliveryMemo.label")}</Label>
+          <div className="space-y-4">
+            <div>
+              <Label>{t("order.deliveryMemo.label")}</Label>
 
-          <Controller
-            control={control}
-            name="deliveryMemo"
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="mt-2">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {memoOptions.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      {m.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                control={control}
+                name="deliveryMemo"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {memoOptions.map((m) => (
+                        <SelectItem key={m.value} value={m.value}>
+                          {m.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            {deliveryMemo === "custom" && (
+              <div>
+                <Textarea
+                  placeholder={t("order.deliveryMemo.placeholder")}
+                  className="resize-none"
+                  rows={3}
+                  {...register("customMemo")}
+                />
+              </div>
             )}
-          />
-        </div>
-
-        {deliveryMemo === "custom" && (
-          <div>
-            <Textarea
-              placeholder={t("order.deliveryMemo.placeholder")}
-              className="resize-none"
-              rows={3}
-              {...register("customMemo")}
-            />
           </div>
-        )}
-      </div>
+        </>
+      )}
     </Card>
   );
 }

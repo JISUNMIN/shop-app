@@ -347,10 +347,15 @@
     },
 
     "alert": {
+      "postcodeLoading": "Loading address search. Please try again shortly.",
       "requiredFields": "Please fill in all required fields.",
       "requiredAgreements": "Please agree to the required terms.",
       "outOfStock": "Some items are out of stock: {{names}}",
       "paymentDone": "Payment completed!\nFinal amount: {{finalAmount}} KRW\nPoints to earn: {{earnPoints}} KRW"
+    },
+    "validation": {
+      "required": "This field is required.",
+      "phone": "Invalid phone number format."
     }
   },
   "searchPlaceholderMobile": "Search robot",

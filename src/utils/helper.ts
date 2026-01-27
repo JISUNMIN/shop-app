@@ -37,3 +37,12 @@ export const getAvatarText = (name?: string | null): string => {
 
   return initials || raw.charAt(0).toUpperCase();
 };
+
+
+export const formatKoreanMobile = (value: string) => {
+  const digits = value.replace(/\D/g, "").slice(0, 11); // 숫자만 + 최대 11자리
+
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+};

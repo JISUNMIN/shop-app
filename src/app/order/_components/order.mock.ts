@@ -1,28 +1,6 @@
 // app/order/_components/order.mock.ts
 
-import type { Address, Coupon } from "@/types";
-
-export const initialAddresses: Address[] = [
-  {
-    id: 1,
-    name: "집",
-    recipient: "김로봇",
-    phone: "010-1234-5678",
-    address: "서울시 강남구 테헤란로 123",
-    detailAddress: "로봇빌딩 101호",
-    isDefault: true,
-  },
-  {
-    id: 2,
-    name: "회사",
-    recipient: "김로봇",
-    phone: "010-1234-5678",
-    address: "서울시 서초구 서초대로 100",
-    detailAddress: "AI타워 5층",
-    isDefault: false,
-  },
-];
-
+import type { Coupon } from "@/types";
 export const mockCoupons: Coupon[] = [
   { id: 1, name: "신규가입 10% 할인", discount: 10, minOrder: 100000, type: "percent" },
   { id: 2, name: "50,000원 할인", discount: 50000, minOrder: 500000, type: "fixed" },

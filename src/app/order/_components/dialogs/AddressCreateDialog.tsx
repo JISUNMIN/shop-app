@@ -1,8 +1,11 @@
 // app/order/_components/dialogs/AddressCreateDialog.tsx
 "use client";
 
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { FormProvider, useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,12 +13,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
+import { AddressSearchField } from "../AddressSearchField";
+import { formatKoreanMobile } from "@/utils/helper";
+import useAddress from "@/hooks/useAddress";
+
 export type NewAddressFormValues = {
+  label: string;
   name: string;
-  recipient: string;
   phone: string;
-  address: string;
-  detailAddress: string;
+  address1: string;
+  address2: string;
   isDefault: boolean;
 };
 
@@ -27,28 +34,51 @@ interface Props {
 
 export function AddressCreateDialog({ open, onOpenChange, onSubmit }: Props) {
   const { t } = useTranslation();
+  const { addAddressMutate } = useAddress();
+
+  const schema = useMemo(
+    () =>
+      yup.object({
+        label: yup.string().trim().required(t("order.validation.required")),
+        name: yup.string().trim().required(t("order.validation.required")),
+        phone: yup
+          .string()
+          .trim()
+          .required(t("order.validation.required"))
+          .matches(/^010-\d{4}-\d{4}$/, t("order.validation.phone")),
+        address1: yup.string().trim().required(t("order.validation.required")),
+        address2: yup.string().trim().default(""),
+        isDefault: yup.boolean().default(false),
+      }),
+    [t],
+  );
 
   const methods = useForm<NewAddressFormValues>({
     mode: "onChange",
+    resolver: yupResolver(schema),
     defaultValues: {
+      label: "",
       name: "",
-      recipient: "",
       phone: "",
-      address: "",
-      detailAddress: "",
+      address1: "",
+      address2: "",
       isDefault: false,
     },
   });
 
-  const { register, handleSubmit, reset, control } = methods;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors, isValid, isSubmitting },
+  } = methods;
 
-  const submit = handleSubmit((values) => {
-    if (!values.name || !values.recipient || !values.phone || !values.address) {
-      alert(t("order.alert.requiredFields"));
-      return;
-    }
-    onSubmit(values);
+  const submit = handleSubmit((data) => {
     reset();
+
+    console.log("data", data);
+    addAddressMutate(data);
   });
 
   return (
@@ -68,7 +98,14 @@ export function AddressCreateDialog({ open, onOpenChange, onSubmit }: Props) {
           <div className="space-y-4 mt-4">
             <div>
               <Label>{t("order.addressDialog.name")} *</Label>
-              <Input placeholder={t("order.addressDialog.namePlaceholder")} className="mt-2" {...register("name")} />
+              <Input
+                placeholder={t("order.addressDialog.namePlaceholder")}
+                className="mt-2"
+                {...register("label")}
+              />
+              {errors.name?.message && (
+                <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
+              )}
             </div>
 
             <div>
@@ -76,23 +113,48 @@ export function AddressCreateDialog({ open, onOpenChange, onSubmit }: Props) {
               <Input
                 placeholder={t("order.addressDialog.recipientPlaceholder")}
                 className="mt-2"
-                {...register("recipient")}
+                {...register("name")}
               />
+              {errors.name?.message && (
+                <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
+              )}
             </div>
 
             <div>
               <Label>{t("order.addressDialog.phone")} *</Label>
-              <Input placeholder={t("order.addressDialog.phonePlaceholder")} className="mt-2" {...register("phone")} />
+
+              <Controller
+                name="phone"
+                control={methods.control}
+                render={({ field }) => (
+                  <Input
+                    placeholder={t("order.addressDialog.phonePlaceholder")}
+                    className="mt-2"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(formatKoreanMobile(e.target.value))}
+                    inputMode="numeric"
+                  />
+                )}
+              />
+
+              {methods.formState.errors.phone?.message && (
+                <p className="text-sm text-destructive mt-1">
+                  {methods.formState.errors.phone.message}
+                </p>
+              )}
             </div>
 
             <div>
               <Label>{t("order.addressDialog.address")} *</Label>
-              <div className="flex gap-2 mt-2">
-                <Input placeholder={t("order.addressDialog.addressPlaceholder")} className="flex-1" {...register("address")} />
-                <Button variant="outline" type="button">
-                  {t("order.common.search")}
-                </Button>
-              </div>
+              <AddressSearchField<NewAddressFormValues>
+                form={methods}
+                name="address1"
+                focusTo="address2"
+                placeholder={t("order.addressDialog.addressPlaceholder")}
+              />
+              {errors.address1?.message && (
+                <p className="text-sm text-destructive mt-1">{errors.address1.message}</p>
+              )}
             </div>
 
             <div>
@@ -100,8 +162,11 @@ export function AddressCreateDialog({ open, onOpenChange, onSubmit }: Props) {
               <Input
                 placeholder={t("order.addressDialog.detailAddressPlaceholder")}
                 className="mt-2"
-                {...register("detailAddress")}
+                {...register("address2")}
               />
+              {errors.address2?.message && (
+                <p className="text-sm text-destructive mt-1">{errors.address2.message}</p>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -109,14 +174,18 @@ export function AddressCreateDialog({ open, onOpenChange, onSubmit }: Props) {
                 name="isDefault"
                 control={control}
                 render={({ field }) => (
-                  <Checkbox checked={!!field.value} onCheckedChange={(v) => field.onChange(!!v)} id="new-default" />
+                  <Checkbox
+                    checked={!!field.value}
+                    onCheckedChange={(v) => field.onChange(!!v)}
+                    id="new-default"
+                  />
                 )}
               />
               <Label htmlFor="new-default">{t("order.addressDialog.setDefault")}</Label>
             </div>
 
             <div className="flex gap-2 pt-4">
-              <Button onClick={submit} className="flex-1">
+              <Button onClick={submit} className="flex-1" disabled={!isValid || isSubmitting}>
                 {t("order.addressDialog.add")}
               </Button>
               <Button

@@ -27,8 +27,8 @@ export interface OrderItemView {
   price: number;
   quantity: number;
   image: string[];
+  stock: number;
 }
-
 
 export interface Order {
   id: string;

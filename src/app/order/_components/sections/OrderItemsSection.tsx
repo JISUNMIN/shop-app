@@ -5,9 +5,10 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-import type { OrderItem } from "@/types";
+import type { OrderItemView } from "@/types";
+import Image from "next/image";
 
-export function OrderItemsSection({ orderItems }: { orderItems: OrderItem[] }) {
+export function OrderItemsSection({ orderItems }: { orderItems: OrderItemView[] }) {
   const { t } = useTranslation();
 
   return (
@@ -24,8 +25,8 @@ export function OrderItemsSection({ orderItems }: { orderItems: OrderItem[] }) {
 
           return (
             <div key={item.id} className="flex gap-4 pb-4 border-b last:border-b-0">
-              <img
-                src={item.image}
+              <Image
+                src={item.image[0]}
                 alt={item.name}
                 className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg"
               />

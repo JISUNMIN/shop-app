@@ -170,13 +170,14 @@ export default function OrderShell() {
         <main className="max-w-7xl mx-auto px-4 py-6 md:py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
+              {/* 배송지 정보 */}
               <OrderShippingSection
                 addresses={addressList}
                 onOpenAddressDialog={() => setShowAddressDialog(true)}
               />
-
+              {/* 주문 상품 */}
               <OrderItemsSection orderItems={orderItems} />
-
+              {/* 할인및 혜택 */}
               <OrderBenefitsSection
                 selectedCoupon={selectedCoupon}
                 couponDiscount={couponDiscount}
@@ -184,11 +185,12 @@ export default function OrderShell() {
                 pointsMax={pointsMax}
                 onOpenCouponDialog={() => setShowCouponDialog(true)}
               />
-
+              {/* 결제 수단 */}
               <OrderPaymentSection />
             </div>
 
             <div className="lg:col-span-1">
+              {/* 우측 결제 요약 */}
               <OrderSummarySection
                 subtotal={subtotal}
                 finalDeliveryFee={finalDeliveryFee}

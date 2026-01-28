@@ -5,21 +5,60 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Product } from "@/types";
-import { motion, useReducedMotion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { LocalizedText, Product } from "@/types";
+import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { formatPrice, formatString } from "@/utils/helper";
-import { useTranslation } from "@/context/TranslationContext";
-import { useLangStore } from "@/store/langStore";
+import { Heart, ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import useCart from "@/hooks/useCart";
+import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface ProductCardProps {
   product: Product;
   index?: number;
 }
 
-export default function ProductCard({ product}: ProductCardProps) {
-  const t = useTranslation();
-  const { lang } = useLangStore();
+export default function ProductCard({ product }: ProductCardProps) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as keyof LocalizedText;
   const shouldReduceMotion = useReducedMotion();
+  const { addToCartMutate, isAddPending } = useCart();
+
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [showQuickView, setShowQuickView] = useState(false);
+
+  const isSoldOut = product.stock === 0;
+
+  const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setIsWishlisted((v) => !v);
+    // TODO: 위시리스트 store/API 연결
+  };
+
+  console.log("product", product);
+  const handleAddToCartClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (isSoldOut) return;
+
+    addToCartMutate(
+      {
+        productId: product.id,
+        quantity: 1,
+      },
+      {
+        onSuccess: () => {
+          toast.success(t("addedToCart"), {
+            description: t("addedToCartDescription", {
+              name: product.name[lang],
+              quantity: 1,
+            }),
+          });
+        },
+      },
+    );
+  };
 
   return (
     <motion.div
@@ -28,9 +67,11 @@ export default function ProductCard({ product}: ProductCardProps) {
       whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       className="group"
+      onMouseEnter={() => setShowQuickView(true)}
+      onMouseLeave={() => setShowQuickView(false)}
     >
       <Link href={`/product/${product.id}`}>
-        <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg h-full py-0 ">
+        <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg h-full py-0">
           <div className="relative aspect-square overflow-hidden bg-gray-100">
             <Image
               src={product.images[0] || "/placeholder.jpg"}
@@ -41,22 +82,57 @@ export default function ProductCard({ product}: ProductCardProps) {
             />
 
             {/* 품절 표시 */}
-            {product.stock === 0 && (
+            {isSoldOut && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                 <Badge variant="destructive" className="text-sm">
-                  {t.soldOut}
+                  {t("soldOut")}
                 </Badge>
               </div>
             )}
 
             {/* 재고 부족 표시 */}
-            {product.stock > 0 && product.stock <= 10 && (
+            {!isSoldOut && product.stock <= 10 && (
               <div className="absolute right-2 top-2">
                 <Badge variant="secondary" className="text-xs">
-                  {formatString(t.onlyLeft, { count: product.stock })}
+                  {t("onlyLeft", { count: product.stock })}
                 </Badge>
               </div>
             )}
+
+            {/* 호버 시 버튼들 */}
+            <AnimatePresence>
+              {showQuickView && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="absolute bottom-2 left-4 right-4 flex gap-2 z-20"
+                >
+                  <Button
+                    className="flex-1 h-8 px-3 text-sm bg-white text-black hover:bg-gray-100"
+                    onClick={handleAddToCartClick}
+                    disabled={isSoldOut}
+                    aria-disabled={isSoldOut}
+                  >
+                    <ShoppingCart className="w-4 h-4 mr-1.5" />
+                    {isAddPending ? t("addingToCart") : t("addToCart")}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* 찜하기 버튼 */}
+            <button
+              onClick={handleWishlistClick}
+              className="absolute top-3 left-3 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all"
+              aria-label="Wishlist"
+            >
+              <Heart
+                className={`w-5 h-5 transition-colors ${
+                  isWishlisted ? "fill-red-500 text-red-500" : "text-gray-600"
+                }`}
+              />
+            </button>
           </div>
 
           <CardContent className="p-4">
@@ -68,7 +144,7 @@ export default function ProductCard({ product}: ProductCardProps) {
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
                   <span className="text-lg font-bold text-primary">
-                    {formatString(t.price, {
+                    {formatString(t("price"), {
                       price: formatPrice(product.price ?? 0, lang),
                     })}
                   </span>

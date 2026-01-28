@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CartItem } from "@/types";
 import axiosSession from "@/lib/axiosSession";
-import { useTranslation } from "@/context/TranslationContext";
+import { useTranslation } from "react-i18next";
 
 const CART_API_PATH = "/cart";
 
@@ -12,7 +12,7 @@ type UpdateCartParams = { itemId: string; quantity: number };
 
 const useCart = () => {
   const queryClient = useQueryClient();
-  const t = useTranslation();
+  const { t } = useTranslation();
 
   // 장바구니 목록 조회
   const {
@@ -29,47 +29,53 @@ const useCart = () => {
   });
 
   // 장바구니 추가
-  const { mutateAsync: addToCartMutate, isPending: isAddPending } = useMutation<
+  const { mutate: addToCartMutate, isPending: isAddPending } = useMutation<
     CartItem,
     Error,
     AddToCartParams
   >({
     mutationFn: async (data) => {
       const res = await axiosSession.post<CartItem>(CART_API_PATH, data);
+
       return res.data;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
-    onError: () => toast.error(t.addToCartFail),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart", "list"] }),
+    onError: () => toast.error(t("addToCartFail")),
   });
 
   // 장바구니 수량 수정
-  const { mutateAsync: updateCartItemMutate, isPending: isUpdatePending } =
-    useMutation<CartItem, Error, UpdateCartParams>({
-      mutationFn: async (data) => {
-        const res = await axiosSession.patch<CartItem>(CART_API_PATH, data);
-        return res.data;
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
-        toast.success(t.quantityChanged);
-      },
-      onError: () => toast.error(t.quantityChangeFail),
-    });
+  const { mutate: updateCartItemMutate, isPending: isUpdatePending } = useMutation<
+    CartItem,
+    Error,
+    UpdateCartParams
+  >({
+    mutationFn: async (data) => {
+      const res = await axiosSession.patch<CartItem>(CART_API_PATH, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
+      toast.success(t("quantityChanged"));
+    },
+    onError: () => toast.error(t("quantityChangeFail")),
+  });
 
   // 장바구니 삭제
-  const { mutateAsync: removeFromCartMutate, isPending: isRemovePending } =
-    useMutation<void, Error, { itemId: string; showToast?: boolean }>({
-      mutationFn: async ({ itemId }) => {
-        await axiosSession.delete(`${CART_API_PATH}?itemId=${itemId}`);
-      },
-      onSuccess: (_, variables) => {
-        const { showToast = true } = variables;
-        queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
-        if (showToast) toast.success(t.removedFromCart);
-      },
-      onError: () => toast.error(t.removeFail),
-    });
+  const { mutateAsync: removeFromCartMutate, isPending: isRemovePending } = useMutation<
+    void,
+    Error,
+    { itemId: string; showToast?: boolean }
+  >({
+    mutationFn: async ({ itemId }) => {
+      await axiosSession.delete(`${CART_API_PATH}?itemId=${itemId}`);
+    },
+    onSuccess: (_, variables) => {
+      const { showToast = true } = variables;
+      queryClient.invalidateQueries({ queryKey: ["cart", "list"] });
+      if (showToast) toast.success(t("removedFromCart"));
+    },
+    onError: () => toast.error(t("removeFail")),
+  });
 
   return {
     // list

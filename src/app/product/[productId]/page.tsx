@@ -13,8 +13,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import ProductDetailSkeleton from "../ProductDetailSkeleton";
 import { Input } from "@/components/ui/input";
 import { useLangStore } from "@/store/langStore";
-import { useTranslation } from "@/context/TranslationContext";
-import { formatPrice, formatString } from "@/utils/helper";
+import { formatPrice } from "@/utils/helper";
+import { useTranslation } from "react-i18next";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function ProductPage() {
   const params = useParams();
   const productId = Number(params?.productId);
   const { lang } = useLangStore();
-  const t = useTranslation();
+  const { t } = useTranslation();
 
   const { detailData, isDetailLoading, detailError } = useProducts(undefined, productId);
 
@@ -69,37 +69,36 @@ export default function ProductPage() {
   //   return "장바구니에 추가할 수 없습니다.";
   // };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!detailData) return;
+
     const totalQuantity = quantity + getCartQuantity();
     if (totalQuantity > detailData.stock) {
       toast.error(
-        formatString(t.maxOrderLimit, {
+        t("maxOrderLimit", {
           stock: detailData.stock,
           cart: getCartQuantity(),
-        })
+        }),
       );
       return;
     }
 
-    try {
-      await addToCartMutate({
+    addToCartMutate(
+      {
         productId: detailData.id,
         quantity,
-      });
-      toast.success(t.addedToCart, {
-        description: formatString(t.addedToCartDescription, {
-          name: detailData.name[lang] ?? "",
-          quantity,
-        }),
-      });
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : t.cannotAddToCart;
-
-      toast.error(t.errorLoading, {
-        description: message,
-      });
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success(t("addedToCart"), {
+            description: t("addedToCartDescription", {
+              name: detailData.name[lang] ?? "",
+              quantity,
+            }),
+          });
+        },
+      },
+    );
   };
 
   if (isDetailLoading) return <ProductDetailSkeleton />;
@@ -109,10 +108,10 @@ export default function ProductPage() {
       <div className="container py-8">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-red-600">{t.productNotFound}</h2>
-            <p className="mt-2 text-muted-foreground">{t.productDeleted}</p>
+            <h2 className="text-xl font-semibold text-red-600">{t("productNotFound")}</h2>
+            <p className="mt-2 text-muted-foreground">{t("productDeleted")}</p>
             <Button onClick={() => router.push("/")} className="mt-4">
-              {t.goHome}
+              {t("goHome")}
             </Button>
           </div>
         </div>
@@ -130,7 +129,7 @@ export default function ProductPage() {
       <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mb-6">
         <Button variant="ghost" onClick={() => router.back()} className="gap-2">
           <ArrowLeft className="h-4 w-4" />
-          {t.back}
+          {t("back")}
         </Button>
       </motion.div>
 
@@ -158,7 +157,7 @@ export default function ProductPage() {
           <h1 className="text-2xl font-bold lg:text-3xl">{detailData?.name[lang] ?? ""}</h1>
 
           <div className="text-3xl font-bold text-primary">
-            {formatString(t.price, {
+            {t("price", {
               price: formatPrice(detailData?.price, lang),
             })}
           </div>
@@ -166,15 +165,15 @@ export default function ProductPage() {
           <div className="flex items-center gap-2">
             {isOutOfStock ? (
               <Badge variant="destructive" className="px-3 py-1 text-sm">
-                {t.outOfStock}
+                {t("outOfStock")}
               </Badge>
             ) : isLowStock ? (
               <Badge variant="secondary" className="px-3 py-1 text-sm">
-                {formatString(t.lowStock, { count: detailData?.stock })}
+                {t("lowStock", { count: detailData?.stock })}
               </Badge>
             ) : (
               <Badge variant="default" className="px-3 py-1 text-sm">
-                {formatString(t.inStock, { count: detailData?.stock })}
+                {t("inStock", { count: detailData?.stock })}
               </Badge>
             )}
           </div>
@@ -182,7 +181,7 @@ export default function ProductPage() {
           {detailData?.description && (
             <Card>
               <CardContent className="p-4">
-                <h3 className="mb-2 font-semibold">{t.productDescription}</h3>
+                <h3 className="mb-2 font-semibold">{t("productDescription")}</h3>
                 <p className="text-muted-foreground whitespace-pre-wrap">
                   {detailData?.description[lang] ?? ""}
                 </p>
@@ -193,7 +192,7 @@ export default function ProductPage() {
           {/* 수량 선택 및 장바구니 */}
           <div className="space-y-4">
             <div className="flex items-center space-x-4">
-              <span className="font-medium">{t.quantity}:</span>
+              <span className="font-medium">{t("quantity")}:</span>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
@@ -230,9 +229,9 @@ export default function ProductPage() {
             </div>
 
             <div className="flex items-center justify-between border-t pt-4">
-              <span className="text-lg font-medium">{t.totalPrice}:</span>
+              <span className="text-lg font-medium">{t("totalPrice")}:</span>
               <span className="text-2xl font-bold text-primary">
-                {formatString(t.price, {
+                {t("price", {
                   price: formatPrice(detailData?.price * (quantity || 1), lang),
                 })}
               </span>
@@ -246,12 +245,12 @@ export default function ProductPage() {
                 className="gap-2"
               >
                 <ShoppingCart className="h-5 w-5" />
-                {isAddPending ? t.addingToCart : t.addToCart}
+                {isAddPending ? t("addingToCart") : t("addToCart")}
               </Button>
 
               {maxAvailable <= 0 && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {formatString(t.cartLimitReached, {
+                  {t("cartLimitReached", {
                     count: getCartQuantity(),
                   })}
                 </p>
@@ -259,7 +258,7 @@ export default function ProductPage() {
 
               {maxAvailable > 0 && maxAvailable < detailData?.stock && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {formatString(t.maxPurchaseLimit, {
+                  {t("maxPurchaseLimit", {
                     stock: detailData?.stock,
                     cart: getCartQuantity(),
                   })}
@@ -270,12 +269,12 @@ export default function ProductPage() {
 
           <Card>
             <CardContent className="p-4">
-              <h3 className="mb-2 font-semibold">{t.deliveryInfo}</h3>
+              <h3 className="mb-2 font-semibold">{t("deliveryInfo")}</h3>
               <div className="space-y-1 text-sm text-muted-foreground">
-                <p>{t.deliveryInfo1}</p>
-                <p>{t.deliveryInfo2}</p>
-                <p>{t.deliveryInfo3}</p>
-                <p>{t.deliveryInfo4}</p>
+                <p>{t("deliveryInfo1")}</p>
+                <p>{t("deliveryInfo2")}</p>
+                <p>{t("deliveryInfo3")}</p>
+                <p>{t("deliveryInfo4")}</p>
               </div>
             </CardContent>
           </Card>

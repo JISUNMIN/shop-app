@@ -2,12 +2,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Wishlist } from "@/types";
 import axiosSession from "@/lib/axiosSession";
+import { useSession } from "next-auth/react";
 
 const WISHLIST_API_PATH = "/wishlist";
 
 type WishlistIdsResponse = { productIds: number[] };
 
-const useWishlist = (enabled: boolean = true) => {
+const useWishlist = () => {
+  const { data: session } = useSession();
+  const user = session?.user;
   const queryClient = useQueryClient();
 
   // 위시리스트 id 조회
@@ -22,7 +25,7 @@ const useWishlist = (enabled: boolean = true) => {
       const res = await axiosSession.get<WishlistIdsResponse>(WISHLIST_API_PATH);
       return res.data;
     },
-    enabled: enabled,
+    enabled: !!user,
   });
 
   const productIds = listData?.productIds ?? [];

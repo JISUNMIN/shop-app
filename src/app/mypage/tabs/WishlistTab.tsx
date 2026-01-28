@@ -24,7 +24,7 @@ export default function WishlistTab() {
     setLocalIds(getLocalWishlist());
   }, [user]);
 
-  const { productIds: serverIds, deleteWishlistMutate } = useWishlist(!!user);
+  const { productIds: serverIds, deleteWishlistMutate } = useWishlist();
   const { listData } = useWishlistedProduct(user ? serverIds : localIds);
 
   const displayIds = useMemo(() => {

@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 const CART_API_PATH = "/cart";
 
-type AddToCartParams = { productId: string; quantity: number };
+type AddToCartParams = { productId: number; quantity: number };
 type UpdateCartParams = { itemId: string; quantity: number };
 
 const useCart = () => {

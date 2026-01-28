@@ -1,6 +1,6 @@
 // src/types/index.ts
 export interface Product {
-  id: string;
+  id: number;
   name: LocalizedText;
   price: number;
   description?: LocalizedText;
@@ -93,4 +93,19 @@ export interface Coupon {
   discount: number | string;
   minOrder: number;
   type: "percent" | "fixed";
+}
+
+export interface Wishlist {
+  id: number;
+  productId: string;
+  createdAt: string;
+
+  product: {
+    id: string;
+    name: LocalizedText;
+    price: number;
+    images: string[];
+    stock: number;
+    category: string | null;
+  };
 }

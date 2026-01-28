@@ -11,6 +11,7 @@ import ClientLayout from "@/components/layout/ClientLayout";
 
 import { auth } from "@/auth";
 import SessionProvider from "@/providers/SessionProvider";
+import Chatbot from "@/components/common/chatbot/Chatbot";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,6 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <div className="flex min-h-screen flex-col items-center">
                   <Header />
                   <main className="flex-1 w-full max-w-6xl px-4">{children}</main>
+                   <Chatbot />
                 </div>
                 <ClientLayout />
                 <Toaster />

@@ -67,7 +67,7 @@ export default function MyPageShell() {
 
               {activeTab === "coupons" && <CouponsTab coupons={coupons} />}
 
-              {activeTab === "wishlist" && <WishlistTab wishlist={wishlist} />}
+              {activeTab === "wishlist" && <WishlistTab />}
 
               {/* {activeTab === "points" && <PointsTab />} */}
 

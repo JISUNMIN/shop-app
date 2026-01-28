@@ -10,10 +10,17 @@ import { LocalizedText, Product } from "@/types";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { formatPrice, formatString } from "@/utils/helper";
 import { Heart, ShoppingCart } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useCart from "@/hooks/useCart";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useSession } from "next-auth/react";
+import {
+  addLocalWishlist,
+  getLocalWishlist,
+  removeLocalWishlist,
+} from "@/utils/storage/wishlistLocal";
+import useWishlist from "@/hooks/useWishlist";
 
 interface ProductCardProps {
   product: Product;
@@ -25,19 +32,65 @@ export default function ProductCard({ product }: ProductCardProps) {
   const lang = i18n.language as keyof LocalizedText;
   const shouldReduceMotion = useReducedMotion();
   const { addToCartMutate, isAddPending } = useCart();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showQuickView, setShowQuickView] = useState(false);
+  const { listData, addWishlistMutate, deleteWishlistMutate } = useWishlist();
 
   const isSoldOut = product.stock === 0;
 
   const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setIsWishlisted((v) => !v);
-    // TODO: 위시리스트 store/API 연결
+    e.stopPropagation();
+
+    const next = !isWishlisted;
+    setIsWishlisted(next);
+
+    const productId = Number(product.id);
+
+    try {
+      // 비로그인 유저
+      if (!user) {
+        if (next) addLocalWishlist(productId);
+        else removeLocalWishlist(productId);
+        return;
+      }
+
+      // 로그인 유저
+      if (next) {
+        addWishlistMutate(
+          { productId: product.id },
+          {
+            onError: (err) => {
+              console.error(err);
+              setIsWishlisted(false);
+            },
+          },
+        );
+      } else {
+        deleteWishlistMutate(
+          { productId: product.id },
+          {
+            onError: (err) => {
+              console.error(err);
+              setIsWishlisted(true);
+            },
+          },
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      setIsWishlisted(!next);
+
+      if (!user) {
+        if (!next) addLocalWishlist(productId);
+        else removeLocalWishlist(productId);
+      }
+    }
   };
 
-  console.log("product", product);
   const handleAddToCartClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (isSoldOut) return;
@@ -59,6 +112,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       },
     );
   };
+
+  useEffect(() => {
+    const list = user ? listData?.productIds : getLocalWishlist();
+    setIsWishlisted(list?.some((item) => item === product.id) ?? false);
+  }, [listData]);
 
   return (
     <motion.div

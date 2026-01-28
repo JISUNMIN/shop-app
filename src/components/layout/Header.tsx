@@ -65,7 +65,7 @@ export default function Header() {
     <header className="flex w-full items-center justify-between py-4 px-6 border-b bg-background/95">
       {/* 로고 + 모바일 햄버거 메뉴 */}
       <div className="flex items-center space-x-2">
-        {user && (
+        {/* {user && (
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden">
@@ -84,8 +84,26 @@ export default function Header() {
               </div>
             </SheetContent>
           </Sheet>
-        )}
+        )} */}
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="lg:hidden">
+              <Menu className="w-5 h-5" />
+            </Button>
+          </SheetTrigger>
 
+          <SheetContent side="left" className="w-80 overflow-y-auto">
+            <div className="mt-12">
+              <SidebarContent
+                menuItems={menuItems}
+                activeTab={activeTab}
+                onSelectTab={handleSelectTab}
+                setMobileMenuOpen={setMobileMenuOpen}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+        
         <Link href="/" className="flex items-center space-x-2">
           <Bot className="w-8 h-8" />
           <span className="hidden sm:inline-block font-bold">RoboShop</span>
@@ -190,7 +208,9 @@ export default function Header() {
               </>
             )}
             {/* 마이페이지 */}
-            {user && <MypageButton />}
+            {/* {user && <MypageButton />} */}
+            <MypageButton />
+
             {/* 장바구니 */}
             <Link href="/cart">
               <Button variant="ghost" size="sm" className="relative">

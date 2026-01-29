@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { GUEST_CART_COOKIE } from "./utils/cart";
+
+const GUEST_CART_COOKIE = "roboshop-session";
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

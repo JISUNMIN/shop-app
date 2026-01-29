@@ -1,67 +1,57 @@
 // src/app/api/cart/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getOwner } from "@/utils/cart";
 
 // 장바구니 조회
 export async function GET(request: NextRequest) {
   try {
-    const sessionId = request.headers.get("x-session-id") || "anonymous";
+    const { whereOwner } = await getOwner(request);
 
     const cartItems = await prisma.cartItem.findMany({
-      where: { sessionId },
-      include: {
-        product: true,
-      },
+      where: whereOwner,
+      include: { product: true },
       orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(cartItems);
   } catch (error) {
     console.error("Cart GET Error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch cart" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch cart" }, { status: 500 });
   }
 }
 
 // 장바구니에 상품 추가/업데이트
 export async function POST(request: NextRequest) {
   try {
-    const sessionId = request.headers.get("x-session-id") || "anonymous";
+    const { userId, guestCartId } = await getOwner(request);
     const { productId, quantity } = await request.json();
 
     if (!productId || !quantity || quantity < 1) {
-      return NextResponse.json(
-        { error: "Invalid product ID or quantity" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid product ID or quantity" }, { status: 400 });
     }
 
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-
+    const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    const existingItem = await prisma.cartItem.findUnique({
-      where: {
-        productId_sessionId: {
-          productId,
-          sessionId,
-        },
-      },
-    });
+    const existingItem = userId
+      ? await prisma.cartItem.findUnique({
+          where: { productId_userId: { productId, userId } },
+        })
+      : await prisma.cartItem.findUnique({
+          where: { productId_sessionId: { productId, sessionId: guestCartId } },
+        });
 
     let cartItem;
     if (existingItem) {
       const newQuantity = existingItem.quantity + quantity;
+
       if (newQuantity > product.stock) {
         return NextResponse.json(
           { error: `재고가 부족합니다. (재고: ${product.stock}개)` },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -74,16 +64,14 @@ export async function POST(request: NextRequest) {
       if (quantity > product.stock) {
         return NextResponse.json(
           { error: `재고가 부족합니다. (재고: ${product.stock}개)` },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       cartItem = await prisma.cartItem.create({
-        data: {
-          productId,
-          quantity,
-          sessionId,
-        },
+        data: userId
+          ? { productId, quantity, userId }
+          : { productId, quantity, sessionId: guestCartId },
         include: { product: true },
       });
     }
@@ -91,51 +79,38 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(cartItem);
   } catch (error) {
     console.error("Cart POST Error:", error);
-    return NextResponse.json(
-      { error: "Failed to add to cart" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to add to cart" }, { status: 500 });
   }
 }
 
 // 장바구니 아이템 수량 수정
 export async function PATCH(request: NextRequest) {
   try {
-    const sessionId = request.headers.get("x-session-id") || "anonymous";
+    const { userId, guestCartId } = await getOwner(request);
     const { itemId, quantity } = await request.json();
 
     if (!itemId || !quantity || quantity < 1) {
-      return NextResponse.json(
-        { error: "Invalid item ID or quantity" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid item ID or quantity" }, { status: 400 });
     }
 
     const cartItem = await prisma.cartItem.findFirst({
-      where: {
-        id: itemId,
-        sessionId,
-      },
+      where: userId ? { id: itemId, userId } : { id: itemId, sessionId: guestCartId },
       include: { product: true },
     });
 
     if (!cartItem) {
-      return NextResponse.json(
-        { error: "Cart item not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Cart item not found" }, { status: 404 });
     }
 
-    // 재고 확인
     if (quantity > cartItem.product.stock) {
       return NextResponse.json(
         { error: `재고가 부족합니다. (재고: ${cartItem.product.stock}개)` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const updatedItem = await prisma.cartItem.update({
-      where: { id: itemId },
+      where: { id: cartItem.id },
       data: { quantity },
       include: { product: true },
     });
@@ -143,52 +118,35 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json(updatedItem);
   } catch (error) {
     console.error("Cart PATCH Error:", error);
-    return NextResponse.json(
-      { error: "Failed to update cart item" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update cart item" }, { status: 500 });
   }
 }
 
 // 장바구니 아이템 삭제
 export async function DELETE(request: NextRequest) {
   try {
-    const sessionId = request.headers.get("x-session-id") || "anonymous";
+    const { userId, guestCartId } = await getOwner(request);
     const { searchParams } = new URL(request.url);
     const itemId = Number(searchParams.get("itemId"));
 
     if (!itemId) {
-      return NextResponse.json(
-        { error: "Item ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Item ID is required" }, { status: 400 });
     }
 
     // 권한 확인
     const cartItem = await prisma.cartItem.findFirst({
-      where: {
-        id: itemId,
-        sessionId,
-      },
+      where: userId ? { id: itemId, userId } : { id: itemId, sessionId: guestCartId },
     });
 
     if (!cartItem) {
-      return NextResponse.json(
-        { error: "Cart item not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Cart item not found" }, { status: 404 });
     }
 
-    await prisma.cartItem.delete({
-      where: { id: itemId },
-    });
+    await prisma.cartItem.delete({ where: { id: cartItem.id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Cart DELETE Error:", error);
-    return NextResponse.json(
-      { error: "Failed to remove cart item" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to remove cart item" }, { status: 500 });
   }
 }

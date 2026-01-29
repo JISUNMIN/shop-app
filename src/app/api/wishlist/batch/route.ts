@@ -1,11 +1,13 @@
+// src/app/api/wishlist/batch/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth"; 
+import { auth } from "@/auth";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
+  const userId = session?.user.id;
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 

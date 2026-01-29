@@ -7,7 +7,7 @@ import { getLocalWishlist, clearLocalWishlist } from "@/utils/storage/wishlistLo
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function ClientLayout() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const user = session?.user;
 
   const queryClient = useQueryClient();
@@ -16,29 +16,37 @@ export default function ClientLayout() {
   useEffect(() => {
     if (!user) return;
     if (didSyncRef.current) return;
-    const localIds = getLocalWishlist();
-    if (!localIds || localIds.length === 0) {
-      didSyncRef.current = true;
-      return;
-    }
+
     didSyncRef.current = true;
 
     (async () => {
       try {
-        await axiosSession.post("/wishlist/batch", {
-          productIds: localIds,
-        });
-
-        clearLocalWishlist();
+        //  Cart merge (guest → user)
+        await axiosSession.post("/cart/merge");
 
         queryClient.invalidateQueries({
-          queryKey: ["wishlist", "list"],
+          queryKey: ["cart", "list"],
         });
+
+        //  Wishlist sync (localStorage → DB)
+        const localIds = getLocalWishlist();
+
+        if (localIds && localIds.length > 0) {
+          await axiosSession.post("/wishlist/batch", {
+            productIds: localIds,
+          });
+
+          clearLocalWishlist();
+
+          queryClient.invalidateQueries({
+            queryKey: ["wishlist", "list"],
+          });
+        }
       } catch (e) {
-        console.error("wishlist sync failed", e);
+        console.error("sync failed", e);
       }
     })();
-  }, [status, user, queryClient]);
+  }, [user, queryClient]);
 
   return null;
 }

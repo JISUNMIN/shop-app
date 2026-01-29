@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import useWishlist from "@/hooks/useWishlist";
 import useWishlistedProduct from "@/hooks/useWishlistedProduct";
 import { getLocalWishlist, removeLocalWishlist } from "@/utils/storage/wishlistLocal";
+import useCart from "@/hooks/useCart";
 
 type Props = {
   iconOnlyTrigger?: boolean;
@@ -23,6 +24,9 @@ type Props = {
 export default function WishlistSheet({ iconOnlyTrigger = true }: Props) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
+  const { addToCartMutate } = useCart();
+  const [pendingAddId, setPendingAddId] = useState<number | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
   const { data: session } = useSession();
   const user = session?.user;
@@ -39,14 +43,51 @@ export default function WishlistSheet({ iconOnlyTrigger = true }: Props) {
     e.preventDefault();
     e.stopPropagation();
 
+    setPendingDeleteId(productId);
+
     if (!user) {
       removeLocalWishlist(productId);
       setLocalIds((prev) => prev.filter((x) => x !== productId));
-      window.dispatchEvent(new Event("wishlist:changed"));
+      setPendingDeleteId(null);
       return;
     }
 
-    await deleteWishlistMutate({ productId });
+    await deleteWishlistMutate(
+      { productId },
+      {
+        onSettled: () => {
+          setPendingDeleteId(null);
+        },
+      },
+    );
+  };
+
+  const handleAddToCartClick = (productId: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setPendingAddId(productId);
+
+    addToCartMutate(
+      {
+        productId,
+        quantity: 1,
+      },
+      {
+        onSuccess: () => {
+          if (!user) {
+            removeLocalWishlist(productId);
+            setLocalIds((prev) => prev.filter((x) => x !== productId));
+          } else deleteWishlistMutate({ productId });
+        },
+        onError: () => {
+          setPendingAddId(null);
+        },
+        onSettled: () => {
+          setPendingAddId(null);
+        },
+      },
+    );
   };
 
   useEffect(() => {
@@ -101,7 +142,7 @@ export default function WishlistSheet({ iconOnlyTrigger = true }: Props) {
             {listData.map((p) => (
               <Link
                 key={p.id}
-                href={`/products/${p.id}`}
+                href={`/product/${p.id}`}
                 onClick={() => setOpen(false)}
                 className="block"
               >
@@ -118,21 +159,21 @@ export default function WishlistSheet({ iconOnlyTrigger = true }: Props) {
                       <p className="text-base font-bold text-blue-600">
                         {t("price", { price: p.price.toLocaleString() })}
                       </p>
-
+                      {/* 장바구니 버튼 */}
                       <div className="mt-2 flex gap-2">
                         <Button
-                          size="sm"
-                          onClick={(e) => {
-                            // TODO: addCart 호출
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
+                          onClick={handleAddToCartClick(p.id)}
+                          disabled={pendingAddId === p.id}
                         >
-                          {t("cart")}
+                          {pendingAddId === p.id ? t("addingToCart") : t("cart")}
                         </Button>
-
-                        <Button variant="outline" size="sm" onClick={onClickDelete(p.id)}>
-                          {t("delete")}
+                        {/* 삭제 버튼 */}
+                        <Button
+                          variant="outline"
+                          onClick={onClickDelete(p.id)}
+                          disabled={pendingDeleteId === p.id}
+                        >
+                          {pendingDeleteId === p.id ? t("deleting") : t("delete")}
                         </Button>
                       </div>
                     </div>

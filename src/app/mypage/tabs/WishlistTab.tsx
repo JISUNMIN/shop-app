@@ -10,7 +10,6 @@ import { getLocalWishlist, removeLocalWishlist } from "@/utils/storage/wishlistL
 import { useEffect, useMemo, useState } from "react";
 import useWishlistedProduct from "@/hooks/useWishlistedProduct";
 import useCart from "@/hooks/useCart";
-import { toast } from "sonner";
 
 export default function WishlistTab() {
   const { t, i18n } = useTranslation();
@@ -59,40 +58,32 @@ export default function WishlistTab() {
     );
   };
 
-  const handleAddToCartClick =
-    (productId: number, productName: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.preventDefault();
+  const handleAddToCartClick = (productId: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
 
-      setPendingAddId(productId);
+    setPendingAddId(productId);
 
-      addToCartMutate(
-        {
-          productId,
-          quantity: 1,
+    addToCartMutate(
+      {
+        productId,
+        quantity: 1,
+      },
+      {
+        onSuccess: () => {
+          if (!user) {
+            removeLocalWishlist(productId);
+            setLocalIds((prev) => prev.filter((x) => x !== productId));
+          } else deleteWishlistMutate({ productId });
         },
-        {
-          onSuccess: () => {
-            if (!user) {
-              removeLocalWishlist(productId);
-              setLocalIds((prev) => prev.filter((x) => x !== productId));
-            } else deleteWishlistMutate({ productId });
-
-            toast.success(t("addedToCart"), {
-              description: t("addedToCartDescription", {
-                name: productName,
-                quantity: 1,
-              }),
-            });
-          },
-          onError: () => {
-            setPendingAddId(null);
-          },
-          onSettled: () => {
-            setPendingAddId(null);
-          },
+        onError: () => {
+          setPendingAddId(null);
         },
-      );
-    };
+        onSettled: () => {
+          setPendingAddId(null);
+        },
+      },
+    );
+  };
 
   return (
     <div>
@@ -118,10 +109,7 @@ export default function WishlistTab() {
               </div>
 
               <div className="flex sm:flex-col gap-2">
-                <Button
-                  onClick={handleAddToCartClick(p.id, p.name?.[lang] ?? "")}
-                  disabled={pendingAddId === p.id}
-                >
+                <Button onClick={handleAddToCartClick(p.id)} disabled={pendingAddId === p.id}>
                   {pendingAddId === p.id ? t("addingToCart") : t("cart")}
                 </Button>
 
@@ -136,6 +124,9 @@ export default function WishlistTab() {
             </div>
           </Card>
         ))}
+        {listData?.length === 0 && (
+          <div className="py-10 text-center text-muted-foreground">{t("wishlist.empty")}</div>
+        )}
       </div>
     </div>
   );

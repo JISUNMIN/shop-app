@@ -9,10 +9,15 @@ import { useSession } from "next-auth/react";
 import { getLocalWishlist, removeLocalWishlist } from "@/utils/storage/wishlistLocal";
 import { useEffect, useMemo, useState } from "react";
 import useWishlistedProduct from "@/hooks/useWishlistedProduct";
+import useCart from "@/hooks/useCart";
+import { toast } from "sonner";
 
 export default function WishlistTab() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
+  const { addToCartMutate } = useCart();
+  const [pendingAddId, setPendingAddId] = useState<number | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
   const { data: session } = useSession();
   const user = session?.user;
@@ -35,14 +40,59 @@ export default function WishlistTab() {
     e.preventDefault();
     e.stopPropagation();
 
+    setPendingDeleteId(productId);
+
     if (!user) {
       removeLocalWishlist(productId);
       setLocalIds((prev) => prev.filter((x) => x !== productId));
+      setPendingDeleteId(null);
       return;
     }
 
-    await deleteWishlistMutate({ productId });
+    await deleteWishlistMutate(
+      { productId },
+      {
+        onSettled: () => {
+          setPendingDeleteId(null);
+        },
+      },
+    );
   };
+
+  const handleAddToCartClick =
+    (productId: number, productName: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+
+      setPendingAddId(productId);
+
+      addToCartMutate(
+        {
+          productId,
+          quantity: 1,
+        },
+        {
+          onSuccess: () => {
+            if (!user) {
+              removeLocalWishlist(productId);
+              setLocalIds((prev) => prev.filter((x) => x !== productId));
+            } else deleteWishlistMutate({ productId });
+
+            toast.success(t("addedToCart"), {
+              description: t("addedToCartDescription", {
+                name: productName,
+                quantity: 1,
+              }),
+            });
+          },
+          onError: () => {
+            setPendingAddId(null);
+          },
+          onSettled: () => {
+            setPendingAddId(null);
+          },
+        },
+      );
+    };
 
   return (
     <div>
@@ -68,10 +118,19 @@ export default function WishlistTab() {
               </div>
 
               <div className="flex sm:flex-col gap-2">
-                <Button>{t("cart")}</Button>
+                <Button
+                  onClick={handleAddToCartClick(p.id, p.name?.[lang] ?? "")}
+                  disabled={pendingAddId === p.id}
+                >
+                  {pendingAddId === p.id ? t("addingToCart") : t("cart")}
+                </Button>
 
-                <Button variant="outline" onClick={onClickDelete(p.id)}>
-                  {t("delete")}
+                <Button
+                  variant="outline"
+                  onClick={onClickDelete(p.id)}
+                  disabled={pendingDeleteId === p.id}
+                >
+                  {pendingDeleteId === p.id ? t("deleting") : t("delete")}
                 </Button>
               </div>
             </div>

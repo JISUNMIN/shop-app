@@ -138,9 +138,15 @@ export default function ProductList() {
         </div>
 
         {/* 필터 및 정렬 */}
-        <div className="flex items-center justify-between mb-6 bg-white p-4 mt-4 rounded-lg shadow-md">
+        <div
+          className="
+              mb-6 mt-4 rounded-lg shadow-md bg-white p-4
+              flex flex-col gap-4
+              md:flex-row md:items-center md:justify-between
+            "
+        >
           {/* 왼쪽: 카테고리 칩 + 상태 텍스트 */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 min-w-0">
             {/* 상태 표시 */}
             <div className="text-sm text-gray-500">
               {selectedCategories.length === 0
@@ -148,7 +154,7 @@ export default function ProductList() {
                 : t("categoriesSelected", { count: selectedCategories.length })}
             </div>
 
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex flex-wrap gap-2">
               {/* 전체 */}
               <Badge
                 variant={selectedCategories.length === 0 ? "default" : "outline"}
@@ -174,8 +180,11 @@ export default function ProductList() {
                   </Badge>
                 );
               })}
+
+              {/* 리셋 버튼 */}
               <Badge
                 variant="secondary"
+                className="cursor-pointer"
                 onClick={() => {
                   setIsResetAnimating(true);
                   handleAllClick();
@@ -189,18 +198,20 @@ export default function ProductList() {
           </div>
 
           {/* 정렬 옵션 */}
-          <Select value={currentParams.sort} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder={t("sortPlaceholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">{t("sortNewest")}</SelectItem>
-              <SelectItem value="oldest">{t("sortOldest")}</SelectItem>
-              <SelectItem value="price_asc">{t("sortPriceAsc")}</SelectItem>
-              <SelectItem value="price_desc">{t("sortPriceDesc")}</SelectItem>
-              <SelectItem value="name">{t("sortName")}</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-full md:w-auto md:shrink-0">
+            <Select value={currentParams.sort} onValueChange={handleSortChange}>
+              <SelectTrigger className="w-full md:w-40">
+                <SelectValue placeholder={t("sortPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">{t("sortNewest")}</SelectItem>
+                <SelectItem value="oldest">{t("sortOldest")}</SelectItem>
+                <SelectItem value="price_asc">{t("sortPriceAsc")}</SelectItem>
+                <SelectItem value="price_desc">{t("sortPriceDesc")}</SelectItem>
+                <SelectItem value="name">{t("sortName")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </motion.div>
 

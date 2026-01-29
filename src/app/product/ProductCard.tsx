@@ -187,7 +187,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               aria-label="Wishlist"
             >
               <Heart
-                className={`w-5 h-5 transition-colors ${
+                className={`w-4 h-4 transition-colors ${
                   isWishlisted ? "fill-red-500 text-red-500" : "text-gray-600"
                 }`}
               />

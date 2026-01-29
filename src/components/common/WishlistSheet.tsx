@@ -86,7 +86,7 @@ export default function WishlistSheet({ iconOnlyTrigger = true }: Props) {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="right" className="w-[92vw] sm:w-[420px] overflow-y-auto">
+      <SheetContent side="right" className="w-[92vw] sm:w-[420px] overflow-y-auto px-4">
         <SheetHeader className="mt-8">
           <SheetTitle className="flex items-center justify-between">
             <span>{t("mypage.tabs.wishlist")}</span>

@@ -55,6 +55,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       if (!user) {
         if (next) addLocalWishlist(productId);
         else removeLocalWishlist(productId);
+        window.dispatchEvent(new Event("wishlist:changed"));
         return;
       }
 

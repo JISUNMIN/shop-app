@@ -228,6 +228,10 @@
     },
     "user": "User"
   },
+  "wishlist": {
+    "empty": "Your wishlist is empty.",
+    "loginHint": "Log in to save your wishlist to your account."
+  },
 
   "order": {
     "order": "Place Order",
@@ -454,5 +458,6 @@
 
   "errorOccurred": "An error has occurred",
   "cannotLoadData": "Unable to load data.",
-  "retry": "Retry"
+  "retry": "Retry",
+  "viewAll": "View all"
 }

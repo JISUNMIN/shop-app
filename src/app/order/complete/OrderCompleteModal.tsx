@@ -7,9 +7,9 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { CheckCircle2, X } from "lucide-react";
 import Lottie from "lottie-react";
 import runningAnimation from "@/lottie/running.json";
-import { useTranslation } from "@/context/TranslationContext";
-import { formatPrice, formatString } from "@/utils/helper";
-import { useLangStore } from "@/store/langStore";
+import { formatPrice } from "@/utils/helper";
+import { useTranslation } from "react-i18next";
+import { LocalizedText } from "@/types";
 
 interface OrderedItem {
   id: string;
@@ -33,8 +33,8 @@ export default function OrderCompleteModal({
   const [showCheck, setShowCheck] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
-  const t = useTranslation();
-  const { lang } = useLangStore();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as keyof LocalizedText;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -52,10 +52,7 @@ export default function OrderCompleteModal({
   }, [isOpen]);
 
   const totalItems = orderedItems.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = orderedItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const totalPrice = orderedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -84,7 +81,7 @@ export default function OrderCompleteModal({
               <button
                 onClick={onClose}
                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-                aria-label={t.close}
+                aria-label={t("close")}
               >
                 <X className="w-6 h-6" />
               </button>
@@ -116,9 +113,9 @@ export default function OrderCompleteModal({
                   )}
                 </AnimatePresence>
 
-                <h1 className="text-3xl font-bold">{t.orderComplete}</h1>
+                <h1 className="text-3xl font-bold">{t("orderComplete")}</h1>
                 <p className="text-muted-foreground text-base">
-                  {formatString(t.orderSuccessMsg, { count: totalItems })}
+                  {t("orderSuccessMsg", { count: totalItems })}
                 </p>
               </CardHeader>
 
@@ -126,27 +123,21 @@ export default function OrderCompleteModal({
                 {orderedItems.length > 0 && (
                   <div className="w-full text-left space-y-2">
                     {orderedItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex justify-between border-b pb-1"
-                      >
+                      <div key={item.id} className="flex justify-between border-b pb-1">
                         <span>
                           {item.name} x {item.quantity}
                         </span>
                         <span>
-                          {formatString(t.price, {
-                            price: formatPrice(
-                              item.price * item.quantity,
-                              lang
-                            ),
+                          {t("price", {
+                            price: formatPrice(item.price * item.quantity, lang),
                           })}
                         </span>
                       </div>
                     ))}
                     <div className="flex justify-between font-bold pt-2">
-                      <span>{t.totalAmount}</span>
+                      <span>{t("totalAmount")}</span>
                       <span>
-                        {formatString(t.price, {
+                        {t("price", {
                           price: formatPrice(totalPrice, lang),
                         })}
                       </span>
@@ -163,7 +154,7 @@ export default function OrderCompleteModal({
                       className="flex justify-center gap-4 w-full"
                     >
                       <Button size="lg" className="flex-1" onClick={onClose}>
-                        {t.continueShopping}
+                        {t("continueShopping")}
                       </Button>
                     </motion.div>
                   )}

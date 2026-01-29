@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import useCart from "@/hooks/useCart";
@@ -11,9 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CartSkeleton, EmptyCart, CartSummary, CartItem } from "@/app/cart";
 import ErrorMessage from "@/components/ErrorMessage";
-import { useTranslation } from "@/context/TranslationContext";
-import { formatString } from "@/utils/helper";
-import { useLangStore } from "@/store/langStore";
+import { useTranslation } from "react-i18next";
 
 export default function CartPage() {
   const router = useRouter();
@@ -24,10 +21,9 @@ export default function CartPage() {
     removeFromCartMutate,
     isRemovePending,
   } = useCart();
-  const { lang } = useLangStore();
-  const t = useTranslation();
+  const { t } = useTranslation();
 
-  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
+  const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>({});
 
   const selectedCartItems = cartItems?.filter((item) => selectedItems[item.id]) || [];
   const selectedIds = selectedCartItems.map((i) => i.id);
@@ -40,19 +36,19 @@ export default function CartPage() {
   const shippingFee = totalPrice >= 30000 ? 0 : 3000;
   const finalPrice = totalPrice + shippingFee;
 
-  const handleCheckChange = (itemId: string, checked: boolean) => {
+  const handleCheckChange = (itemId: number, checked: boolean) => {
     setSelectedItems((prev) => ({ ...prev, [itemId]: checked }));
   };
 
   const handleSelectAll = (checked: boolean) => {
-    const newSelected: Record<string, boolean> = {};
+    const newSelected: Record<number, boolean> = {};
     cartItems?.forEach((item) => (newSelected[item.id] = checked));
     setSelectedItems(newSelected);
   };
 
   const handleDeleteSelected = () => {
-    const idsToDelete = Object.keys(selectedItems).filter((id) => selectedItems[id]);
-    idsToDelete.forEach((id) => removeFromCartMutate({ itemId: id }));
+    const idsToDelete = Object.keys(selectedItems).filter((id) => selectedItems[Number(id)]);
+    idsToDelete.forEach((id) => removeFromCartMutate({ itemId: Number(id) }));
     setSelectedItems({});
   };
 
@@ -64,7 +60,7 @@ export default function CartPage() {
 
   useEffect(() => {
     if (cartItems) {
-      const initialSelected: Record<string, boolean> = {};
+      const initialSelected: Record<number, boolean> = {};
       cartItems.forEach((item) => (initialSelected[item.id] = true));
       setSelectedItems(initialSelected);
     }
@@ -83,7 +79,7 @@ export default function CartPage() {
   }
 
   if (listError) {
-    return <ErrorMessage message={t.cartLoadError} onRetry={() => window.location.reload()} />;
+    return <ErrorMessage message={t("cartLoadError")} onRetry={() => window.location.reload()} />;
   }
 
   return (
@@ -98,9 +94,9 @@ export default function CartPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div>
-                <h1 className="text-2xl font-bold sm:text-xl">{t.cart}</h1>
+                <h1 className="text-2xl font-bold sm:text-xl">{t("cart")}</h1>
                 <p className="text-muted-foreground text-sm sm:text-xs">
-                  {formatString(t.cartRobotCount, { count: totalItems })}
+                  {t("cartRobotCount", { count: totalItems })}
                 </p>
               </div>
             </div>
@@ -114,7 +110,7 @@ export default function CartPage() {
                 checked={cartItems.every((item) => selectedItems[item.id])}
                 onCheckedChange={(val) => handleSelectAll(!!val)}
               />
-              <span className="text-sm">{t.selectAll}</span>
+              <span className="text-sm">{t("selectAll")}</span>
             </div>
 
             <div className="flex gap-2">
@@ -124,7 +120,7 @@ export default function CartPage() {
                 onClick={handleDeleteSelected}
                 disabled={!Object.values(selectedItems).some(Boolean)}
               >
-                {t.deleteSelected}
+                {t("deleteSelected")}
               </Button>
 
               <Button
@@ -136,7 +132,7 @@ export default function CartPage() {
                 }}
                 disabled={cartItems.length === 0 || isRemovePending}
               >
-                {t.deleteAll}
+                {t("deleteAll")}
               </Button>
             </div>
           </div>

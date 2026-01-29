@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useLangStore } from "@/store/langStore";
-import { formatString, formatPrice as helperFormatPrice } from "@/utils/helper";
+import { formatPrice as helperFormatPrice } from "@/utils/helper";
 import { useTranslation } from "react-i18next";
 
 interface CartSummaryProps {
@@ -35,9 +35,9 @@ export default function CartSummary({
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>{formatString(t("itemsCount", { count: totalItems }))}</span>
+            <span>{t("itemsCount", { count: totalItems })}</span>
             <span>
-              {formatString(t("price"), {
+              {t("price", {
                 price: helperFormatPrice(totalPrice, lang),
               })}
             </span>
@@ -48,7 +48,7 @@ export default function CartSummary({
             {isFreeShipping ? (
               <div className="text-right">
                 <span className="line-through text-muted-foreground">
-                  {formatString(t("price"), {
+                  {t("price", {
                     price: helperFormatPrice(shippingFee, lang),
                   })}
                 </span>
@@ -56,7 +56,7 @@ export default function CartSummary({
               </div>
             ) : (
               <span>
-                {formatString(t("price"), {
+                {t("price", {
                   price: helperFormatPrice(shippingFee, lang),
                 })}
               </span>
@@ -69,7 +69,7 @@ export default function CartSummary({
         <div className="flex justify-between text-lg font-bold">
           <span>{t("totalPayment")}</span>
           <span className="text-primary">
-            {formatString(t("price"), {
+            {t("price", {
               price: helperFormatPrice(finalPrice, lang),
             })}
           </span>
@@ -78,7 +78,7 @@ export default function CartSummary({
         {!isFreeShipping && (
           <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
             <span className="text-primary font-medium">
-              {formatString(t("price"), {
+              {t("price", {
                 price: helperFormatPrice(30000 - totalPrice, lang),
               })}
             </span>

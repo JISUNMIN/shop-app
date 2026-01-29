@@ -169,11 +169,11 @@ export default function ProductPage() {
               </Badge>
             ) : isLowStock ? (
               <Badge variant="secondary" className="px-3 py-1 text-sm">
-                {t("lowStock", { count: detailData?.stock })}
+                {t("lowStock", { stock: detailData?.stock })}
               </Badge>
             ) : (
               <Badge variant="default" className="px-3 py-1 text-sm">
-                {t("inStock", { count: detailData?.stock })}
+                {t("inStock", { stock: detailData?.stock })}
               </Badge>
             )}
           </div>

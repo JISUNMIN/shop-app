@@ -14,33 +14,24 @@ import useCart from "@/hooks/useCart";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLangStore } from "@/store/langStore";
-import { useTranslation } from "@/context/TranslationContext";
-import { formatPrice, formatString } from "@/utils/helper";
+import { formatPrice } from "@/utils/helper";
+import { useTranslation } from "react-i18next";
 
 interface CartItemProps {
   item: CartItemType;
   index?: number;
   checked: boolean;
-  onCheckChange: (itemId: string, checked: boolean) => void;
+  onCheckChange: (itemId: number, checked: boolean) => void;
 }
 
-const CartItem = ({
-  item,
-  index = 0,
-  checked,
-  onCheckChange,
-}: CartItemProps) => {
+const CartItem = ({ item, index = 0, checked, onCheckChange }: CartItemProps) => {
   const [inputQuantity, setInputQuantity] = useState<number>(item.quantity);
   const [isUpdating, setIsUpdating] = useState(false);
   const { lang } = useLangStore();
-  const t = useTranslation();
+  const { t } = useTranslation();
 
-  const {
-    updateCartItemMutate,
-    removeFromCartMutate,
-    isUpdatePending,
-    isRemovePending,
-  } = useCart();
+  const { updateCartItemMutate, removeFromCartMutate, isUpdatePending, isRemovePending } =
+    useCart();
 
   const isDisabled = isUpdatePending || isRemovePending || isUpdating;
 
@@ -70,7 +61,7 @@ const CartItem = ({
     setIsUpdating(true);
     updateCartItemMutate(
       { itemId: item.id, quantity: newQuantity },
-      { onSettled: () => setIsUpdating(false) }
+      { onSettled: () => setIsUpdating(false) },
     );
   };
 
@@ -101,10 +92,7 @@ const CartItem = ({
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
-            <Checkbox
-              checked={checked}
-              onCheckedChange={(val) => onCheckChange(item.id, !!val)}
-            />
+            <Checkbox checked={checked} onCheckedChange={(val) => onCheckChange(item.id, !!val)} />
 
             {/* 상품 이미지 */}
             <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-100 mx-auto sm:mx-0">
@@ -129,16 +117,16 @@ const CartItem = ({
                   {item.product.name[lang]}
                 </Link>
                 <p className="text-sm text-muted-foreground">
-                  {formatString(t.pricePerItem, {
+                  {t("pricePerItem", {
                     price: formatPrice(item.product.price, lang),
                   })}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {formatString(t.maxOrder, { stock: item.product.stock })}
+                  {t("maxOrder", { stock: item.product.stock })}
                 </p>
                 {isLowStock && (
                   <p className="text-xs text-orange-600 font-medium">
-                    {formatString(t.lowStock, { stock: item.product.stock })}
+                    {t("lowStock", { stock: item.product.stock })}
                   </p>
                 )}
               </div>
@@ -170,7 +158,7 @@ const CartItem = ({
                     }}
                     className={cn(
                       "w-12 text-center rounded border border-gray-300 p-1 text-sm",
-                      isUpdating && "opacity-50"
+                      isUpdating && "opacity-50",
                     )}
                   />
 
@@ -179,7 +167,7 @@ const CartItem = ({
                     onClick={() => handleApplyQuantity(inputQuantity)}
                     disabled={isDisabled}
                   >
-                    {t.applyChange}
+                    {t("applyChange")}
                   </Button>
 
                   <Button
@@ -197,13 +185,13 @@ const CartItem = ({
                 <div className="flex items-center justify-between mt-3 border-t border-gray-200 sm:border-t-0 pt-2 sm:pt-0">
                   <div className="text-right">
                     <div className="font-bold text-primary">
-                      {formatString(t.price, {
+                      {t("price", {
                         price: formatPrice(totalPrice, lang),
                       })}
                     </div>
                     {item.quantity > 1 && (
                       <div className="text-xs text-muted-foreground">
-                        {formatString(t.quantityCount, {
+                        {t("quantityCount", {
                           count: item.quantity,
                         })}
                       </div>

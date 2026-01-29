@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 const CART_API_PATH = "/cart";
 
 type AddToCartParams = { productId: number; quantity: number };
-type UpdateCartParams = { itemId: string; quantity: number };
+type UpdateCartParams = { itemId: number; quantity: number };
 
 const useCart = () => {
   const queryClient = useQueryClient();
@@ -64,7 +64,7 @@ const useCart = () => {
   const { mutateAsync: removeFromCartMutate, isPending: isRemovePending } = useMutation<
     void,
     Error,
-    { itemId: string; showToast?: boolean }
+    { itemId: number; showToast?: boolean }
   >({
     mutationFn: async ({ itemId }) => {
       await axiosSession.delete(`${CART_API_PATH}?itemId=${itemId}`);

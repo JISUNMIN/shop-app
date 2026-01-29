@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LocalizedText, Product } from "@/types";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
-import { formatPrice, formatString } from "@/utils/helper";
+import { formatPrice } from "@/utils/helper";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import useCart from "@/hooks/useCart";
@@ -167,6 +167,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   exit={{ opacity: 0, y: 20 }}
                   className="absolute bottom-2 left-4 right-4 flex gap-2 z-20"
                 >
+                  {/* 장바구니 담기 */}
                   <Button
                     className="flex-1 h-8 px-3 text-sm bg-white text-black hover:bg-gray-100"
                     onClick={handleAddToCartClick}
@@ -203,7 +204,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
                   <span className="text-lg font-bold text-primary">
-                    {formatString(t("price"), {
+                    {t("price", {
                       price: formatPrice(product.price ?? 0, lang),
                     })}
                   </span>

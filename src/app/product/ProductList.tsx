@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import ErrorMessage from "@/components/ErrorMessage";
-import { formatString } from "@/utils/helper";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { useCategoriesStore } from "@/store/categoryStore";
@@ -122,12 +121,12 @@ export default function ProductList() {
           <div>
             <h1 className="text-2xl mb-2">
               {currentParams.search
-                ? formatString(t("searchResults"), { query: currentParams.search })
+                ? t("searchResults", { query: currentParams.search })
                 : t("allProducts")}
             </h1>
             {listData && (
               <p className="text-sm text-muted-foreground">
-                {formatString(t("totalProducts"), {
+                {t("totalProducts", {
                   total: listData.total,
                   page: listData.total === 0 ? 0 : listData.page,
                   totalPages: listData.totalPages,

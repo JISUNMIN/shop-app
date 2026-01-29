@@ -396,8 +396,8 @@
   "addToCart": "Add to Cart",
   "back": "Back",
   "outOfStock": "Sold Out",
-  "lowStock": "Low Stock ({{count}} left)",
-  "inStock": "In Stock ({{count}} available)",
+  "lowStock": "Low Stock ({{stock}} left)",
+  "inStock": "In Stock ({{stock}} available)",
 
   "productNotFound": "Product not found",
   "productDeleted": "The requested product does not exist or has been removed.",
@@ -419,6 +419,7 @@
   "all": "All",
   "selectAll": "Select all",
   "delete": "Delete",
+  "deleting": "Deleting...",
   "deleteSelected": "Delete selected",
   "deleteAll": "Delete all",
   "selectOrderItem": "Please select item(s) to order.",

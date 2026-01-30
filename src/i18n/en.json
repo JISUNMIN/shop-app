@@ -7,6 +7,7 @@
     "email": "Email",
     "password": "Password",
     "name": "Name",
+    "phone": "Phone number",
     "userId": "User ID",
     "mobileNumber": "Mobile number",
     "mobileVerification": "Mobile verification",
@@ -107,7 +108,8 @@
       "phoneInvalidCode": "Invalid code",
 
       "serverError": "Server error",
-      "userIdAlreadyExists": "This ID already exists."
+      "userIdAlreadyExists": "This ID already exists.",
+      "unauthorized": "Unauthorized."
     },
 
     "signupSuccess": "Sign-up completed successfully.",
@@ -230,6 +232,30 @@
       "title": "Address Management",
       "default_cannot_unset": "The default address cannot be unset. Please set another address as the default.",
       "default_cannot_delete": "The default address cannot be deleted. Please set another address as the default."
+    },
+    "password": {
+      "title": "Change password",
+      "description": "For security, please change your password regularly.",
+      "currentPasswordLabel": "Current password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "passwordHint": "At least 8 characters, including letters, numbers, and special characters",
+      "newPasswordConfirmLabel": "Confirm new password",
+      "newPasswordConfirmPlaceholder": "Re-enter your new password",
+      "submitButton": "Change password",
+      "cancelButton": "Cancel",
+      "snsNotAvailable": "Password changes are not available for social login accounts.",
+      "newPasswordLabel": "New password",
+      "newPasswordPlaceholder": "Enter your new password",
+      "submittingButton": "Updating...",
+      "changeSuccess": "Password updated successfully.",
+      "serverError": {
+        "socialNotAllowed": "Social login users cannot change password.",
+        "missingFields": "Current password and new password are required.",
+        "passwordTooShort": "New password must be at least 8 characters.",
+        "noPasswordSet": "No password is set for this account.",
+        "invalidCurrentPassword": "Current password is incorrect.",
+        "serverFail": "Failed to change password. Please try again."
+      }
     },
     "user": "User"
   },

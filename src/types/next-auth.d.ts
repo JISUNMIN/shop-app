@@ -5,22 +5,25 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      userId?: string | null;
-      provider?: string | null;
+      phone?: string | null | undefined;
+      userId?: string | null | undefined;
+      provider?: string | null | undefined;
     } & DefaultSession["user"];
   }
 
   interface User {
     id: string;
-    userId?: string | null;
-    provider?: string | null;
+    phone?: string | null | undefined;
+    userId?: string | null | undefined;
+    provider?: string | null | undefined;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
-    userId?: string | null;
-    provider?: string | null;
+    phone?: string | null | undefined;
+    userId?: string | null | undefined;
+    provider?: string | null | undefined;
   }
 }

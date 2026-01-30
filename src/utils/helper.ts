@@ -33,8 +33,8 @@ export const getAvatarText = (name?: string | null): string => {
   return initials || raw.charAt(0).toUpperCase();
 };
 
-
-export const formatKoreanMobile = (value: string) => {
+export const formatKoreanMobile = (value: string | null | undefined) => {
+  if (!value) return;
   const digits = value.replace(/\D/g, "").slice(0, 11); // 숫자만 + 최대 11자리
 
   if (digits.length <= 3) return digits;

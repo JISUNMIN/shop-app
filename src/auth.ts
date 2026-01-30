@@ -30,7 +30,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;
 
-        return { id: user.id, name: user.name, email: user.email, userId: user.userId };
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          userId: user.userId,
+          phone: user.phone,
+        };
       },
     }),
     KakaoProvider({
@@ -55,6 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.userId = user.userId;
+        token.phone = user.phone;
       }
 
       return token;
@@ -66,6 +73,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.id = token.id;
       session.user.userId = token.userId;
       session.user.provider = token.provider;
+      session.user.phone = token.phone;
 
       return session;
     },

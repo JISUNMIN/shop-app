@@ -35,8 +35,21 @@ const useAddress = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["address", "list"] }),
   });
 
+  // 배송지 수정
+  const { mutate: editAddressMutate, isPending: isEditPending } = useMutation<void, Error, Address>(
+    {
+      mutationFn: async (data) => {
+        const { id, ...rest } = data;
+        await axiosSession.patch(`${ADDRESS_API_PATH}/${id}`, rest);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["address", "list"] });
+      },
+    },
+  );
+
   // 배송지 삭제
-  const { mutateAsync: removeAddressMutate, isPending: isRemovePending } = useMutation<
+  const { mutate: deleteAddressMutate, isPending: isDeletePending } = useMutation<
     void,
     Error,
     { addressId: number }
@@ -58,9 +71,12 @@ const useAddress = () => {
     // add
     addAddressMutate,
     isAddPending,
+    // edit
+    editAddressMutate,
+    isEditPending,
     // remove
-    removeAddressMutate,
-    isRemovePending,
+    deleteAddressMutate,
+    isDeletePending,
   };
 };
 

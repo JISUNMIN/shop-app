@@ -2,7 +2,6 @@
 import { Truck, Plus, CheckCircle2, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Controller, useFormContext } from "react-hook-form";
-import { Skeleton } from "@/components/ui/skeleton";
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +30,7 @@ export function OrderAddressSection({ onOpenAddressDialog }: OrderAddressSection
   const { t } = useTranslation();
   const { control, watch, setValue, register } = useFormContext<OrderFormValues>();
 
-  const { listData, isListLoading, removeAddressMutate, isRemovePending } = useAddress();
+  const { listData, isListLoading, deleteAddressMutate, isDeletePending } = useAddress();
 
   const selectedAddressId = watch("selectedAddressId");
   const deliveryMemo = watch("deliveryMemo");
@@ -47,8 +46,8 @@ export function OrderAddressSection({ onOpenAddressDialog }: OrderAddressSection
     ];
   }, [t]);
 
-  const handleDelete = async (addressId: number) => {
-    await removeAddressMutate({ addressId });
+  const handleDelete = (addressId: number) => {
+    deleteAddressMutate({ addressId });
 
     if (selectedAddressId === addressId) {
       const remaining = (listData ?? []).filter((a) => a.id !== addressId);
@@ -120,7 +119,7 @@ export function OrderAddressSection({ onOpenAddressDialog }: OrderAddressSection
                     type="button"
                     variant="ghost"
                     size="icon"
-                    disabled={isRemovePending}
+                    disabled={isDeletePending}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDelete(address.id);

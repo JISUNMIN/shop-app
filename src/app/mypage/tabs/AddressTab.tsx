@@ -1,52 +1,93 @@
-import { MapPin } from "lucide-react";
+import { MapPin, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import useAddress from "@/hooks/useAddress";
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { AddressCreateDialog } from "@/app/order/_components/dialogs/AddressCreateDialog";
+import { Address } from "@/types";
 
 export default function AddressTab() {
+  const { listData, isListLoading } = useAddress();
+  const { t } = useTranslation();
+  const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+
+  const handleEdit = (address: Address) => {
+    setEditingAddress(address);
+    setShowAddressDialog(true);
+  };
+
+  const handleCreate = () => {
+    setEditingAddress(null);
+    setShowAddressDialog(true);
+  };
+
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">배송지관리</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">{t("mypage.shipping.title")}</h1>
 
       <div className="space-y-4 mb-6">
-        <Card className="p-4 md:p-6 border-2 border-blue-500 bg-blue-50">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-3 gap-3">
-            <div>
-              <Badge className="mb-2">기본 배송지</Badge>
-              <p className="font-bold text-lg">집</p>
-            </div>
-            <Button variant="outline" size="sm">
-              수정
-            </Button>
-          </div>
-          <p className="text-gray-600 mb-1">김로봇 · 010-1234-5678</p>
-          <p className="text-gray-600">서울시 강남구 테헤란로 123</p>
-          <p className="text-gray-600">로봇빌딩 101호</p>
-        </Card>
+        {listData?.map((address) => (
+          <Card
+            key={address.id}
+            className={`p-4 md:p-6 transition-all ${
+              address.isDefault ? "border-blue-500 bg-blue-50" : "bg-gray-50"
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-3 gap-3">
+              <div className="flex items-center gap-2">
+                <p className="font-bold text-lg">{address.label}</p>
 
-        <Card className="p-4 md:p-6 bg-gray-50">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-3 gap-3">
-            <div>
-              <p className="font-bold text-lg">회사</p>
+                {address.isDefault && (
+                  <>
+                    <Badge variant="outline" className="text-blue-600 border-blue-300">
+                      {t("order.shipping.default")}
+                    </Badge>
+                    <CheckCircle2 className="w-5 h-5 text-blue-500" />
+                  </>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(address)}>
+                  {t("edit")}
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <Button variant="outline" size="sm" className="whitespace-nowrap">
-                기본 배송지 설정
-              </Button>
-              <Button variant="outline" size="sm">
-                수정
-              </Button>
-            </div>
-          </div>
-          <p className="text-gray-600 mb-1">김로봇 · 010-1234-5678</p>
-          <p className="text-gray-600">서울시 서초구 서초대로 100</p>
-          <p className="text-gray-600">AI타워 5층</p>
-        </Card>
+
+            <p className="text-gray-600 mb-1">
+              {address.name} · {address.phone}
+            </p>
+            <p className="text-gray-600">
+              {address.address1} {address.address2}
+            </p>
+          </Card>
+        ))}
       </div>
 
-      <Button className="w-full" size="lg">
-        <MapPin className="w-4 h-4 mr-2" />새 배송지 추가
-      </Button>
+      <div className="w-full space-y-1">
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={handleCreate}
+          disabled={isListLoading || (listData?.length ?? 0) >= 5}
+        >
+          <MapPin className="w-4 h-4 mr-2" />
+          {t("order.addressDialog.title")}
+        </Button>
+
+        {!isListLoading && (listData?.length ?? 0) >= 5 && (
+          <p className="text-xs text-gray-500 text-center mt-2">{t("order.shipping.maxAddress")}</p>
+        )}
+      </div>
+
+      <AddressCreateDialog
+        open={showAddressDialog}
+        onOpenChange={setShowAddressDialog}
+        editingAddress={editingAddress}
+      />
     </div>
   );
 }

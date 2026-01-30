@@ -35,30 +35,44 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { label, name, phone, zip, address1, address2, memo, isDefault } = body;
 
-    const address = await prisma.$transaction(async (tx) => {
-      // 새 주소가 기본배송지면 기존 기본배송지 전부 해제
-      if (isDefault) {
+    if (isDefault === true) {
+      const address = await prisma.$transaction(async (tx) => {
+        // 새 주소가 기본배송지면 기존 기본배송지 전부 해제
+
         await tx.address.updateMany({
           where: { userId, isDefault: true },
           data: { isDefault: false },
         });
-      }
 
-      return tx.address.create({
-        data: {
-          userId,
-          label,
-          name,
-          phone,
-          zip,
-          address1,
-          address2,
-          memo,
-          isDefault: Boolean(isDefault),
-        },
+        return tx.address.create({
+          data: {
+            userId,
+            label,
+            name,
+            phone,
+            zip,
+            address1,
+            address2,
+            memo,
+            isDefault: true,
+          },
+        });
       });
+      return NextResponse.json(address);
+    }
+    const address = await prisma.address.create({
+      data: {
+        userId,
+        label,
+        name,
+        phone,
+        zip,
+        address1,
+        address2,
+        memo,
+        isDefault: false,
+      },
     });
-
     return NextResponse.json(address);
   } catch (e) {
     return NextResponse.json(

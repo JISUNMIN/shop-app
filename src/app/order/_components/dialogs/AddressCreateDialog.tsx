@@ -1,7 +1,7 @@
 // app/order/_components/dialogs/AddressCreateDialog.tsx
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { FormProvider, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AddressSearchField } from "../AddressSearchField";
 import { formatKoreanMobile } from "@/utils/helper";
 import useAddress from "@/hooks/useAddress";
+import { Address } from "@/types";
 
 export type NewAddressFormValues = {
   label: string;
@@ -29,11 +30,12 @@ export type NewAddressFormValues = {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editingAddress?: Address | null;
 }
 
-export function AddressCreateDialog({ open, onOpenChange }: Props) {
+export function AddressCreateDialog({ open, onOpenChange, editingAddress }: Props) {
   const { t } = useTranslation();
-  const { addAddressMutate } = useAddress();
+  const { addAddressMutate, editAddressMutate } = useAddress();
 
   const schema = useMemo(
     () =>
@@ -74,10 +76,38 @@ export function AddressCreateDialog({ open, onOpenChange }: Props) {
   } = methods;
 
   const submit = handleSubmit((data) => {
-    reset();
-    addAddressMutate(data);
+    if (editingAddress) {
+      editAddressMutate({ id: editingAddress.id, ...data });
+    } else {
+      addAddressMutate(data);
+    }
+
     onOpenChange(false);
   });
+
+  useEffect(() => {
+    if (!open) return;
+
+    if (editingAddress) {
+      reset({
+        label: editingAddress.label ?? "",
+        name: editingAddress.name ?? "",
+        phone: editingAddress.phone ?? "",
+        address1: editingAddress.address1 ?? "",
+        address2: editingAddress.address2 ?? "",
+        isDefault: !!editingAddress.isDefault,
+      });
+    } else {
+      reset({
+        label: "",
+        name: "",
+        phone: "",
+        address1: "",
+        address2: "",
+        isDefault: false,
+      });
+    }
+  }, [open, editingAddress, reset]);
 
   return (
     <FormProvider {...methods}>

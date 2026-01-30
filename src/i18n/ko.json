@@ -229,8 +229,7 @@
       "password": "비밀번호변경"
     },
     "shipping": {
-      "title": "배송지 관리",
-      "set_default_address": "기본 배송지 설정"
+      "title": "배송지 관리"
     },
     "user": "유저"
   },

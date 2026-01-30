@@ -55,3 +55,59 @@ export async function DELETE(_request: NextRequest, { params }: { params: { addr
     );
   }
 }
+
+export async function PATCH(request: NextRequest, { params }: { params: { addressId: string } }) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const addressId = Number(params.addressId);
+    if (!Number.isFinite(addressId)) {
+      return NextResponse.json({ error: "Invalid addressId" }, { status: 400 });
+    }
+
+    const { label, name, phone, zip, address1, address2, memo, isDefault } = await request.json();
+
+    const data = {
+      ...(label !== undefined && { label }),
+      ...(name !== undefined && { name }),
+      ...(phone !== undefined && { phone }),
+      ...(zip !== undefined && { zip }),
+      ...(address1 !== undefined && { address1 }),
+      ...(address2 !== undefined && { address2 }),
+      ...(memo !== undefined && { memo }),
+      ...(isDefault !== undefined && { isDefault: Boolean(isDefault) }),
+    };
+
+    if (isDefault === true) {
+      const updated = await prisma.$transaction(async (tx) => {
+        await tx.address.updateMany({
+          where: { userId, isDefault: true, id: { not: addressId } },
+          data: { isDefault: false },
+        });
+
+        return tx.address.update({
+          where: { id: addressId, userId },
+          data: { ...data, isDefault: true },
+        });
+      });
+
+      return NextResponse.json({ data: updated });
+    }
+
+    const updated = await prisma.address.update({
+      where: { id: addressId, userId },
+      data,
+    });
+
+    return NextResponse.json({ data: updated });
+  } catch (e) {
+    return NextResponse.json(
+      { error: "Failed to edit address", detail: String(e) },
+      { status: 500 },
+    );
+  }
+}

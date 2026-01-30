@@ -227,8 +227,7 @@
       "password": "Change password"
     },
     "shipping": {
-      "title": "Address Management",
-      "set_default_address": "Set Default Address"
+      "title": "Address Management"
     },
     "user": "User"
   },

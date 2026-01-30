@@ -47,6 +47,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
   product: Product;
+  stock: number;
 }
 
 export enum OrderStatus {
@@ -79,12 +80,14 @@ export type SNSType = "kakao" | "naver" | "google";
 
 export interface Address {
   id: number;
+  label: string;
   name: string;
-  recipient: string;
   phone: string;
-  address: string;
-  detailAddress: string;
+  address1: string;
+  address2?: string;
   isDefault: boolean;
+  zip?: string;
+  memo?: string;
 }
 
 export interface Coupon {

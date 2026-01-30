@@ -18,7 +18,7 @@ import {
 } from "@/app/order/_components/order.mock";
 import OrderCompleteModal from "@/app/order/complete/OrderCompleteModal";
 
-import { OrderShippingSection } from "@/app/order/_components/sections/OrderShippingSection";
+import { OrderAddressSection } from "@/app/order/_components/sections/OrderAddressSection";
 import { OrderItemsSection } from "@/app/order/_components/sections/OrderItemsSection";
 import { OrderBenefitsSection } from "@/app/order/_components/sections/OrderBenefitsSection";
 import { OrderPaymentSection } from "@/app/order/_components/sections/OrderPaymentSection";
@@ -49,7 +49,7 @@ export type OrderFormValues = {
 
 export default function OrderShell() {
   const router = useRouter();
-  const { listData: cartItems, removeFromCartMutate } = useCart();
+  const { listData: cartItems, isListLoading, removeFromCartMutate } = useCart();
   const { listData: addressList } = useAddress();
   const searchParams = useSearchParams();
 
@@ -84,7 +84,7 @@ export default function OrderShell() {
   const methods = useForm<OrderFormValues>({
     mode: "onChange",
     defaultValues: {
-      selectedAddressId: addressList?.find((a) => a.isDefault)?.id ?? addressList?.[0]?.id ?? 1,
+      selectedAddressId: addressList?.find((a) => a.isDefault)?.id ?? addressList?.[0]?.id,
       deliveryMemo: "custom", // key
       customMemo: "",
       paymentMethod: "card",
@@ -94,7 +94,7 @@ export default function OrderShell() {
     },
   });
 
-  const { watch, setValue, getValues } = methods;
+  const { watch, setValue } = methods;
 
   const selectedAddressId = watch("selectedAddressId");
   const selectedCouponId = watch("selectedCouponId");
@@ -171,12 +171,9 @@ export default function OrderShell() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               {/* 배송지 정보 */}
-              <OrderShippingSection
-                addresses={addressList}
-                onOpenAddressDialog={() => setShowAddressDialog(true)}
-              />
+              <OrderAddressSection onOpenAddressDialog={() => setShowAddressDialog(true)} />
               {/* 주문 상품 */}
-              <OrderItemsSection orderItems={orderItems} />
+              <OrderItemsSection orderItems={orderItems} isListLoading={isListLoading} />
               {/* 할인및 혜택 */}
               <OrderBenefitsSection
                 selectedCoupon={selectedCoupon}
@@ -192,6 +189,7 @@ export default function OrderShell() {
             <div className="lg:col-span-1">
               {/* 우측 결제 요약 */}
               <OrderSummarySection
+                isListLoading={isListLoading}
                 subtotal={subtotal}
                 finalDeliveryFee={finalDeliveryFee}
                 couponDiscount={couponDiscount}

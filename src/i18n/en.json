@@ -226,6 +226,10 @@
       "profile": "My profile",
       "password": "Change password"
     },
+    "shipping": {
+      "title": "Address Management",
+      "set_default_address": "Set Default Address"
+    },
     "user": "User"
   },
   "wishlist": {
@@ -363,6 +367,8 @@
       "phone": "Invalid phone number format."
     }
   },
+  "register": "Register",
+  "edit": "Edit",
   "searchPlaceholderMobile": "Search robot",
   "searchPlaceholderDesktop": "What robot are you looking for?",
   "searchButton": "Search",

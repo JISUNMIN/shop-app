@@ -5,17 +5,6 @@ import axiosSession from "@/lib/axiosSession";
 
 const ADDRESS_API_PATH = "/addresses";
 
-type AddAddressParams = {
-  label: string;
-  name: string;
-  phone: string;
-  address1: string;
-  address2?: string;
-  isDefault: boolean;
-  zip?: string;
-  memo?: string;
-};
-
 const useAddress = () => {
   const queryClient = useQueryClient();
 
@@ -37,7 +26,7 @@ const useAddress = () => {
   const { mutateAsync: addAddressMutate, isPending: isAddPending } = useMutation<
     Address,
     Error,
-    AddAddressParams
+    Address
   >({
     mutationFn: async (data) => {
       const res = await axiosSession.post<Address>(ADDRESS_API_PATH, data);

@@ -7,8 +7,15 @@ import { Badge } from "@/components/ui/badge";
 
 import type { OrderItemView } from "@/types";
 import Image from "next/image";
+import { OrderItemsSkeleton } from "./OrderItemsSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export function OrderItemsSection({ orderItems }: { orderItems: OrderItemView[] }) {
+type OrderItemsSectionProps = {
+  orderItems: OrderItemView[];
+  isListLoading: boolean;
+};
+
+export function OrderItemsSection({ orderItems, isListLoading }: OrderItemsSectionProps) {
   const { t } = useTranslation();
 
   return (
@@ -16,42 +23,52 @@ export function OrderItemsSection({ orderItems }: { orderItems: OrderItemView[] 
       <div className="flex items-center gap-2 mb-4">
         <Package className="w-5 h-5" />
         <h2 className="text-lg md:text-xl font-bold">{t("order.items.title")}</h2>
-        <Badge variant="outline">{t("order.items.count", { count: orderItems.length })}</Badge>
+        {isListLoading ? (
+          <Skeleton className="h-6 w-16" />
+        ) : (
+          <Badge variant="outline">{t("order.items.count", { count: orderItems.length })}</Badge>
+        )}
       </div>
 
       <div className="space-y-4">
-        {orderItems.map((item) => {
-          const isOut = item.quantity > item.stock;
+        {isListLoading ? (
+          <OrderItemsSkeleton />
+        ) : (
+          orderItems.map((item) => {
+            const isOut = item.quantity > item.stock;
 
-          return (
-            <div key={item.id} className="flex gap-4 pb-4 border-b last:border-b-0">
-              <Image
-                src={item.image[0]}
-                alt={item.name}
-                className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg"
-              />
+            return (
+              <div key={item.id} className="flex gap-4 pb-4 border-b last:border-b-0">
+                <Image
+                  src={item.image[0]}
+                  alt={item.name}
+                  width={192}
+                  height={192}
+                  className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg"
+                />
 
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold mb-1 line-clamp-2">{item.name}</h3>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold mb-1 line-clamp-2">{item.name}</h3>
 
-                <p className="text-sm text-gray-500 mb-2">
-                  {t("order.items.qty", { qty: item.quantity })}
-                  {isOut && (
-                    <span className="text-red-500 ml-1 inline-flex items-center gap-1">
-                      <AlertCircle className="w-3.5 h-3.5" />
-                      {t("order.items.outOfStock", { stock: item.stock })}
-                    </span>
-                  )}
-                </p>
+                  <p className="text-sm text-gray-500 mb-2">
+                    {t("order.items.qty", { qty: item.quantity })}
+                    {isOut && (
+                      <span className="text-red-500 ml-1 inline-flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        {t("order.items.outOfStock", { stock: item.stock })}
+                      </span>
+                    )}
+                  </p>
 
-                <p className="text-lg font-bold text-blue-600">
-                  {(item.price * item.quantity).toLocaleString()}
-                  {t("order.common.won")}
-                </p>
+                  <p className="text-lg font-bold text-blue-600">
+                    {(item.price * item.quantity).toLocaleString()}
+                    {t("order.common.won")}
+                  </p>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </Card>
   );

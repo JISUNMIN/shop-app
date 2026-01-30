@@ -1,4 +1,4 @@
-import { MapPin, CheckCircle2 } from "lucide-react";
+import { MapPin, CheckCircle2, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,9 +7,10 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { AddressCreateDialog } from "@/app/order/_components/dialogs/AddressCreateDialog";
 import { Address } from "@/types";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function AddressTab() {
-  const { listData, isListLoading } = useAddress();
+  const { listData, isListLoading, deleteAddressMutate, isDeletePending } = useAddress();
   const { t } = useTranslation();
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
@@ -22,6 +23,10 @@ export default function AddressTab() {
   const handleCreate = () => {
     setEditingAddress(null);
     setShowAddressDialog(true);
+  };
+
+  const handleDelete = (addressId: number) => {
+    deleteAddressMutate({ addressId });
   };
 
   return (
@@ -54,6 +59,33 @@ export default function AddressTab() {
                 <Button variant="outline" size="sm" onClick={() => handleEdit(address)}>
                   {t("edit")}
                 </Button>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          disabled={isDeletePending || address.isDefault}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(address.id);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+
+                    {address.isDefault && (
+                      <TooltipContent>
+                        <p> {t("mypage.shipping.default_cannot_delete")}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
 

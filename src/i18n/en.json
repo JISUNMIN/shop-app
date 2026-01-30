@@ -227,7 +227,9 @@
       "password": "Change password"
     },
     "shipping": {
-      "title": "Address Management"
+      "title": "Address Management",
+      "default_cannot_unset": "The default address cannot be unset. Please set another address as the default.",
+      "default_cannot_delete": "The default address cannot be deleted. Please set another address as the default."
     },
     "user": "User"
   },

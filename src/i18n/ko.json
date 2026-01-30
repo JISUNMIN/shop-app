@@ -229,7 +229,9 @@
       "password": "비밀번호변경"
     },
     "shipping": {
-      "title": "배송지 관리"
+      "title": "배송지 관리",
+      "default_cannot_unset": "기본배송지는 해제할 수 없습니다. 다른 배송지를 기본으로 지정해주세요.",
+      "default_cannot_delete": "기본배송지는 삭제할 수 없습니다. 다른 배송지를 기본으로 지정해주세요."
     },
     "user": "유저"
   },

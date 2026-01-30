@@ -36,6 +36,7 @@ interface Props {
 export function AddressCreateDialog({ open, onOpenChange, editingAddress }: Props) {
   const { t } = useTranslation();
   const { addAddressMutate, editAddressMutate } = useAddress();
+  const isEditingDefault = editingAddress?.isDefault;
 
   const schema = useMemo(
     () =>
@@ -131,8 +132,8 @@ export function AddressCreateDialog({ open, onOpenChange, editingAddress }: Prop
                 className="mt-2"
                 {...register("label")}
               />
-              {errors.name?.message && (
-                <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
+              {errors.label?.message && (
+                <p className="text-sm text-destructive mt-1">{errors.label.message}</p>
               )}
             </div>
 
@@ -206,11 +207,16 @@ export function AddressCreateDialog({ open, onOpenChange, editingAddress }: Prop
                     checked={!!field.value}
                     onCheckedChange={(v) => field.onChange(!!v)}
                     id="new-default"
+                    disabled={isEditingDefault}
                   />
                 )}
               />
               <Label htmlFor="new-default">{t("order.addressDialog.setDefault")}</Label>
             </div>
+
+            {isEditingDefault && (
+              <p className="text-xs text-gray-500">{t("mypage.shipping.default_cannot_unset")}</p>
+            )}
 
             <div className="flex gap-2 pt-4">
               <Button onClick={submit} className="flex-1" disabled={!isValid || isSubmitting}>

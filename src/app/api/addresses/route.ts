@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     const addressList = await prisma.address.findMany({
       where: { userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
     });
     return NextResponse.json(addressList);
   } catch {

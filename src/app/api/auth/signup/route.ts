@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { issueWelcomeCouponToUser } from "@/utils/coupon";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,19 +27,25 @@ export async function POST(request: NextRequest) {
 
     const hashed = await bcrypt.hash(password, 12);
 
-    const user = await prisma.user.create({
-      data: {
-        userId,
-        name: name ?? null,
-        phone: mobileNumber,
-        email: emailOrNull,
-        password: hashed,
-      },
-      select: { id: true, name: true, email: true, createdAt: true },
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: {
+          userId,
+          name: name ?? null,
+          phone: mobileNumber,
+          email: emailOrNull,
+          password: hashed,
+        },
+        select: { id: true, name: true, email: true, createdAt: true },
+      });
+
+      await issueWelcomeCouponToUser(tx, createdUser.id);
+
+      return createdUser;
     });
 
     return NextResponse.json(user, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  } catch (e) {
+    return NextResponse.json({ error: "Internal error", detail: String(e) }, { status: 500 });
   }
 }

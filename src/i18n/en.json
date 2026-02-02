@@ -71,7 +71,7 @@
       "userIdRequired": "Please enter your user ID.",
       "nameRequired": "Please enter your name.",
 
-      "nameMaxLength": "Name must be 16 characters or fewer.",
+      "nameMaxLength": "Name must be 10 characters or fewer.",
       "minLength4": "Must be at least 4 characters.",
       "maxLength16": "Must be 16 characters or fewer.",
 

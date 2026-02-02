@@ -104,7 +104,7 @@ export default function SignupPage() {
       name: yup
         .string()
         .required(t("auth.validation.nameRequired"))
-        .max(4, t("auth.validation.nameMaxLength")),
+        .max(10, t("auth.validation.nameMaxLength")),
 
       email: yup
         .string()

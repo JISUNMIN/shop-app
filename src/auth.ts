@@ -5,11 +5,13 @@ import KakaoProvider from "next-auth/providers/kakao";
 import NaverProvider from "next-auth/providers/naver";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { issueWelcomeCouponToUser } from "@/utils/coupon";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
 
   session: { strategy: "jwt" },
+
   providers: [
     Credentials({
       name: "Credentials",
@@ -47,21 +49,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         params: { prompt: "login", scope: "profile_nickname" },
       },
     }),
+
     NaverProvider({
       clientId: process.env.NAVER_CLIENT_ID!,
       clientSecret: process.env.NAVER_CLIENT_SECRET!,
     }),
   ],
+
+  events: {
+    async createUser({ user }) {
+      await issueWelcomeCouponToUser(prisma, user.id);
+    },
+  },
+
   callbacks: {
     async jwt({ token, user, account }) {
-      if (account) {
-        token.provider = account.provider; // "kakao" | "naver" | "credentials"
-      }
+      if (account) token.provider = account.provider; // "kakao" | "naver" | "credentials"
 
       if (user) {
         token.id = user.id;
-        token.userId = user.userId;
-        token.phone = user.phone;
+        token.userId = (user as any).userId;
+        token.phone = (user as any).phone;
       }
 
       return token;
@@ -70,10 +78,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (!token.id) return session;
 
-      session.user.id = token.id;
-      session.user.userId = token.userId;
-      session.user.provider = token.provider;
-      session.user.phone = token.phone;
+      (session.user as any).id = token.id;
+      (session.user as any).userId = token.userId;
+      (session.user as any).provider = token.provider;
+      (session.user as any).phone = token.phone;
 
       return session;
     },

@@ -92,10 +92,12 @@ export interface Address {
 
 export interface Coupon {
   id: number;
+  code:string;
   name: string;
-  discount: number | string;
-  minOrder: number;
-  type: "percent" | "fixed";
+  discountType: "PERCENT" | "AMOUNT";
+  discountValue:number;
+  minOrderAmount:number;
+  isActive:boolean;
 }
 
 export interface Wishlist {

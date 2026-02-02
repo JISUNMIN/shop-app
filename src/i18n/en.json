@@ -257,7 +257,21 @@
         "serverFail": "Failed to change password. Please try again."
       }
     },
-    "user": "User"
+    "user": "User",
+    "coupons": {
+      "title": "Coupons",
+      "availableCount": "Available coupons {{count}}",
+      "discountPercent": "{{value}}%",
+      "discountAmount": "{{value}} KRW",
+      "minOrder": "Valid for orders over {{amount}} KRW",
+      "noLimit": "No minimum order",
+      "expiresUntil": "~ Until {{date}}",
+      "enterCode": "Enter your coupon code",
+      "codePlaceholder": "Enter coupon code",
+      "register": "Register",
+      "invalidCode": "Invalid coupon code.",
+      "registerSuccess": "Coupon registered successfully!"
+    }
   },
   "wishlist": {
     "empty": "Your wishlist is empty.",
@@ -319,7 +333,8 @@
       "none": "Do not use a coupon",
       "minOrder": "Valid for orders over {{amount}} KRW",
       "noLimit": "No minimum order",
-      "notEnough": "Minimum order not met ({{remain}} KRW short)"
+      "notEnough": "Minimum order not met ({{remain}} KRW short)",
+      "expired": "Expired"
     },
 
     "points": {

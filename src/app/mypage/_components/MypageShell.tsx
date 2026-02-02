@@ -65,7 +65,7 @@ export default function MyPageShell() {
 
               {activeTab === "orders" && <OrdersTab orders={[...orders] as any} />}
 
-              {activeTab === "coupons" && <CouponsTab coupons={coupons} />}
+              {activeTab === "coupons" && <CouponsTab />}
 
               {activeTab === "wishlist" && <WishlistTab />}
 
@@ -74,7 +74,6 @@ export default function MyPageShell() {
               {activeTab === "address" && <AddressTab />}
 
               {activeTab === "profile" && <ProfileTab />}
-
             </Card>
           </div>
         </div>

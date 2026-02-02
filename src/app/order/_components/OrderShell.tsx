@@ -9,9 +9,7 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 
-import type { Coupon } from "@/types";
 import {
-  mockCoupons,
   ORDER_AVAILABLE_POINTS,
   ORDER_DELIVERY_FEE,
   ORDER_FREE_SHIPPING_THRESHOLD,
@@ -31,6 +29,7 @@ import useCart from "@/hooks/useCart";
 import { formatCartItems } from "@/utils/cart";
 import type { LocalizedText } from "@/types";
 import useAddress from "@/hooks/useAddress";
+import useCoupon from "@/hooks/useCoupon";
 
 export type PaymentMethod = "card" | "bank" | "kakao" | "naver";
 
@@ -51,6 +50,7 @@ export default function OrderShell() {
   const router = useRouter();
   const { listData: cartItems, isListLoading, removeFromCartMutate } = useCart();
   const { listData: addressList } = useAddress();
+  const { listData: couponList } = useCoupon();
   const searchParams = useSearchParams();
 
   const { t, i18n } = useTranslation();
@@ -60,8 +60,6 @@ export default function OrderShell() {
 
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
-
-  const coupons: Coupon[] = mockCoupons;
 
   const itemIdsParam = searchParams.get("itemIds");
   const selectedIdSet = useMemo(() => {
@@ -107,32 +105,32 @@ export default function OrderShell() {
   );
 
   const selectedCoupon = useMemo(
-    () => coupons.find((c) => c.id === selectedCouponId),
-    [coupons, selectedCouponId],
+    () => couponList?.find((c) => c.id === selectedCouponId),
+    [couponList, selectedCouponId],
   );
 
   const couponDiscount = useMemo(() => {
     if (!selectedCoupon) return 0;
-    if (selectedCoupon.type === "percent") {
-      return Math.floor((subtotal * Number(selectedCoupon.discount)) / 100);
+    if (selectedCoupon.coupon.discountType === "PERCENT") {
+      return Math.floor((subtotal * Number(selectedCoupon.coupon.discountValue)) / 100);
     }
     return Number(selectedCoupon.discount);
   }, [selectedCoupon, subtotal]);
 
-  const pointsMax = useMemo(
-    () => Math.min(ORDER_AVAILABLE_POINTS, Math.max(0, subtotal - couponDiscount)),
-    [subtotal, couponDiscount],
-  );
+  // const pointsMax = useMemo(
+  //   () => Math.min(ORDER_AVAILABLE_POINTS, Math.max(0, subtotal - couponDiscount)),
+  //   [subtotal, couponDiscount],
+  // );
 
-  useEffect(() => {
-    if (!usePoints && pointsToUse !== 0) {
-      setValue("pointsToUse", 0, { shouldDirty: true, shouldValidate: true });
-      return;
-    }
-    if (usePoints && pointsToUse > pointsMax) {
-      setValue("pointsToUse", pointsMax, { shouldDirty: true, shouldValidate: true });
-    }
-  }, [usePoints, pointsToUse, pointsMax, setValue]);
+  // useEffect(() => {
+  //   if (!usePoints && pointsToUse !== 0) {
+  //     setValue("pointsToUse", 0, { shouldDirty: true, shouldValidate: true });
+  //     return;
+  //   }
+  //   if (usePoints && pointsToUse > pointsMax) {
+  //     setValue("pointsToUse", pointsMax, { shouldDirty: true, shouldValidate: true });
+  //   }
+  // }, [usePoints, pointsToUse, pointsMax, setValue]);
 
   const pointsDiscount = usePoints ? pointsToUse : 0;
   const totalDiscount = couponDiscount + pointsDiscount;
@@ -179,7 +177,8 @@ export default function OrderShell() {
                 selectedCoupon={selectedCoupon}
                 couponDiscount={couponDiscount}
                 availablePoints={ORDER_AVAILABLE_POINTS}
-                pointsMax={pointsMax}
+                // pointsMax={pointsMax}
+                pointsMax={0}
                 onOpenCouponDialog={() => setShowCouponDialog(true)}
               />
               {/* 결제 수단 */}
@@ -210,7 +209,7 @@ export default function OrderShell() {
         <CouponSelectDialog
           open={showCouponDialog}
           onOpenChange={setShowCouponDialog}
-          coupons={coupons}
+          coupons={couponList}
           subtotal={subtotal}
         />
 

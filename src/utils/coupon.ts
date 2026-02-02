@@ -28,7 +28,9 @@ export async function issueWelcomeCouponToUser(db: Db, userId: string) {
   if (exists) return;
 
   const issuedAt = new Date();
+
   const expiresAt = addOneMonth(issuedAt);
+  expiresAt.setHours(23, 59, 59, 999);
 
   await db.userCoupon.create({
     data: {

@@ -259,7 +259,21 @@
         "serverFail": "비밀번호 변경에 실패했습니다. 다시 시도해주세요."
       }
     },
-    "user": "유저"
+    "user": "유저",
+    "coupons": {
+      "title": "할인쿠폰",
+      "availableCount": "사용 가능한 쿠폰 {{count}}장",
+      "discountPercent": "{{value}}%",
+      "discountAmount": "{{value}}원",
+      "minOrder": "{{amount}}원 이상 구매 시",
+      "noLimit": "제한없음",
+      "expiresUntil": "~ {{date}}까지",
+      "enterCode": "쿠폰 코드를 입력하세요",
+      "codePlaceholder": "쿠폰 코드 입력",
+      "register": "등록",
+      "invalidCode": "유효하지 않은 코드입니다.",
+      "registerSuccess": "쿠폰이 등록되었습니다!"
+    }
   },
   "wishlist": {
     "empty": "찜한 상품이 없습니다.",
@@ -321,7 +335,8 @@
       "none": "쿠폰 사용 안함",
       "minOrder": "{{amount}}원 이상 구매 시",
       "noLimit": "제한없음",
-      "notEnough": "최소 주문금액 미달 ({{remain}}원 부족)"
+      "notEnough": "최소 주문금액 미달 ({{remain}}원 부족)",
+      "expired": "만료됨"
     },
 
     "points": {

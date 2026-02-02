@@ -12,6 +12,7 @@ export const formatCartItems = (
   return cartItems.map((item) => ({
     id: item.id,
     name: item.product.name[lang],
+    productId: item.product.id,
     quantity: item.quantity,
     price: item.product.price,
     image: item.product.images,
@@ -27,7 +28,6 @@ export function getGuestCartId(request: NextRequest) {
 
   return guestCartId;
 }
-
 
 export const getOwner = async (request: NextRequest) => {
   const session = await auth();

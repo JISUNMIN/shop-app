@@ -25,6 +25,7 @@ export interface OrderItemView {
   id: number;
   name: string;
   price: number;
+  productId: number;
   quantity: number;
   image: string[];
   stock: number;
@@ -76,6 +77,8 @@ export interface LocalizedText {
   en: string;
 }
 
+export type LangCode = "ko" | "en";
+
 export type SNSType = "kakao" | "naver" | "google";
 
 export interface Address {
@@ -92,12 +95,12 @@ export interface Address {
 
 export interface Coupon {
   id: number;
-  code:string;
+  code: string;
   name: string;
   discountType: "PERCENT" | "AMOUNT";
-  discountValue:number;
-  minOrderAmount:number;
-  isActive:boolean;
+  discountValue: number;
+  minOrderAmount: number;
+  isActive: boolean;
 }
 
 export interface Wishlist {

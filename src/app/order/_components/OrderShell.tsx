@@ -1,7 +1,7 @@
 // app/order/_components/OrderShell.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -26,10 +26,12 @@ import { AddressCreateDialog } from "@/app/order/_components/dialogs/AddressCrea
 import { CouponSelectDialog } from "@/app/order/_components/dialogs/CouponSelectDialog";
 
 import useCart from "@/hooks/useCart";
-import { formatCartItems } from "@/utils/cart";
-import type { LocalizedText } from "@/types";
 import useAddress from "@/hooks/useAddress";
 import useCoupon from "@/hooks/useCoupon";
+import useOrder from "@/hooks/useOrder";
+
+import { formatCartItems } from "@/utils/cart";
+import type { LocalizedText } from "@/types";
 
 export type PaymentMethod = "card" | "bank" | "kakao" | "naver";
 
@@ -48,16 +50,17 @@ export type OrderFormValues = {
 
 export default function OrderShell() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const { listData: cartItems, isListLoading, removeFromCartMutate } = useCart();
   const { listData: addressList } = useAddress();
   const { listData: couponList } = useCoupon();
-  const searchParams = useSearchParams();
+  const { createOrderMutate, isCreateOrderPending } = useOrder();
 
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
 
@@ -72,7 +75,7 @@ export default function OrderShell() {
 
   const selectedCartItems = useMemo(() => {
     return cartItems?.filter((item) => selectedIdSet.has(String(item.id)));
-  }, [cartItems, itemIdsParam, selectedIdSet]);
+  }, [cartItems, selectedIdSet]);
 
   const orderItems = useMemo(
     () => formatCartItems(selectedCartItems ?? [], lang),
@@ -92,12 +95,14 @@ export default function OrderShell() {
     },
   });
 
-  const { watch, setValue } = methods;
+  const { watch } = methods;
 
   const selectedAddressId = watch("selectedAddressId");
   const selectedCouponId = watch("selectedCouponId");
   const usePoints = watch("usePoints");
   const pointsToUse = watch("pointsToUse");
+  const deliveryMemo = watch("deliveryMemo");
+  const customMemo = watch("customMemo");
 
   const subtotal = useMemo(
     () => orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -117,37 +122,53 @@ export default function OrderShell() {
     return Number(selectedCoupon.discount);
   }, [selectedCoupon, subtotal]);
 
-  // const pointsMax = useMemo(
-  //   () => Math.min(ORDER_AVAILABLE_POINTS, Math.max(0, subtotal - couponDiscount)),
-  //   [subtotal, couponDiscount],
-  // );
-
-  // useEffect(() => {
-  //   if (!usePoints && pointsToUse !== 0) {
-  //     setValue("pointsToUse", 0, { shouldDirty: true, shouldValidate: true });
-  //     return;
-  //   }
-  //   if (usePoints && pointsToUse > pointsMax) {
-  //     setValue("pointsToUse", pointsMax, { shouldDirty: true, shouldValidate: true });
-  //   }
-  // }, [usePoints, pointsToUse, pointsMax, setValue]);
-
   const pointsDiscount = usePoints ? pointsToUse : 0;
   const totalDiscount = couponDiscount + pointsDiscount;
 
   const finalDeliveryFee = subtotal >= ORDER_FREE_SHIPPING_THRESHOLD ? 0 : ORDER_DELIVERY_FEE;
   const finalAmount = subtotal + finalDeliveryFee - totalDiscount;
-  const earnPoints = Math.floor(finalAmount * 0.05);
 
   const selectedAddress = useMemo(
     () => addressList?.find((a) => a.id === selectedAddressId),
     [addressList, selectedAddressId],
   );
 
+  const hasOutOfStock = useMemo(() => orderItems.some((i) => i.quantity > i.stock), [orderItems]);
+
+  const canPay = !!selectedAddress && orderItems.length > 0;
+
+  const handlePay = async () => {
+    if (!selectedAddress || orderItems.length === 0) return;
+
+    const shipMemo =
+      deliveryMemo === "custom" ? (customMemo?.trim() ? customMemo.trim() : null) : deliveryMemo;
+
+    createOrderMutate({
+      shipName: selectedAddress.name,
+      shipPhone: selectedAddress.phone,
+      shipZip: selectedAddress.zip ?? null,
+      shipAddress1: selectedAddress.address1,
+      shipAddress2: selectedAddress.address2 ?? null,
+      shipMemo,
+
+      totalAmount: finalAmount,
+      discountAmount: totalDiscount,
+      couponId: selectedCouponId ?? null,
+
+      products: orderItems.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+    });
+
+    setIsCompleteModalOpen(true);
+  };
+
   const onClosesOrderModal = async () => {
     // 장바구니에서 제거
     orderItems?.forEach((item) => removeFromCartMutate({ itemId: item.id, showToast: false }));
-    setIsModalOpen(false);
+    setIsCompleteModalOpen(false);
     router.push("/");
   };
 
@@ -170,17 +191,19 @@ export default function OrderShell() {
             <div className="lg:col-span-2 space-y-6">
               {/* 배송지 정보 */}
               <OrderAddressSection onOpenAddressDialog={() => setShowAddressDialog(true)} />
+
               {/* 주문 상품 */}
               <OrderItemsSection orderItems={orderItems} isListLoading={isListLoading} />
+
               {/* 할인및 혜택 */}
               <OrderBenefitsSection
                 selectedCoupon={selectedCoupon}
                 couponDiscount={couponDiscount}
                 availablePoints={ORDER_AVAILABLE_POINTS}
-                // pointsMax={pointsMax}
                 pointsMax={0}
                 onOpenCouponDialog={() => setShowCouponDialog(true)}
               />
+
               {/* 결제 수단 */}
               <OrderPaymentSection />
             </div>
@@ -188,17 +211,17 @@ export default function OrderShell() {
             <div className="lg:col-span-1">
               {/* 우측 결제 요약 */}
               <OrderSummarySection
-                isListLoading={isListLoading}
+                isLoading={isListLoading}
                 subtotal={subtotal}
-                finalDeliveryFee={finalDeliveryFee}
+                deliveryFee={finalDeliveryFee}
+                freeShippingThreshold={ORDER_FREE_SHIPPING_THRESHOLD}
                 couponDiscount={couponDiscount}
                 pointsDiscount={pointsDiscount}
                 finalAmount={finalAmount}
-                earnPoints={earnPoints}
-                orderItems={orderItems}
-                selectedAddress={selectedAddress}
-                freeShippingThreshold={ORDER_FREE_SHIPPING_THRESHOLD}
-                onClose={() => setIsModalOpen(true)}
+                canPay={canPay}
+                hasOutOfStock={hasOutOfStock}
+                isPaying={isCreateOrderPending}
+                onClickPay={handlePay}
               />
             </div>
           </div>
@@ -214,7 +237,7 @@ export default function OrderShell() {
         />
 
         <OrderCompleteModal
-          isOpen={isModalOpen}
+          isOpen={isCompleteModalOpen}
           onClose={onClosesOrderModal}
           orderedItems={orderItems}
         />

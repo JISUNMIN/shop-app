@@ -15,7 +15,7 @@ import AddressTab from "@/app/mypage/tabs/AddressTab";
 import ProfileTab from "@/app/mypage/tabs/ProfileTab";
 
 import { menuItems } from "./menuItems";
-import { coupons, orders, wishlist } from "./mockData";
+import { coupons, orders } from "./mockData";
 
 export default function MyPageShell() {
   const router = useRouter();
@@ -63,7 +63,7 @@ export default function MyPageShell() {
                 />
               )}
 
-              {activeTab === "orders" && <OrdersTab orders={[...orders] as any} />}
+              {activeTab === "orders" && <OrdersTab />}
 
               {activeTab === "coupons" && <CouponsTab />}
 

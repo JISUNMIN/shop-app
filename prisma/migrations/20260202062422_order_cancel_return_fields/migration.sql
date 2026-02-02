@@ -1,0 +1,21 @@
+-- AlterEnum
+-- This migration adds more than one value to an enum.
+-- With PostgreSQL versions 11 and earlier, this is not possible
+-- in a single migration. This can be worked around by creating
+-- multiple migrations, each migration adding only one value to
+-- the enum.
+
+
+ALTER TYPE "OrderStatus" ADD VALUE 'CANCEL_REQUESTED';
+ALTER TYPE "OrderStatus" ADD VALUE 'RETURN_REQUESTED';
+
+-- AlterTable
+ALTER TABLE "orders" ADD COLUMN     "cancelMemo" TEXT,
+ADD COLUMN     "cancelReason" TEXT,
+ADD COLUMN     "cancelRequestedAt" TIMESTAMP(3),
+ADD COLUMN     "returnMemo" TEXT,
+ADD COLUMN     "returnReason" TEXT,
+ADD COLUMN     "returnRequestedAt" TIMESTAMP(3);
+
+-- CreateIndex
+CREATE INDEX "orders_status_createdAt_idx" ON "orders"("status", "createdAt");

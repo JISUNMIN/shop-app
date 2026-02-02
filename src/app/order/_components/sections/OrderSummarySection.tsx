@@ -6,45 +6,47 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-import type { Address, OrderItem } from "@/types";
 import { OrderSummaryContentSkeleton } from "./OrderSummarySkeleton";
 
 interface OrderSummarySectionProps {
+  isLoading: boolean;
+
   subtotal: number;
-  finalDeliveryFee: number;
+  deliveryFee: number;
+  freeShippingThreshold: number;
+
   couponDiscount: number;
   pointsDiscount: number;
   finalAmount: number;
-  earnPoints: number;
 
-  orderItems: OrderItem[];
-  selectedAddress?: Address;
+  canPay: boolean;
+  hasOutOfStock: boolean;
 
-  onClose: () => void;
-  freeShippingThreshold: number;
-  isListLoading: boolean;
+  isPaying?: boolean;
+  onClickPay: () => void;
 }
 
 export function OrderSummarySection({
+  isLoading,
   subtotal,
-  finalDeliveryFee,
+  deliveryFee,
+  freeShippingThreshold,
   couponDiscount,
   pointsDiscount,
   finalAmount,
-  orderItems,
-  selectedAddress,
-  onClose,
-  freeShippingThreshold,
-  isListLoading,
+  canPay,
+  hasOutOfStock,
+  isPaying = false,
+  onClickPay,
 }: OrderSummarySectionProps) {
   const { t } = useTranslation();
-  const hasOutOfStock = orderItems.some((i) => i.quantity > i.stock);
 
   return (
     <div className="sticky top-24">
       <Card className="p-6">
         <h2 className="text-xl font-bold mb-4">{t("order.summary.title")}</h2>
-        {isListLoading ? (
+
+        {isLoading ? (
           <OrderSummaryContentSkeleton />
         ) : (
           <>
@@ -60,15 +62,15 @@ export function OrderSummarySection({
               <div className="flex items-center justify-between text-gray-600">
                 <span>{t("order.summary.deliveryFee")}</span>
                 <span>
-                  {finalDeliveryFee === 0 ? (
+                  {deliveryFee === 0 ? (
                     <span className="text-green-600">{t("order.summary.free")}</span>
                   ) : (
-                    `+${finalDeliveryFee.toLocaleString()}${t("order.common.won")}`
+                    `+${deliveryFee.toLocaleString()}${t("order.common.won")}`
                   )}
                 </span>
               </div>
 
-              {subtotal < freeShippingThreshold && finalDeliveryFee > 0 && (
+              {subtotal < freeShippingThreshold && deliveryFee > 0 && (
                 <div className="text-xs text-gray-500 pl-4">
                   <AlertCircle className="w-3 h-3 inline mr-1" />
                   {t("order.summary.freeShippingHint", {
@@ -109,13 +111,11 @@ export function OrderSummarySection({
             </div>
 
             <Button
-              onClick={onClose}
+              onClick={onClickPay}
               className="w-full h-14 text-lg font-bold"
-              disabled={!selectedAddress || hasOutOfStock}
+              disabled={!canPay || hasOutOfStock || isPaying}
             >
-              {t("order.summary.pay", {
-                amount: finalAmount.toLocaleString(),
-              })}
+              {t("order.summary.pay", { amount: finalAmount.toLocaleString() })}
             </Button>
 
             {hasOutOfStock && (

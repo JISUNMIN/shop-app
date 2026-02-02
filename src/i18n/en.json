@@ -226,7 +226,21 @@
       "points": "Points",
       "address": "Shipping addresses",
       "profile": "My profile",
-      "password": "Change password"
+      "password": "Change password",
+      "filter": {
+        "all": "All",
+        "active": "In progress",
+        "delivered": "Delivered",
+        "claims": "Cancel / Refund / Return"
+      }
+    },
+    "orders": {
+      "title": "Order history",
+      "loading": "Loading your orders...",
+      "empty": "You have no orders yet.",
+      "orderNumber": "Order No. {{id}}",
+      "viewDetail": "View details",
+      "itemSummary": "{{name}} and {{count}} more"
     },
     "shipping": {
       "title": "Address Management",
@@ -281,6 +295,16 @@
   "order": {
     "order": "Place Order",
     "title": "Order / Payment",
+
+    "status": {
+      "paid": "Paid",
+      "shipping": "Shipping",
+      "delivered": "Delivered",
+      "cancelRequested": "Cancel requested",
+      "refunded": "Refunded",
+      "returnRequested": "Return requested",
+      "returned": "Returned"
+    },
 
     "common": {
       "won": " KRW",

@@ -230,6 +230,21 @@
       "profile": "내정보",
       "password": "비밀번호변경"
     },
+    "orders": {
+      "title": "주문내역",
+      "loading": "주문내역 불러오는 중...",
+      "empty": "주문내역이 없습니다.",
+      "orderNumber": "주문번호: {{id}}",
+      "viewDetail": "상세보기",
+      "itemSummary": "{{name}} 외 {{count}}개",
+
+      "filter": {
+        "all": "전체",
+        "active": "진행중",
+        "delivered": "배송완료",
+        "claims": "취소/환불/반품"
+      }
+    },
     "shipping": {
       "title": "배송지 관리",
       "default_cannot_unset": "기본배송지는 해제할 수 없습니다. 다른 배송지를 기본으로 지정해주세요.",
@@ -284,6 +299,15 @@
     "order": "주문하기",
     "title": "주문/결제",
 
+    "status": {
+      "paid": "결제완료",
+      "shipping": "배송중",
+      "delivered": "배송완료",
+      "cancelRequested": "취소 요청",
+      "refunded": "환불 완료",
+      "returnRequested": "반품 요청",
+      "returned": "반품 완료"
+    },
     "common": {
       "won": "원",
       "select": "선택",

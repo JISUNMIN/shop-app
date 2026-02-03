@@ -9,11 +9,6 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 
-import {
-  ORDER_AVAILABLE_POINTS,
-  ORDER_DELIVERY_FEE,
-  ORDER_FREE_SHIPPING_THRESHOLD,
-} from "@/app/order/_components/order.mock";
 import OrderCompleteModal from "@/app/order/complete/OrderCompleteModal";
 
 import { OrderAddressSection } from "@/app/order/_components/sections/OrderAddressSection";
@@ -125,8 +120,7 @@ export default function OrderShell() {
   const pointsDiscount = usePoints ? pointsToUse : 0;
   const totalDiscount = couponDiscount + pointsDiscount;
 
-  const finalDeliveryFee = subtotal >= ORDER_FREE_SHIPPING_THRESHOLD ? 0 : ORDER_DELIVERY_FEE;
-  const finalAmount = subtotal + finalDeliveryFee - totalDiscount;
+  const finalAmount = subtotal - totalDiscount;
 
   const selectedAddress = useMemo(
     () => addressList?.find((a) => a.id === selectedAddressId),
@@ -199,7 +193,6 @@ export default function OrderShell() {
               <OrderBenefitsSection
                 selectedCoupon={selectedCoupon}
                 couponDiscount={couponDiscount}
-                availablePoints={ORDER_AVAILABLE_POINTS}
                 pointsMax={0}
                 onOpenCouponDialog={() => setShowCouponDialog(true)}
               />
@@ -213,8 +206,6 @@ export default function OrderShell() {
               <OrderSummarySection
                 isLoading={isListLoading}
                 subtotal={subtotal}
-                deliveryFee={finalDeliveryFee}
-                freeShippingThreshold={ORDER_FREE_SHIPPING_THRESHOLD}
                 couponDiscount={couponDiscount}
                 pointsDiscount={pointsDiscount}
                 finalAmount={finalAmount}

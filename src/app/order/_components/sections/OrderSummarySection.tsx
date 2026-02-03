@@ -15,7 +15,6 @@ interface OrderSummarySectionProps {
 
   subtotal: number;
   deliveryFee: number;
-  freeShippingThreshold: number;
 
   couponDiscount: number;
   pointsDiscount: number;
@@ -31,8 +30,6 @@ interface OrderSummarySectionProps {
 export function OrderSummarySection({
   isLoading,
   subtotal,
-  deliveryFee,
-  freeShippingThreshold,
   couponDiscount,
   pointsDiscount,
   finalAmount,
@@ -63,23 +60,8 @@ export function OrderSummarySection({
 
               <div className="flex items-center justify-between text-gray-600">
                 <span>{t("order.summary.deliveryFee")}</span>
-                <span>
-                  {deliveryFee === 0 ? (
-                    <span className="text-green-600">{t("order.summary.free")}</span>
-                  ) : (
-                    `+${priceText(deliveryFee)}`
-                  )}
-                </span>
+                <span className="text-green-600">{t("order.summary.free")}</span>
               </div>
-
-              {subtotal < freeShippingThreshold && deliveryFee > 0 && (
-                <div className="text-xs text-gray-500 pl-4">
-                  <AlertCircle className="w-3 h-3 inline mr-1" />
-                  {t("order.summary.freeShippingHint", {
-                    remain: formatPrice(freeShippingThreshold - subtotal, lang),
-                  })}
-                </div>
-              )}
 
               {couponDiscount > 0 && (
                 <div className="flex items-center justify-between text-red-600">

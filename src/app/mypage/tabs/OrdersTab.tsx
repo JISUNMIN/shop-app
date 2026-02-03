@@ -11,6 +11,14 @@ import { Button } from "@/components/ui/button";
 import useOrder from "@/hooks/useOrder";
 import type { LangCode } from "@/types";
 import { formatDate } from "@/utils/helper";
+import OrdersTabSkeleton from "@/app/mypage/_components/OrdersTabSkeleton";
+
+import {
+  ORDER_STATUS_BADGE_CLASS,
+  filterOrdersByStatus,
+  getOrderItemTitle,
+  getOrderStatusLabel,
+} from "@/utils/orders";
 
 type OrderFilter = "all" | "active" | "delivered" | "claims";
 
@@ -22,57 +30,13 @@ export default function OrdersTab() {
   const lang = i18n.language as LangCode;
   const [filter, setFilter] = useState<OrderFilter>("all");
 
-  const statusLabelMap = useMemo<Record<string, string>>(
-    () => ({
-      PAID: t("order.status.paid"),
-      SHIPPING: t("order.status.shipping"),
-      DELIVERED: t("order.status.delivered"),
-      CANCEL_REQUESTED: t("order.status.cancelRequested"),
-      REFUNDED: t("order.status.refunded"),
-      RETURN_REQUESTED: t("order.status.returnRequested"),
-      RETURNED: t("order.status.returned"),
-    }),
-    [t],
-  );
-
-  const statusColorMap: Record<string, string> = {
-    PAID: "bg-green-500",
-    SHIPPING: "bg-blue-500",
-    DELIVERED: "bg-gray-500",
-
-    CANCEL_REQUESTED: "bg-orange-500",
-    REFUNDED: "bg-red-500",
-
-    RETURN_REQUESTED: "bg-purple-500",
-    RETURNED: "bg-zinc-700",
-  };
-
   const filteredOrders = useMemo(() => {
     if (!listData) return [];
-
-    switch (filter) {
-      case "active":
-        return listData.filter((o: any) => ["PAID", "SHIPPING"].includes(o.status));
-
-      case "delivered":
-        return listData.filter((o: any) => o.status === "DELIVERED");
-
-      case "claims":
-        return listData.filter((o: any) =>
-          ["CANCEL_REQUESTED", "REFUNDED", "RETURN_REQUESTED", "RETURNED"].includes(o.status),
-        );
-
-      default:
-        return listData;
-    }
+    return filterOrdersByStatus(listData, filter);
   }, [listData, filter]);
 
   if (isListLoading) {
-    return <p className="text-gray-500">{t("mypage.orders.loading")}</p>;
-  }
-
-  if (!listData || listData.length === 0) {
-    return <p className="text-gray-500">{t("mypage.orders.empty")}</p>;
+    return <OrdersTabSkeleton />;
   }
 
   return (
@@ -120,33 +84,26 @@ export default function OrdersTab() {
           const orderedItems = order.orderItems ?? [];
           if (orderedItems.length === 0) return null;
 
-          const firstItem = orderedItems[0];
-          const productName = firstItem.product?.name?.[lang] ?? "";
-
-          const extraCount = orderedItems.length - 1;
-          const title =
-            extraCount > 0
-              ? t("mypage.orders.itemSummary", { name: productName, count: extraCount })
-              : productName;
+          const title = getOrderItemTitle(orderedItems, lang, t);
 
           return (
             <Card key={order.id} className="p-4 md:p-6 bg-gray-50">
-              {/* 상단 */}
               <div className="flex flex-col md:flex-row md:items-start justify-between mb-4 gap-3">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">{formatDate(order.createdAt, lang)}</p>
-
                   <p className="text-base md:text-lg font-bold">{title}</p>
-
                   <p className="text-sm text-gray-600 mt-1">
                     {t("mypage.orders.orderNumber", { id: order.id })}
                   </p>
                 </div>
 
-                <Badge className={statusColorMap[order.status] ?? "bg-gray-400"}>
-                  {statusLabelMap[order.status] ?? order.status}
+                <Badge
+                  className={ORDER_STATUS_BADGE_CLASS[order.status] ?? "bg-gray-100 text-gray-600"}
+                >
+                  {getOrderStatusLabel(order.status, t)}
                 </Badge>
               </div>
+
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t gap-3">
                 <p className="text-xl md:text-2xl font-bold">
                   {Number(order.totalAmount ?? 0).toLocaleString()}
@@ -156,7 +113,7 @@ export default function OrdersTab() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => router.push(`/mypage/orders/${order.id}`)}
+                  onClick={() => router.push(`/mypage/orders/${order.id}?tab=orders`)}
                 >
                   {t("mypage.orders.viewDetail")}
                 </Button>

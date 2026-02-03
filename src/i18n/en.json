@@ -226,13 +226,7 @@
       "points": "Points",
       "address": "Shipping addresses",
       "profile": "My profile",
-      "password": "Change password",
-      "filter": {
-        "all": "All",
-        "active": "In progress",
-        "delivered": "Delivered",
-        "claims": "Cancel / Refund / Return"
-      }
+      "password": "Change password"
     },
     "orders": {
       "title": "Order history",
@@ -240,8 +234,80 @@
       "empty": "You have no orders yet.",
       "orderNumber": "Order No. {{id}}",
       "viewDetail": "View details",
-      "itemSummary": "{{name}} and {{count}} more"
+      "itemSummary": "{{name}} and {{count}} more",
+      "filter": {
+        "all": "All",
+        "active": "In progress",
+        "delivered": "Delivered",
+        "claims": "Cancel / Refund / Return"
+      }
     },
+    "orderDetail": {
+      "loading": "Loading order details...",
+      "title": "Order details",
+      "notFound": "Order not found.",
+      "invalidOrderId": "Invalid order ID.",
+      "backToOrders": "Back to order history",
+      "back": "Back",
+      "orderNumber": "Order No. {{id}}",
+      "orderedAt": "Ordered at: {{date}}",
+
+      "deliveryInfo": {
+        "title": "Delivery information",
+        "currentStatus": "Current status",
+        "carrier": "Carrier",
+        "trackingNumber": "Tracking number",
+        "memo": "Note"
+      },
+
+      "shippingStatus": {
+        "preparing": "Preparing items",
+        "shipping": "Out for delivery",
+        "delivered": "Delivered",
+        "cancelRequested": "Cancellation requested",
+        "refunded": "Refunded",
+        "returnRequested": "Return requested",
+        "returned": "Returned",
+        "inProgress": "In progress"
+      },
+
+      "progress": {
+        "ordered": "Order placed",
+        "preparing": "Preparing",
+        "shipping": "Shipping",
+        "delivered": "Delivered"
+      },
+
+      "items": {
+        "title": "Order items",
+        "qty": "Qty: {{qty}}"
+      },
+
+      "shippingAddress": {
+        "title": "Shipping address",
+        "name": "Recipient",
+        "phone": "Phone",
+        "address": "Address",
+        "request": "Delivery instructions"
+      },
+
+      "payment": {
+        "title": "Payment summary",
+        "productPrice": "Items",
+        "shippingFee": "Shipping",
+        "discount": "Discount",
+        "total": "Total",
+        "notice": "Payment method details may appear here once available."
+      },
+
+      "actions": {
+        "reorder": "Reorder",
+        "track": "Track delivery",
+        "trackDisabled": "Tracking information is not available yet.",
+        "returnExchange": "Request return / exchange"
+      }
+    },
+
     "shipping": {
       "title": "Address Management",
       "default_cannot_unset": "The default address cannot be unset. Please set another address as the default.",

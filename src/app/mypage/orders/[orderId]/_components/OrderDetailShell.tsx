@@ -1,421 +1,280 @@
 "use client";
 
-import {
-  ChevronLeft,
-  Truck,
-} from "lucide-react";
+import useOrder from "@/hooks/useOrder";
+import { ChevronLeft, Truck } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
+import { formatDate, formatPrice } from "@/utils/helper";
+import type { LangCode } from "@/types";
+import { DeliveryProgress } from "./DeliveryProgress";
+import OrderDetailSkeleton from "./OrderDetailSkeleton";
+import EmptyOrderState from "./EmptyOrderState";
+import { Badge } from "@/components/ui/badge";
 
-interface OrderItem {
-  id: string;
-  name: string;
-  option: string;
-  quantity: number;
-  price: number;
-  image: string;
-}
-
-interface OrderDetailData {
-  id: string;
-  date: string;
-  status: string;
-  orderNumber: string;
-  items: OrderItem[];
-  shippingAddress: {
-    name: string;
-    phone: string;
-    address: string;
-    detailAddress: string;
-    zipCode: string;
-    request: string;
-  };
-  payment: {
-    method: string;
-    productPrice: number;
-    shippingFee: number;
-    discount: number;
-    totalPrice: number;
-  };
-  tracking: {
-    carrier: string;
-    trackingNumber: string;
-    status: string;
-  };
-}
-
-// Mock data
-const orderDetails: Record<string, OrderDetailData> = {
-  "1": {
-    id: "1",
-    date: "2026. 02. 02. 14:30",
-    status: "배송완료",
-    orderNumber: "ORD-2026-02-02-001",
-    items: [
-      {
-        id: "1",
-        name: "스마트폰 허브로봇 봉이",
-        option: "컬러: 화이트 / 용량: 128GB",
-        quantity: 1,
-        price: 889000,
-        image: "robot assistant white",
-      },
-    ],
-    shippingAddress: {
-      name: "홍길동",
-      phone: "010-1234-5678",
-      address: "서울특별시 강남구 테헤란로 123",
-      detailAddress: "456호",
-      zipCode: "06234",
-      request: "문 앞에 놓아주세요",
-    },
-    payment: {
-      method: "신용카드",
-      productPrice: 889000,
-      shippingFee: 0,
-      discount: 0,
-      totalPrice: 889000,
-    },
-    tracking: {
-      carrier: "로보배송",
-      trackingNumber: "1234567890123",
-      status: "배송완료",
-    },
-  },
-  "2": {
-    id: "2",
-    date: "2026. 02. 02. 12:15",
-    status: "배송완료",
-    orderNumber: "ORD-2026-02-02-002",
-    items: [
-      {
-        id: "2",
-        name: "스마트폰 허브로봇 봉이",
-        option: "컬러: 블랙 / 용량: 256GB",
-        quantity: 1,
-        price: 889000,
-        image: "robot assistant black",
-      },
-    ],
-    shippingAddress: {
-      name: "홍길동",
-      phone: "010-1234-5678",
-      address: "서울특별시 강남구 테헤란로 123",
-      detailAddress: "456호",
-      zipCode: "06234",
-      request: "부재시 경비실에 맡겨주세요",
-    },
-    payment: {
-      method: "신용카드",
-      productPrice: 889000,
-      shippingFee: 0,
-      discount: 0,
-      totalPrice: 889000,
-    },
-    tracking: {
-      carrier: "로보배송",
-      trackingNumber: "1234567890124",
-      status: "배송완료",
-    },
-  },
-  "3": {
-    id: "3",
-    date: "2026. 02. 02. 10:30",
-    status: "배송완료",
-    orderNumber: "ORD-2026-02-02-003",
-    items: [
-      {
-        id: "3",
-        name: "스마트폰 허브로봇 봉이",
-        option: "컬러: 실버 / 용량: 128GB",
-        quantity: 1,
-        price: 889000,
-        image: "robot assistant silver",
-      },
-    ],
-    shippingAddress: {
-      name: "홍길동",
-      phone: "010-1234-5678",
-      address: "서울특별시 강남구 테헤란로 123",
-      detailAddress: "456호",
-      zipCode: "06234",
-      request: "배송 전 연락주세요",
-    },
-    payment: {
-      method: "카카오페이",
-      productPrice: 889000,
-      shippingFee: 0,
-      discount: 0,
-      totalPrice: 889000,
-    },
-    tracking: {
-      carrier: "로보배송",
-      trackingNumber: "1234567890125",
-      status: "배송완료",
-    },
-  },
-  "4": {
-    id: "4",
-    date: "2026. 02. 02. 09:45",
-    status: "배송완료",
-    orderNumber: "ORD-2026-02-02-004",
-    items: [
-      {
-        id: "4",
-        name: "스마트폰 허브로봇 봉이",
-        option: "컬러: 골드 / 용량: 256GB",
-        quantity: 1,
-        price: 889000,
-        image: "robot assistant gold",
-      },
-    ],
-    shippingAddress: {
-      name: "홍길동",
-      phone: "010-1234-5678",
-      address: "서울특별시 강남구 테헤란로 123",
-      detailAddress: "456호",
-      zipCode: "06234",
-      request: "직접 수령하겠습니다",
-    },
-    payment: {
-      method: "네이버페이",
-      productPrice: 889000,
-      shippingFee: 0,
-      discount: 0,
-      totalPrice: 889000,
-    },
-    tracking: {
-      carrier: "로보배송",
-      trackingNumber: "1234567890126",
-      status: "배송완료",
-    },
-  },
-  "5": {
-    id: "5",
-    date: "2026. 02. 02. 08:20",
-    status: "배송완료",
-    orderNumber: "ORD-2026-02-02-005",
-    items: [
-      {
-        id: "5-1",
-        name: "배달로봇 멀티비타민",
-        option: "용량: 60정",
-        quantity: 2,
-        price: 89000,
-        image: "delivery robot vitamin",
-      },
-      {
-        id: "5-2",
-        name: "스마트폰 허브로봇 봉이",
-        option: "컬러: 화이트 / 용량: 128GB",
-        quantity: 2,
-        price: 889000,
-        image: "robot assistant white",
-      },
-      {
-        id: "5-3",
-        name: "청소로봇 프리미엄",
-        option: "컬러: 블랙",
-        quantity: 1,
-        price: 523000,
-        image: "cleaning robot black",
-      },
-    ],
-    shippingAddress: {
-      name: "홍길동",
-      phone: "010-1234-5678",
-      address: "서울특별시 강남구 테헤란로 123",
-      detailAddress: "456호",
-      zipCode: "06234",
-      request: "문 앞에 놓아주세요",
-    },
-    payment: {
-      method: "신용카드",
-      productPrice: 2379000,
-      shippingFee: 0,
-      discount: 0,
-      totalPrice: 2379000,
-    },
-    tracking: {
-      carrier: "로보배송",
-      trackingNumber: "1234567890127",
-      status: "배송완료",
-    },
-  },
-};
+import {
+  getDeliveryProgressStep,
+  getShipMemoText,
+  getShippingStatusLabel,
+  ORDER_STATUS_BADGE_CLASS,
+} from "@/utils/orders";
 
 export default function OrderDetailShell() {
   const router = useRouter();
   const { orderId } = useParams<{ orderId: string }>();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as LangCode;
 
-  const order = orderId ? orderDetails[orderId] : null;
+  const { detailData: order, isDetailLoading } = useOrder(Number(orderId));
 
-  if (!order) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">주문을 찾을 수 없습니다</h2>
-          <button
-            onClick={() => router.push("/mypage?tab=orders")}
-            className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
-          >
-            주문내역으로 돌아가기
-          </button>
-        </div>
-      </div>
-    );
+  // ✅ 로딩 먼저 처리 (로딩 중 !order로 Empty 뜨는 문제 방지)
+  if (isDetailLoading) {
+    return <OrderDetailSkeleton />;
   }
+
+  if (orderId === null || !order) {
+    const message =
+      orderId === null ? t("mypage.orderDetail.invalidOrderId") : t("mypage.orderDetail.notFound");
+    return <EmptyOrderState message={message} />;
+  }
+
+  const shipMemo = getShipMemoText(order.shipMemo, t);
+
+  const statusLabel = t(`order.status.${order.status.toLowerCase()}` as any);
+
+  const shippingStatusLabel = getShippingStatusLabel(order.status, t);
+
+  const progressStep = getDeliveryProgressStep(order.status);
+
+  const progressLabels = [
+    t("mypage.orderDetail.progress.ordered"),
+    t("mypage.orderDetail.progress.preparing"),
+    t("mypage.orderDetail.progress.shipping"),
+    t("mypage.orderDetail.progress.delivered"),
+  ];
+
+  const orderedAt = formatDate(order.createdAt, lang);
+
+  const productPrice = order.totalAmount ?? 0;
+  const discount = order.discountAmount ?? 0;
+  const shippingFee = 0;
+  const totalPrice = Math.max(productPrice - discount + shippingFee, 0);
+  const items = order.orderItems ?? [];
 
   return (
     <div className="min-h-screen bg-gray-50">
-
-      <div className="max-w-[1400px] mx-auto flex gap-6 p-6">
-
-        {/* Main Content */}
+      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-4 lg:gap-6 p-4 sm:p-6">
         <main className="flex-1">
-          <div className="bg-white rounded-lg shadow-sm p-8">
-            {/* Back Button */}
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 lg:p-8">
+            {/* Back */}
             <button
-              onClick={() => router.push("/mypage?tab=orders")}
-              className="flex items-center gap-2 text-gray-600 hover:text-black mb-6 transition-colors"
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-gray-600 hover:text-black mb-4 sm:mb-6 transition-colors"
+              aria-label={t("mypage.orderDetail.back")}
             >
               <ChevronLeft className="w-5 h-5" />
-              <span>주문내역으로 돌아가기</span>
             </button>
 
-            {/* Order Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-semibold">주문 상세보기</h1>
-                <span className="px-4 py-2 bg-green-500 text-white rounded-lg">{order.status}</span>
+            {/* Header */}
+            <div className="mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 sm:mb-4">
+                <h1 className="text-xl sm:text-2xl font-semibold">
+                  {t("mypage.orderDetail.title")}
+                </h1>
+
+                <Badge
+                  className={[
+                    "px-3 py-1 text-xs sm:text-sm font-medium rounded-full",
+                    ORDER_STATUS_BADGE_CLASS[order.status] ?? "bg-gray-100 text-gray-700",
+                  ].join(" ")}
+                >
+                  {statusLabel}
+                </Badge>
               </div>
-              <div className="flex gap-6 text-sm text-gray-600">
-                <span>주문번호: {order.orderNumber}</span>
-                <span>주문일시: {order.date}</span>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-gray-600">
+                <span>{t("mypage.orderDetail.orderNumber", { id: order.id })}</span>
+                <span>{t("mypage.orderDetail.orderedAt", { date: orderedAt })}</span>
               </div>
             </div>
 
-            {/* Delivery Tracking */}
-            <div className="mb-8 p-6 bg-blue-50 rounded-lg">
-              <div className="flex items-center gap-3 mb-4">
+            {/* Delivery */}
+            <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-blue-50 rounded-lg">
+              <div className="flex items-center gap-3 mb-2">
                 <Truck className="w-6 h-6 text-blue-600" />
-                <h2 className="font-semibold">배송 정보</h2>
+                <h2 className="font-semibold">{t("mypage.orderDetail.deliveryInfo.title")}</h2>
               </div>
-              <div className="grid grid-cols-3 gap-4 text-sm">
+
+              <p className="text-sm text-gray-700">
+                {t("mypage.orderDetail.deliveryInfo.currentStatus")}:{" "}
+                <span className="font-semibold">{shippingStatusLabel}</span>
+              </p>
+
+              <DeliveryProgress step={progressStep} labels={progressLabels} />
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mt-4">
                 <div>
-                  <p className="text-gray-600 mb-1">배송업체</p>
-                  <p className="font-medium">{order.tracking.carrier}</p>
+                  <p className="text-gray-600 mb-1">
+                    {t("mypage.orderDetail.deliveryInfo.carrier")}
+                  </p>
+                  <p className="font-medium break-words">{order.carrier ?? "-"}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600 mb-1">운송장번호</p>
-                  <p className="font-medium">{order.tracking.trackingNumber}</p>
+                  <p className="text-gray-600 mb-1">
+                    {t("mypage.orderDetail.deliveryInfo.trackingNumber")}
+                  </p>
+                  <p className="font-medium break-words">{order.trackingNumber ?? "-"}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600 mb-1">배송상태</p>
-                  <p className="font-medium text-green-600">{order.tracking.status}</p>
+                  <p className="text-gray-600 mb-1">{t("mypage.orderDetail.deliveryInfo.memo")}</p>
+                  <p className="font-medium break-words">{shipMemo}</p>
                 </div>
               </div>
             </div>
 
-            {/* Order Items */}
-            <div className="mb-8">
-              <h2 className="font-semibold mb-4">주문 상품</h2>
+            {/* Items */}
+            <div className="mb-6 sm:mb-8">
+              <h2 className="font-semibold mb-3 sm:mb-4">{t("mypage.orderDetail.items.title")}</h2>
+
               <div className="space-y-4">
-                {order.items.map((item) => (
-                  <div key={item.id} className="flex gap-4 p-4 border border-gray-200 rounded-lg">
-                    <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                      <img
-                        src={`https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop`}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
+                {items.map((item) => {
+                  const name = item.product?.name?.[lang] ?? "-";
+                  const qty = Number(item.quantity ?? 1);
+                  const price = Number(item.price ?? 0);
+                  const lineTotal = Math.max(price * qty, 0);
+
+                  return (
+                    <div
+                      key={String(item.id)}
+                      className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border border-gray-200 rounded-lg"
+                    >
+                      <div className="w-full sm:w-24 h-48 sm:h-24 bg-gray-100 rounded-lg overflow-hidden">
+                        <img
+                          src={item.product?.images?.[0]}
+                          alt={name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      <div className="flex-1">
+                        <h3 className="font-medium mb-1 break-words">{name}</h3>
+                        <p className="text-sm text-gray-600">
+                          {t("mypage.orderDetail.items.qty", { qty })}
+                        </p>
+                      </div>
+
+                      <div className="text-left sm:text-right">
+                        <p className="font-semibold">
+                          {t("price", { price: formatPrice(lineTotal, lang) })}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium mb-1">{item.name}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{item.option}</p>
-                      <p className="text-sm text-gray-600">수량: {item.quantity}개</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">
-                        {(item.price * item.quantity).toLocaleString()}원
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {/* Shipping Address */}
-            <div className="mb-8">
-              <h2 className="font-semibold mb-4">배송지 정보</h2>
-              <div className="p-6 border border-gray-200 rounded-lg space-y-3">
-                <div className="flex">
-                  <span className="w-24 text-gray-600">받는사람</span>
-                  <span>{order.shippingAddress.name}</span>
+            <div className="mb-6 sm:mb-8">
+              <h2 className="font-semibold mb-3 sm:mb-4">
+                {t("mypage.orderDetail.shippingAddress.title")}
+              </h2>
+
+              <div className="p-4 sm:p-6 border border-gray-200 rounded-lg space-y-3">
+                <div className="flex flex-col sm:flex-row sm:gap-4">
+                  <span className="sm:w-28 text-gray-600">
+                    {t("mypage.orderDetail.shippingAddress.name")}
+                  </span>
+                  <span className="break-words">{order.shipName ?? "-"}</span>
                 </div>
-                <div className="flex">
-                  <span className="w-24 text-gray-600">연락처</span>
-                  <span>{order.shippingAddress.phone}</span>
+
+                <div className="flex flex-col sm:flex-row sm:gap-4">
+                  <span className="sm:w-28 text-gray-600">
+                    {t("mypage.orderDetail.shippingAddress.phone")}
+                  </span>
+                  <span className="break-words">{order.shipPhone ?? "-"}</span>
                 </div>
-                <div className="flex">
-                  <span className="w-24 text-gray-600">주소</span>
-                  <div>
-                    <p>[{order.shippingAddress.zipCode}]</p>
-                    <p>{order.shippingAddress.address}</p>
-                    <p>{order.shippingAddress.detailAddress}</p>
+
+                <div className="flex flex-col sm:flex-row sm:gap-4">
+                  <span className="sm:w-28 text-gray-600">
+                    {t("mypage.orderDetail.shippingAddress.address")}
+                  </span>
+                  <div className="break-words">
+                    {order.shipZip && <p>[{order.shipZip}]</p>}
+                    <p>{order.shipAddress1 ?? "-"}</p>
+                    {order.shipAddress2 && <p>{order.shipAddress2}</p>}
                   </div>
                 </div>
-                <div className="flex">
-                  <span className="w-24 text-gray-600">배송요청</span>
-                  <span>{order.shippingAddress.request}</span>
+
+                <div className="flex flex-col sm:flex-row sm:gap-4">
+                  <span className="sm:w-28 text-gray-600">
+                    {t("mypage.orderDetail.shippingAddress.request")}
+                  </span>
+                  <span className="break-words">{shipMemo}</span>
                 </div>
               </div>
             </div>
 
-            {/* Payment Information */}
-            <div className="mb-8">
-              <h2 className="font-semibold mb-4">결제 정보</h2>
-              <div className="p-6 border border-gray-200 rounded-lg">
+            {/* Payment Info */}
+            <div className="mb-6 sm:mb-8">
+              <h2 className="font-semibold mb-3 sm:mb-4">
+                {t("mypage.orderDetail.payment.title")}
+              </h2>
+
+              <div className="p-4 sm:p-6 border border-gray-200 rounded-lg">
                 <div className="space-y-3 mb-4 pb-4 border-b border-gray-200">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">상품금액</span>
-                    <span>{order.payment.productPrice.toLocaleString()}원</span>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">
+                      {t("mypage.orderDetail.payment.productPrice")}
+                    </span>
+                    <span className="text-right">
+                      {t("price", { price: formatPrice(productPrice, lang) })}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">배송비</span>
-                    <span>{order.payment.shippingFee.toLocaleString()}원</span>
+
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">
+                      {t("mypage.orderDetail.payment.shippingFee")}
+                    </span>
+                    <span className="text-right">
+                      {t("price", { price: formatPrice(shippingFee, lang) })}
+                    </span>
                   </div>
-                  {order.payment.discount > 0 && (
-                    <div className="flex justify-between text-red-500">
-                      <span>할인금액</span>
-                      <span>-{order.payment.discount.toLocaleString()}원</span>
+
+                  {discount > 0 && (
+                    <div className="flex justify-between gap-4 text-red-500">
+                      <span>{t("mypage.orderDetail.payment.discount")}</span>
+                      <span className="text-right">
+                        -{t("price", { price: formatPrice(discount, lang) })}
+                      </span>
                     </div>
                   )}
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold">총 결제금액</span>
-                  <span className="text-2xl font-semibold">
-                    {order.payment.totalPrice.toLocaleString()}원
+
+                <div className="flex justify-between items-end gap-4">
+                  <span className="font-semibold">{t("mypage.orderDetail.payment.total")}</span>
+                  <span className="text-xl sm:text-2xl font-semibold text-right">
+                    {t("price", { price: formatPrice(totalPrice, lang) })}
                   </span>
                 </div>
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">결제수단</span>
-                    <span>{order.payment.method}</span>
-                  </div>
-                </div>
+
+                <p className="text-xs text-gray-500 mt-3">
+                  {t("mypage.orderDetail.payment.notice")}
+                </p>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
-                재주문하기
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                className="w-full sm:flex-1 min-w-[180px] px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!order.trackingNumber}
+                title={!order.trackingNumber ? t("mypage.orderDetail.actions.trackDisabled") : ""}
+              >
+                {t("mypage.orderDetail.actions.track")}
               </button>
-              <button className="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                배송조회
-              </button>
-              <button className="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                교환/반품 신청
+
+              <button className="w-full sm:flex-1 min-w-[180px] px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                {t("mypage.orderDetail.actions.returnExchange")}
               </button>
             </div>
           </div>

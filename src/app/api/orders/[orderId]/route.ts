@@ -18,6 +18,40 @@ export async function GET(_request: NextRequest, { params }: { params: { orderId
 
     const order = await prisma.order.findFirst({
       where: { userId, id: orderId },
+      select: {
+        id: true,
+        status: true,
+
+        totalAmount: true,
+        discountAmount: true,
+
+        createdAt: true,
+
+        carrier: true,
+        trackingNumber: true,
+
+        shipName: true,
+        shipPhone: true,
+        shipZip: true,
+        shipAddress1: true,
+        shipAddress2: true,
+        shipMemo: true,
+
+        orderItems: {
+          select: {
+            id: true,
+            quantity: true,
+            price: true,
+
+            product: {
+              select: {
+                name: true,
+                images: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!order) {

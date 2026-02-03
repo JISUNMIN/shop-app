@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosSession from "@/lib/axiosSession";
-import { Order } from "@prisma/client";
-import { OrderItem } from "@/types";
+import { Order } from "@/types";
 
 const ORDER_API_PATH = "/orders";
 
@@ -63,7 +62,7 @@ const useOrder = (targetId?: number) => {
     data: detailData,
     isLoading: isDetailLoading,
     isFetching: isDetailFetching,
-  } = useQuery<OrderItem, Error>({
+  } = useQuery<Order, Error>({
     queryKey: ["orders", "detail", targetId],
     queryFn: async () => {
       const res = await axiosSession.get(`${ORDER_API_PATH}/${targetId}`);

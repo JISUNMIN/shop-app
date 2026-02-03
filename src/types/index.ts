@@ -36,9 +36,18 @@ export interface Order {
   sessionId: string;
   totalAmount: number;
   status: OrderStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   orderItems: OrderItem[];
+  discountAmount: number;
+  carrier?: string;
+  trackingNumber?: string;
+  shipName: String;
+  shipPhone: String;
+  shipZip?: String;
+  shipAddress1: String;
+  shipAddress2?: String;
+  shipMemo?: String;
 }
 
 export interface OrderItem {
@@ -57,6 +66,12 @@ export enum OrderStatus {
   SHIPPED = "SHIPPED",
   DELIVERED = "DELIVERED",
   CANCELLED = "CANCELLED",
+  PAID = "PAID",
+  SHIPPING = "SHIPPING",
+  CANCEL_REQUESTED = "CANCEL_REQUESTED",
+  REFUNDED = "REFUNDED",
+  RETURN_REQUESTED = "RETURN_REQUESTED",
+  RETURNED = "RETURNED",
 }
 
 export interface SearchParams {

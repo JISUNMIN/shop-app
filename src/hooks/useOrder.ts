@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosSession from "@/lib/axiosSession";
 import { Order } from "@prisma/client";
+import { OrderItem } from "@/types";
 
 const ORDER_API_PATH = "/orders";
 
@@ -23,7 +24,7 @@ export type CreateOrderPayload = {
   }>;
 };
 
-const useOrder = () => {
+const useOrder = (targetId?: number) => {
   const queryClient = useQueryClient();
 
   // 주문 목록 조회
@@ -38,6 +39,7 @@ const useOrder = () => {
       const res = await axiosSession.get(ORDER_API_PATH);
       return res.data;
     },
+    enabled: !targetId,
   });
 
   // 주문 생성
@@ -57,15 +59,18 @@ const useOrder = () => {
   });
 
   // 주문 상세 조회
-  //   const getOrderDetail = (orderId: number) =>
-  //     useQuery({
-  //       queryKey: ["orders", "detail", orderId],
-  //       queryFn: async () => {
-  //         const res = await axiosSession.get(`${ORDER_API_PATH}/${orderId}`);
-  //         return res.data;
-  //       },
-  //       enabled: !!orderId,
-  //     });
+  const {
+    data: detailData,
+    isLoading: isDetailLoading,
+    isFetching: isDetailFetching,
+  } = useQuery<OrderItem, Error>({
+    queryKey: ["orders", "detail", targetId],
+    queryFn: async () => {
+      const res = await axiosSession.get(`${ORDER_API_PATH}/${targetId}`);
+      return res.data;
+    },
+    enabled: !!targetId,
+  });
 
   return {
     // list
@@ -79,7 +84,9 @@ const useOrder = () => {
     isCreateOrderPending,
 
     // detail
-    // getOrderDetail,
+    detailData,
+    isDetailLoading,
+    isDetailFetching,
   };
 };
 

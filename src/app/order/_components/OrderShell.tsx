@@ -9,8 +9,6 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 
-import OrderCompleteModal from "@/app/order/complete/OrderCompleteModal";
-
 import { OrderAddressSection } from "@/app/order/_components/sections/OrderAddressSection";
 import { OrderItemsSection } from "@/app/order/_components/sections/OrderItemsSection";
 import { OrderBenefitsSection } from "@/app/order/_components/sections/OrderBenefitsSection";
@@ -55,7 +53,6 @@ export default function OrderShell() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
 
-  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
 
@@ -137,33 +134,36 @@ export default function OrderShell() {
     const shipMemo =
       deliveryMemo === "custom" ? (customMemo?.trim() ? customMemo.trim() : null) : deliveryMemo;
 
-    createOrderMutate({
-      shipName: selectedAddress.name,
-      shipPhone: selectedAddress.phone,
-      shipZip: selectedAddress.zip ?? null,
-      shipAddress1: selectedAddress.address1,
-      shipAddress2: selectedAddress.address2 ?? null,
-      shipMemo,
+    createOrderMutate(
+      {
+        shipName: selectedAddress.name,
+        shipPhone: selectedAddress.phone,
+        shipZip: selectedAddress.zip ?? null,
+        shipAddress1: selectedAddress.address1,
+        shipAddress2: selectedAddress.address2 ?? null,
+        shipMemo,
 
-      totalAmount: finalAmount,
-      discountAmount: totalDiscount,
-      couponId: selectedCouponId ?? null,
+        totalAmount: finalAmount,
+        discountAmount: totalDiscount,
+        couponId: selectedCouponId ?? null,
 
-      products: orderItems.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-    });
+        products: orderItems.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      },
+      {
+        onSuccess: (data: any) => {
+          orderItems?.forEach((item) =>
+            removeFromCartMutate({ itemId: item.id, showToast: false }),
+          );
 
-    setIsCompleteModalOpen(true);
-  };
-
-  const onClosesOrderModal = async () => {
-    // 장바구니에서 제거
-    orderItems?.forEach((item) => removeFromCartMutate({ itemId: item.id, showToast: false }));
-    setIsCompleteModalOpen(false);
-    router.push("/");
+          const orderId = data?.id;
+          router.replace(`/order/complete/${orderId}`);
+        },
+      },
+    );
   };
 
   return (
@@ -225,12 +225,6 @@ export default function OrderShell() {
           onOpenChange={setShowCouponDialog}
           coupons={couponList}
           subtotal={subtotal}
-        />
-
-        <OrderCompleteModal
-          isOpen={isCompleteModalOpen}
-          onClose={onClosesOrderModal}
-          orderedItems={orderItems}
         />
       </div>
     </FormProvider>

@@ -72,7 +72,6 @@ export const ORDER_STATUS_BADGE_CLASS: Record<string, string> = {
   RETURNED: "bg-zinc-200 text-zinc-800",
 };
 
-
 export const ORDER_STATUS_LABEL_KEY_MAP: Record<string, string> = {
   PAID: "order.status.paid",
   SHIPPING: "order.status.shipping",
@@ -122,3 +121,12 @@ export const getOrderItemTitle = (
     ? t("mypage.orders.itemSummary", { name: productName, count: extraCount })
     : productName;
 };
+
+export const ORDER_DELIVERY_MEMOS = [
+  "직접 입력",
+  "문 앞에 놓아주세요",
+  "경비실에 맡겨주세요",
+  "택배함에 넣어주세요",
+  "배송 전 연락주세요",
+  "부재 시 연락주세요",
+] as const;

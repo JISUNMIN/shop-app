@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 
 import useOrder from "@/hooks/useOrder";
 import type { LangCode } from "@/types";
-import { formatDate } from "@/utils/helper";
+import { formatDate, formatPrice } from "@/utils/helper";
 import OrdersTabSkeleton from "@/app/mypage/_components/OrdersTabSkeleton";
 
 import {
@@ -19,6 +19,7 @@ import {
   getOrderItemTitle,
   getOrderStatusLabel,
 } from "@/utils/orders";
+import OrderEmpty from "../_components/OrderEmpty";
 
 type OrderFilter = "all" | "active" | "delivered" | "claims";
 
@@ -42,41 +43,46 @@ export default function OrdersTab() {
   return (
     <div>
       <h1 className="text-2xl md:text-3xl font-bold mb-6">{t("mypage.orders.title")}</h1>
+      {!listData || listData.length === 0 ? (
+        <OrderEmpty />
+      ) : (
+        <>
+          {/* 필터 */}
+          <div className="flex gap-2 mb-6 flex-wrap">
+            <Button
+              size="sm"
+              variant={filter === "all" ? "default" : "outline"}
+              onClick={() => setFilter("all")}
+            >
+              {t("mypage.orders.filter.all")}
+            </Button>
 
-      {/* 필터 */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        <Button
-          size="sm"
-          variant={filter === "all" ? "default" : "outline"}
-          onClick={() => setFilter("all")}
-        >
-          {t("mypage.orders.filter.all")}
-        </Button>
+            <Button
+              size="sm"
+              variant={filter === "active" ? "default" : "outline"}
+              onClick={() => setFilter("active")}
+            >
+              {t("mypage.orders.filter.active")}
+            </Button>
 
-        <Button
-          size="sm"
-          variant={filter === "active" ? "default" : "outline"}
-          onClick={() => setFilter("active")}
-        >
-          {t("mypage.orders.filter.active")}
-        </Button>
+            <Button
+              size="sm"
+              variant={filter === "delivered" ? "default" : "outline"}
+              onClick={() => setFilter("delivered")}
+            >
+              {t("mypage.orders.filter.delivered")}
+            </Button>
 
-        <Button
-          size="sm"
-          variant={filter === "delivered" ? "default" : "outline"}
-          onClick={() => setFilter("delivered")}
-        >
-          {t("mypage.orders.filter.delivered")}
-        </Button>
-
-        <Button
-          size="sm"
-          variant={filter === "claims" ? "default" : "outline"}
-          onClick={() => setFilter("claims")}
-        >
-          {t("mypage.orders.filter.claims")}
-        </Button>
-      </div>
+            <Button
+              size="sm"
+              variant={filter === "claims" ? "default" : "outline"}
+              onClick={() => setFilter("claims")}
+            >
+              {t("mypage.orders.filter.claims")}
+            </Button>
+          </div>
+        </>
+      )}
 
       {/* 주문 리스트 */}
       <div className="space-y-4">
@@ -106,8 +112,9 @@ export default function OrdersTab() {
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t gap-3">
                 <p className="text-xl md:text-2xl font-bold">
-                  {Number(order.totalAmount ?? 0).toLocaleString()}
-                  {t("order.common.won")}
+                  {t("price", {
+                    price: formatPrice(order.totalAmount ?? 0, lang),
+                  })}
                 </p>
 
                 <Button

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import { Card } from "@/components/ui/card";
-import SidebarContent, { TabType } from "@/components/common/SidebarContent";
+import { TabType } from "@/components/common/SidebarContent";
 
 import DashboardTab from "@/app/mypage/tabs/DashboardTab";
 import OrdersTab from "@/app/mypage/tabs/OrdersTab";

@@ -10,6 +10,7 @@ import { getLocalWishlist, removeLocalWishlist } from "@/utils/storage/wishlistL
 import { useEffect, useMemo, useState } from "react";
 import useWishlistedProduct from "@/hooks/useWishlistedProduct";
 import useCart from "@/hooks/useCart";
+import WishlistTabSkeleton from "@/app/mypage/_components/WishlistTabSkeleton";
 
 export default function WishlistTab() {
   const { t, i18n } = useTranslation();
@@ -29,7 +30,7 @@ export default function WishlistTab() {
   }, [user]);
 
   const { productIds: serverIds, deleteWishlistMutate } = useWishlist();
-  const { listData } = useWishlistedProduct(user ? serverIds : localIds);
+  const { listData, isListLoading } = useWishlistedProduct(user ? serverIds : localIds);
 
   const displayIds = useMemo(() => {
     return user ? serverIds : localIds;
@@ -84,6 +85,10 @@ export default function WishlistTab() {
       },
     );
   };
+
+  if (isListLoading) {
+    return <WishlistTabSkeleton />;
+  }
 
   return (
     <div>

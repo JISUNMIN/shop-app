@@ -8,6 +8,7 @@ import { useState } from "react";
 import { AddressCreateDialog } from "@/app/order/_components/dialogs/AddressCreateDialog";
 import { Address } from "@/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import AddressTabSkeleton from "../_components/AddressTabSkeleton";
 
 export default function AddressTab() {
   const { listData, isListLoading, deleteAddressMutate, isDeletePending } = useAddress();
@@ -28,6 +29,10 @@ export default function AddressTab() {
   const handleDelete = (addressId: number) => {
     deleteAddressMutate({ addressId });
   };
+
+    if (isListLoading) {
+    return <AddressTabSkeleton />;
+  }
 
   return (
     <div>

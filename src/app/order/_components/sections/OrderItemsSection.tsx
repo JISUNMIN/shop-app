@@ -5,10 +5,11 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-import type { OrderItemView } from "@/types";
+import type { LangCode, OrderItemView } from "@/types";
 import Image from "next/image";
 import { OrderItemsSkeleton } from "./OrderItemsSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatPrice } from "@/utils/helper";
 
 type OrderItemsSectionProps = {
   orderItems: OrderItemView[];
@@ -16,7 +17,8 @@ type OrderItemsSectionProps = {
 };
 
 export function OrderItemsSection({ orderItems, isListLoading }: OrderItemsSectionProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as LangCode;
 
   return (
     <Card className="p-4 md:p-6">
@@ -61,8 +63,9 @@ export function OrderItemsSection({ orderItems, isListLoading }: OrderItemsSecti
                   </p>
 
                   <p className="text-lg font-bold text-blue-600">
-                    {(item.price * item.quantity).toLocaleString()}
-                    {t("order.common.won")}
+                    {t("price", {
+                      price: formatPrice(item.price * item.quantity, lang),
+                    })}
                   </p>
                 </div>
               </div>

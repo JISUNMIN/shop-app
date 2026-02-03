@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 import { OrderSummaryContentSkeleton } from "./OrderSummarySkeleton";
+import { formatPrice } from "@/utils/helper";
+import { LangCode } from "@/types";
 
 interface OrderSummarySectionProps {
   isLoading: boolean;
@@ -39,7 +41,10 @@ export function OrderSummarySection({
   isPaying = false,
   onClickPay,
 }: OrderSummarySectionProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const lang = i18n.language as LangCode;
+  const priceText = (value: number) => t("price", { price: formatPrice(value, lang) });
 
   return (
     <div className="sticky top-24">
@@ -53,10 +58,7 @@ export function OrderSummarySection({
             <div className="space-y-3 mb-4">
               <div className="flex items-center justify-between text-gray-600">
                 <span>{t("order.summary.subtotal")}</span>
-                <span>
-                  {subtotal.toLocaleString()}
-                  {t("order.common.won")}
-                </span>
+                <span>{priceText(subtotal)}</span>
               </div>
 
               <div className="flex items-center justify-between text-gray-600">
@@ -65,7 +67,7 @@ export function OrderSummarySection({
                   {deliveryFee === 0 ? (
                     <span className="text-green-600">{t("order.summary.free")}</span>
                   ) : (
-                    `+${deliveryFee.toLocaleString()}${t("order.common.won")}`
+                    `+${priceText(deliveryFee)}`
                   )}
                 </span>
               </div>
@@ -74,7 +76,7 @@ export function OrderSummarySection({
                 <div className="text-xs text-gray-500 pl-4">
                   <AlertCircle className="w-3 h-3 inline mr-1" />
                   {t("order.summary.freeShippingHint", {
-                    remain: (freeShippingThreshold - subtotal).toLocaleString(),
+                    remain: formatPrice(freeShippingThreshold - subtotal, lang),
                   })}
                 </div>
               )}
@@ -82,20 +84,14 @@ export function OrderSummarySection({
               {couponDiscount > 0 && (
                 <div className="flex items-center justify-between text-red-600">
                   <span>{t("order.summary.couponDiscount")}</span>
-                  <span>
-                    -{couponDiscount.toLocaleString()}
-                    {t("order.common.won")}
-                  </span>
+                  <span>-{priceText(couponDiscount)}</span>
                 </div>
               )}
 
               {pointsDiscount > 0 && (
                 <div className="flex items-center justify-between text-red-600">
                   <span>{t("order.summary.pointsDiscount")}</span>
-                  <span>
-                    -{pointsDiscount.toLocaleString()}
-                    {t("order.common.won")}
-                  </span>
+                  <span>-{priceText(pointsDiscount)}</span>
                 </div>
               )}
             </div>
@@ -104,10 +100,7 @@ export function OrderSummarySection({
 
             <div className="flex items-center justify-between text-xl font-bold mb-2">
               <span>{t("order.summary.finalAmount")}</span>
-              <span className="text-blue-600">
-                {finalAmount.toLocaleString()}
-                {t("order.common.won")}
-              </span>
+              <span className="text-blue-600">{priceText(finalAmount)}</span>
             </div>
 
             <Button
@@ -115,7 +108,9 @@ export function OrderSummarySection({
               className="w-full h-14 text-lg font-bold"
               disabled={!canPay || hasOutOfStock || isPaying}
             >
-              {t("order.summary.pay", { amount: finalAmount.toLocaleString() })}
+              {t("order.summary.pay", {
+                amount: priceText(finalAmount),
+              })}
             </Button>
 
             {hasOutOfStock && (

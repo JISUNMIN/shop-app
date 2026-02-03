@@ -237,6 +237,8 @@
       "orderNumber": "주문번호: {{id}}",
       "viewDetail": "상세보기",
       "itemSummary": "{{name}} 외 {{count}}개",
+      "emptyDesc": "아직 주문하신 상품이 없습니다.\n마음에 드는 로봇을 쇼핑해보세요!",
+      "goShopping": "쇼핑하러 가기",
 
       "filter": {
         "all": "전체",

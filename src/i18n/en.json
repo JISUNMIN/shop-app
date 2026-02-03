@@ -235,6 +235,8 @@
       "orderNumber": "Order No. {{id}}",
       "viewDetail": "View details",
       "itemSummary": "{{name}} and {{count}} more",
+      "emptyDesc": "You haven't placed any orders yet.\nStart shopping for your favorite robots!",
+      "goShopping": "Continue shopping",
       "filter": {
         "all": "All",
         "active": "In progress",

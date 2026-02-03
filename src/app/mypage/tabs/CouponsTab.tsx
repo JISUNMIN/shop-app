@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import useCoupon from "@/hooks/useCoupon";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
+import CouponsTabSkeleton from "../_components/CouponsTabSkeleton";
 
 export default function CouponsTab() {
   const { t } = useTranslation();
-  const { listData } = useCoupon();
+  const { listData, isListLoading } = useCoupon();
   const [code, setCode] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -17,6 +18,10 @@ export default function CouponsTab() {
     setErrorMsg(t("mypage.coupons.invalidCode"));
     return;
   };
+
+  if (isListLoading) {
+    return <CouponsTabSkeleton />;
+  }
 
   return (
     <div>

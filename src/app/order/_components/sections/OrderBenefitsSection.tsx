@@ -7,8 +7,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-import type { Coupon } from "@/types";
+import type { Coupon, LangCode } from "@/types";
 import type { OrderFormValues } from "@/app/order/_components/OrderShell";
+import { formatPrice } from "@/utils/helper";
+
 
 interface Props {
   selectedCoupon: Coupon | undefined;
@@ -25,8 +27,10 @@ export function OrderBenefitsSection({
   pointsMax,
   onOpenCouponDialog,
 }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { watch, setValue } = useFormContext<OrderFormValues>();
+  const lang = i18n.language as LangCode;
+  const priceText = (value: number) => t("price", { price: formatPrice(value, lang) });
 
   const usePoints = watch("usePoints");
   const pointsToUse = watch("pointsToUse");
@@ -48,7 +52,7 @@ export function OrderBenefitsSection({
               {selectedCoupon
                 ? t("order.coupon.selected", {
                     name: selectedCoupon.name,
-                    discount: couponDiscount.toLocaleString(),
+                    discount: priceText(couponDiscount),
                   })
                 : t("order.coupon.select")}
             </span>

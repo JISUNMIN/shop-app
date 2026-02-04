@@ -352,7 +352,14 @@
       "codePlaceholder": "Enter coupon code",
       "register": "Register",
       "invalidCode": "Invalid coupon code.",
-      "registerSuccess": "Coupon registered successfully!"
+      "registerSuccess": "Coupon registered successfully!",
+      "used": "Used",
+      "expired": "Expired",
+      "usedDesc": "This coupon has already been used.",
+      "expiredDesc": "This coupon has expired.",
+      "pastTitle": "Past Coupons",
+      "pastCount": "{{count}} items",
+      "expiresToday":"Expires today"
     }
   },
   "wishlist": {

@@ -308,6 +308,7 @@
         "returnExchange": "교환/반품 신청"
       }
     },
+
     "shipping": {
       "title": "배송지 관리",
       "default_cannot_unset": "기본배송지는 해제할 수 없습니다. 다른 배송지를 기본으로 지정해주세요.",
@@ -350,7 +351,14 @@
       "codePlaceholder": "쿠폰 코드 입력",
       "register": "등록",
       "invalidCode": "유효하지 않은 코드입니다.",
-      "registerSuccess": "쿠폰이 등록되었습니다!"
+      "registerSuccess": "쿠폰이 등록되었습니다!",
+      "used": "사용됨",
+      "expired": "만료",
+      "usedDesc": "이미 사용한 쿠폰입니다.",
+      "expiredDesc": "만료된 쿠폰입니다.",
+      "pastTitle": "지난 쿠폰",
+      "pastCount": "{{count}}개",
+      "expiresToday": "오늘 만료"
     }
   },
   "wishlist": {

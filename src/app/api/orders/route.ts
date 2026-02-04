@@ -68,49 +68,72 @@ export async function POST(request: NextRequest) {
       products,
       totalAmount,
 
-      couponId,
+      couponId, // userCouponId
       discountAmount,
     } = body;
 
-    if (!products || products.length === 0) {
-      return NextResponse.json({ error: "No products provided" }, { status: 400 });
-    }
+    const now = new Date();
 
-    const order = await prisma.order.create({
-      data: {
-        userId,
+    const order = await prisma.$transaction(async (tx) => {
+      const userCoupon = couponId
+        ? await tx.userCoupon.findFirst({
+            where: { id: couponId, userId },
+            select: {
+              id: true,
+              couponId: true, // 살제 Coupon.id
+              status: true,
+              expiresAt: true,
+            },
+          })
+        : null;
 
-        totalAmount,
-        discountAmount: discountAmount ?? 0,
+      if (couponId && !userCoupon) throw new Error("COUPON_NOT_FOUND");
+      if (userCoupon) {
+        if (userCoupon.status !== "AVAILABLE") throw new Error("COUPON_NOT_AVAILABLE");
+        if (userCoupon.expiresAt < now) throw new Error("COUPON_EXPIRED");
+      }
 
-        status: "PAID",
-        paidAt: new Date(),
+      const created = await tx.order.create({
+        data: {
+          userId,
 
-        couponId: couponId ?? null,
+          totalAmount,
+          discountAmount: discountAmount ?? 0,
 
-        shipName,
-        shipPhone,
-        shipZip,
-        shipAddress1,
-        shipAddress2,
-        shipMemo,
+          status: "PAID",
+          paidAt: now,
 
-        orderItems: {
-          create: products.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-        },
-      },
+          couponId: userCoupon ? userCoupon.couponId : null,
 
-      include: {
-        orderItems: {
-          include: {
-            product: true,
+          shipName,
+          shipPhone,
+          shipZip,
+          shipAddress1,
+          shipAddress2,
+          shipMemo,
+
+          orderItems: {
+            create: products.map((item: any) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+            })),
           },
         },
-      },
+      });
+
+      if (userCoupon) {
+        await tx.userCoupon.update({
+          where: { id: userCoupon.id },
+          data: {
+            status: "USED",
+            usedAt: now,
+            orderId: created.id,
+          },
+        });
+      }
+
+      return created;
     });
 
     return NextResponse.json(order);

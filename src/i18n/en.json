@@ -359,7 +359,7 @@
       "expiredDesc": "This coupon has expired.",
       "pastTitle": "Past Coupons",
       "pastCount": "{{count}} items",
-      "expiresToday":"Expires today"
+      "expiresToday": "Expires today"
     }
   },
   "wishlist": {
@@ -585,6 +585,9 @@
   "deliveryNote1": "• Orders placed before 2 PM on weekdays ship the same day",
   "deliveryNote2": "• Additional shipping fees apply for Jeju and remote areas",
   "deliveryNote3": "• Robot installation service available upon inquiry",
+  "subtotal": "Subtotal",
+  "discountAmount": "Discount",
+  "discountSavedMsg": "You saved {{amount}} with this discount.",
 
   "pricePerItem": "Price per item: {{price}} KRW",
   "maxOrder": "Max order quantity: {{stock}} units",
@@ -602,6 +605,7 @@
   "orderSuccessMsg": "{{count}} robots have been successfully ordered.",
   "totalAmount": "Total Amount",
   "continueShopping": "Continue Shopping",
+  "viewOrderDetail": "View order details",
 
   "errorOccurred": "An error has occurred",
   "cannotLoadData": "Unable to load data.",

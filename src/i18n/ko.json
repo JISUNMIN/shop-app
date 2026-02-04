@@ -381,6 +381,7 @@
   "order": {
     "order": "주문하기",
     "title": "주문/결제",
+    "buyNow": "바로 구매하기",
 
     "status": {
       "paid": "결제완료",

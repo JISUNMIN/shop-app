@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Minus, Plus, ShoppingCart } from "lucide-react";
@@ -10,6 +11,7 @@ import ProductGallery from "@/app/product/[productId]/ProductGallery";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+
 import ProductDetailSkeleton from "../ProductDetailSkeleton";
 import { Input } from "@/components/ui/input";
 import { useLangStore } from "@/store/langStore";
@@ -25,7 +27,6 @@ export default function ProductPage() {
   const { t } = useTranslation();
 
   const { detailData, isDetailLoading, detailError } = useProducts(undefined, productId);
-
   const { listData: cartItems, addToCartMutate, isAddPending } = useCart();
 
   const getCartQuantity = () => {
@@ -35,6 +36,7 @@ export default function ProductPage() {
 
   const handleQuantityInput = (value: string) => {
     if (!detailData) return;
+
     if (value === "") {
       setQuantity(0);
       return;
@@ -57,17 +59,12 @@ export default function ProductPage() {
 
   const handleQuantityChange = (delta: number) => {
     if (!detailData) return;
+
     const newQuantity = quantity + delta;
     const maxAllowed = detailData.stock - getCartQuantity();
     const clamped = Math.max(1, Math.min(maxAllowed, newQuantity));
     setQuantity(clamped);
   };
-
-  // const getErrorMessage = (err: unknown): string => {
-  //   if (err instanceof Error) return err.message;
-  //   if (typeof err === "string") return err;
-  //   return "장바구니에 추가할 수 없습니다.";
-  // };
 
   const handleAddToCart = () => {
     if (!detailData) return;
@@ -105,14 +102,16 @@ export default function ProductPage() {
 
   if (detailError || !detailData) {
     return (
-      <div className="container py-8">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-red-600">{t("productNotFound")}</h2>
-            <p className="mt-2 text-muted-foreground">{t("productDeleted")}</p>
-            <Button onClick={() => router.push("/")} className="mt-4">
-              {t("goHome")}
-            </Button>
+      <div className="min-h-screen bg-white">
+        <div className="max-w-[1400px] mx-auto p-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-red-600">{t("productNotFound")}</h2>
+              <p className="mt-2 text-muted-foreground">{t("productDeleted")}</p>
+              <Button onClick={() => router.push("/")} className="mt-4">
+                {t("goHome")}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -124,76 +123,83 @@ export default function ProductPage() {
   const maxAvailable = detailData.stock - getCartQuantity();
 
   return (
-    <div className="container py-8">
-      {/* 뒤로가기 버튼 */}
-      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mb-6">
-        <Button variant="ghost" onClick={() => router.back()} className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          {t("back")}
-        </Button>
-      </motion.div>
-
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* 상품 이미지 */}
+    <div className="min-h-screen bg-white">
+      <div className="max-w-[1400px] mx-auto p-6">
+        {/* 뒤로가기 버튼 */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
+          className="mb-6"
         >
-          <ProductGallery images={detailData?.images} productName={detailData?.name[lang] ?? ""} />
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span>{t("back")}</span>
+          </button>
         </motion.div>
 
-        {/* 상품 정보 */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-6"
-        >
-          {detailData?.category && (
-            <Badge variant="outline">{detailData?.category[lang] ?? ""}</Badge>
-          )}
+        <div className="grid gap-12 lg:grid-cols-2">
+          {/* 상품 이미지 */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <ProductGallery images={detailData.images} productName={detailData.name[lang] ?? ""} />
+          </motion.div>
 
-          <h1 className="text-2xl font-bold lg:text-3xl">{detailData?.name[lang] ?? ""}</h1>
-
-          <div className="text-3xl font-bold text-primary">
-            {t("price", {
-              price: formatPrice(detailData?.price, lang),
-            })}
-          </div>
-
-          <div className="flex items-center gap-2">
-            {isOutOfStock ? (
-              <Badge variant="destructive" className="px-3 py-1 text-sm">
-                {t("outOfStock")}
-              </Badge>
-            ) : isLowStock ? (
-              <Badge variant="secondary" className="px-3 py-1 text-sm">
-                {t("lowStock", { stock: detailData?.stock })}
-              </Badge>
-            ) : (
-              <Badge variant="default" className="px-3 py-1 text-sm">
-                {t("inStock", { stock: detailData?.stock })}
+          {/* 상품 정보 */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-6"
+          >
+            {/* 카테고리 */}
+            {detailData.category && (
+              <Badge className="bg-blue-100 text-blue-600 hover:bg-blue-100">
+                {detailData.category[lang] ?? ""}
               </Badge>
             )}
-          </div>
 
-          {detailData?.description && (
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="mb-2 font-semibold">{t("productDescription")}</h3>
-                <p className="text-muted-foreground whitespace-pre-wrap">
-                  {detailData?.description[lang] ?? ""}
+            <h1 className="text-3xl font-semibold">{detailData.name[lang] ?? ""}</h1>
+
+            <p className="text-3xl font-semibold">
+              {t("price", { price: formatPrice(detailData.price, lang) })}
+            </p>
+
+            {/* 재고 상태 */}
+            <div className="flex items-center gap-2">
+              {isOutOfStock ? (
+                <Badge variant="destructive" className="px-3 py-1 text-sm">
+                  {t("outOfStock")}
+                </Badge>
+              ) : isLowStock ? (
+                <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-100 px-3 py-1 text-sm">
+                  {t("lowStock", { stock: detailData.stock })}
+                </Badge>
+              ) : (
+                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 px-3 py-1 text-sm">
+                  {t("inStock", { stock: detailData.stock })}
+                </Badge>
+              )}
+            </div>
+
+            {detailData.description && (
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-semibold mb-2">{t("productDescription")}</h3>
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {detailData.description[lang] ?? ""}
                 </p>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            )}
 
-          {/* 수량 선택 및 장바구니 */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <span className="font-medium">{t("quantity")}:</span>
-              <div className="flex items-center space-x-2">
+            {/* 수량 */}
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="w-20 text-sm font-medium text-gray-700">{t("quantity")}</span>
                 <Button
                   variant="outline"
                   size="icon"
@@ -205,7 +211,7 @@ export default function ProductPage() {
 
                 <Input
                   type="number"
-                  className="w-16 text-center rounded border border-gray-300 p-1"
+                  className="w-16 text-center border border-gray-300 rounded h-10 p-1"
                   value={quantity === 0 ? "" : quantity}
                   min={1}
                   max={maxAvailable}
@@ -226,59 +232,63 @@ export default function ProductPage() {
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
+
+              {/* 제한 문구 */}
+              {maxAvailable <= 0 && (
+                <p className="text-sm text-gray-500 mt-2">
+                  {t("cartLimitReached", { count: getCartQuantity() })}
+                </p>
+              )}
+
+              {maxAvailable > 0 && maxAvailable < detailData.stock && (
+                <p className="text-sm text-gray-500 mt-2">
+                  {t("maxPurchaseLimit", { stock: detailData.stock, cart: getCartQuantity() })}
+                </p>
+              )}
             </div>
 
-            <div className="flex items-center justify-between border-t pt-4">
-              <span className="text-lg font-medium">{t("totalPrice")}:</span>
-              <span className="text-2xl font-bold text-primary">
-                {t("price", {
-                  price: formatPrice(detailData?.price * (quantity || 1), lang),
-                })}
-              </span>
+            {/* 총 가격 */}
+            <div className="py-4 border-t border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">{t("totalPrice")}</span>
+                <span className="text-2xl font-semibold">
+                  {t("price", { price: formatPrice(detailData.price * (quantity || 1), lang) })}
+                </span>
+              </div>
             </div>
 
-            <div className="grid gap-3">
-              <Button
-                size="lg"
-                onClick={handleAddToCart}
-                disabled={isOutOfStock || isAddPending || maxAvailable <= 0}
-                className="gap-2"
-              >
+            {/* 버튼 */}
+            <div className="flex gap-3">
+              {/* 장바구니 */}
+              <Button size="lg" className="flex-1 bg-black text-white hover:bg-gray-800 gap-2">
                 <ShoppingCart className="h-5 w-5" />
-                {isAddPending ? t("addingToCart") : t("addToCart")}
+                {t("addToCart")}
               </Button>
 
-              {maxAvailable <= 0 && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {t("cartLimitReached", {
-                    count: getCartQuantity(),
-                  })}
-                </p>
-              )}
-
-              {maxAvailable > 0 && maxAvailable < detailData?.stock && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {t("maxPurchaseLimit", {
-                    stock: detailData?.stock,
-                    cart: getCartQuantity(),
-                  })}
-                </p>
-              )}
+              {/* 찜 버튼 */}
+              <Button size="lg" variant="outline" className="w-14 border-gray-300 hover:bg-gray-50">
+                ♥
+              </Button>
             </div>
-          </div>
 
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="mb-2 font-semibold">{t("deliveryInfo")}</h3>
-              <div className="space-y-1 text-sm text-muted-foreground">
-                <p>{t("deliveryInfo1")}</p>
-                <p>{t("deliveryInfo2")}</p>
-                <p>{t("deliveryInfo3")}</p>
-                <p>{t("deliveryInfo4")}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+            {/* 바로구매 */}
+            <Button size="lg" className="w-full bg-blue-600 text-white hover:bg-blue-700">
+              {t("order.buyNow")}
+            </Button>
+
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="mb-2 font-semibold">{t("deliveryInfo")}</h3>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <p>{t("deliveryInfo1")}</p>
+                  <p>{t("deliveryInfo2")}</p>
+                  <p>{t("deliveryInfo3")}</p>
+                  <p>{t("deliveryInfo4")}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

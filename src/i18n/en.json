@@ -382,6 +382,7 @@
   "order": {
     "order": "Place Order",
     "title": "Order / Payment",
+    "buyNow": "Buy Now",
 
     "status": {
       "paid": "Paid",

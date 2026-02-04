@@ -54,6 +54,7 @@ export default function ProductGallery({
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
           />
+       
         </motion.div>
 
         {/* 네비게이션 버튼 */}
@@ -96,7 +97,7 @@ export default function ProductGallery({
 
       {/* 썸네일 그리드 (이미지가 여러 개일 때만 표시) */}
       {images.length > 1 && (
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-3">
           {images.map((image, index) => (
             <motion.button
               key={index}

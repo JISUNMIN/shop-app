@@ -228,6 +228,18 @@
       "profile": "My profile",
       "password": "Change password"
     },
+    "dashboard": {
+      "title": "Dashboard",
+      "orders": "Orders",
+      "availableCoupons": "Available coupons",
+      "recentOrders": "Recent orders",
+      "ordersCount": "{{count}} orders",
+      "couponsCount": "{{count}} coupons",
+      "won": "{{amount}} KRW",
+      "orderStatus": {
+        "paid": "Paid"
+      }
+    },
     "orders": {
       "title": "Order history",
       "loading": "Loading your orders...",

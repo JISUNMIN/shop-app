@@ -14,8 +14,6 @@ import WishlistTab from "@/app/mypage/tabs/WishlistTab";
 import AddressTab from "@/app/mypage/tabs/AddressTab";
 import ProfileTab from "@/app/mypage/tabs/ProfileTab";
 
-import { coupons, orders } from "./mockData";
-
 export default function MyPageShell() {
   const searchParams = useSearchParams();
 
@@ -28,15 +26,8 @@ export default function MyPageShell() {
 
   return (
     <div className="flex-1 min-w-0">
-      {/* 콘텐츠 */}
       <Card className="p-4 md:p-8">
-        {activeTab === "dashboard" && (
-          <DashboardTab
-            orders={[...orders] as any}
-            couponCount={coupons.length}
-            pointsLabel="124,500원"
-          />
-        )}
+        {activeTab === "dashboard" && <DashboardTab />}
 
         {activeTab === "orders" && <OrdersTab />}
 

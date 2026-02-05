@@ -209,9 +209,9 @@ export default function OrderCompleteShell() {
                   size="lg"
                   variant="outline"
                   className="w-full sm:flex-1 rounded-2xl text-base py-5 border-gray-200 bg-white text-gray-900 hover:bg-gray-50"
-                  onClick={() => router.push(`/orders/${detailData?.id}`)}
+                  onClick={() => router.push(`/mypage/orders/${detailData?.id}`)}
                 >
-                  {t("viewOrderDetail")}
+                  {t("mypage.orderDetail.title")}
                 </Button>
 
                 <Button

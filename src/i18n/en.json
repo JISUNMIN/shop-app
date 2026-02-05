@@ -520,6 +520,14 @@
       "phone": "Invalid phone number format."
     }
   },
+  "product": {
+    "productTabs": {
+      "detail": "Details",
+      "specs": "Specifications",
+      "guide": "User Guide",
+      "shipping": "Shipping / Returns"
+    }
+  },
   "register": "Register",
   "edit": "Edit",
   "searchPlaceholderMobile": "Search robot",
@@ -618,7 +626,6 @@
   "orderSuccessMsg": "{{count}} robots have been successfully ordered.",
   "totalAmount": "Total Amount",
   "continueShopping": "Continue Shopping",
-  "viewOrderDetail": "View order details",
 
   "errorOccurred": "An error has occurred",
   "cannotLoadData": "Unable to load data.",

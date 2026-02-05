@@ -22,6 +22,7 @@ import useCart from "@/hooks/useCart";
 import useAddress from "@/hooks/useAddress";
 import useCoupon from "@/hooks/useCoupon";
 import useOrder from "@/hooks/useOrder";
+import useProducts from "@/hooks/useProducts";
 
 import { formatCartItems } from "@/utils/cart";
 import type { LocalizedText } from "@/types";
@@ -41,6 +42,15 @@ export type OrderFormValues = {
   pointsToUse: number;
 };
 
+type OrderItem = {
+  id?: number;
+  productId: number;
+  name?: string;
+  price: number;
+  quantity: number;
+  stock: number;
+};
+
 export default function OrderShell() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -56,29 +66,66 @@ export default function OrderShell() {
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
 
-  const itemIdsParam = searchParams.get("itemIds");
-  const selectedIdSet = useMemo(() => {
-    const ids = (itemIdsParam ?? "")
-      .split(",")
-      .map((v) => v.trim())
-      .filter(Boolean);
-    return new Set(ids);
-  }, [itemIdsParam]);
+  const cartItemIdsParam = searchParams.get("cartItemIds"); // 장바구니 주문
+  const productIdParam = searchParams.get("productId"); // 바로 구매
+  const quantityParamRaw = Number(searchParams.get("quantity") ?? "1");
+  const quantityParam = Number.isFinite(quantityParamRaw) ? Math.max(1, quantityParamRaw) : 1;
+
+  const selectedCartItemIds = useMemo(() => {
+    if (!cartItemIdsParam) return [];
+    return Array.from(
+      new Set(
+        cartItemIdsParam
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean),
+      ),
+    );
+  }, [cartItemIdsParam]);
 
   const selectedCartItems = useMemo(() => {
-    return cartItems?.filter((item) => selectedIdSet.has(String(item.id)));
-  }, [cartItems, selectedIdSet]);
+    if (!selectedCartItemIds.length) return [];
+    return cartItems?.filter((item) => selectedCartItemIds.includes(String(item.id))) ?? [];
+  }, [cartItems, selectedCartItemIds]);
 
-  const orderItems = useMemo(
-    () => formatCartItems(selectedCartItems ?? [], lang),
-    [selectedCartItems, lang],
+  const productId = productIdParam ? Number(productIdParam) : undefined;
+  const shouldFetchProduct = !!productId && selectedCartItemIds.length === 0;
+  const { detailData: productDetail } = useProducts(
+    undefined,
+    shouldFetchProduct ? productId : undefined,
   );
+
+  const orderItems: OrderItem[] = useMemo(() => {
+    if (selectedCartItems.length) {
+      return formatCartItems(selectedCartItems, lang) as unknown as OrderItem[];
+    }
+
+    if (productDetail) {
+      return [
+        {
+          productId: productDetail.id,
+          name: productDetail.name?.[lang] ?? "",
+          price: Number(productDetail.price) ?? 0,
+          quantity: quantityParam,
+          stock: Number(productDetail.stock) ?? 0,
+          image: productDetail.images,
+        },
+      ];
+    }
+
+    return [];
+  }, [selectedCartItems, lang, productDetail, quantityParam]);
+
+  const defaultAddressId = useMemo(() => {
+    const def = addressList?.find((a) => a.isDefault)?.id;
+    return def ?? addressList?.[0]?.id ?? 0;
+  }, [addressList]);
 
   const methods = useForm<OrderFormValues>({
     mode: "onChange",
     defaultValues: {
-      selectedAddressId: addressList?.find((a) => a.isDefault)?.id ?? addressList?.[0]?.id,
-      deliveryMemo: "custom", // key
+      selectedAddressId: defaultAddressId,
+      deliveryMemo: "custom",
       customMemo: "",
       paymentMethod: "card",
       selectedCouponId: null,
@@ -116,7 +163,6 @@ export default function OrderShell() {
 
   const pointsDiscount = usePoints ? pointsToUse : 0;
   const totalDiscount = couponDiscount + pointsDiscount;
-
   const finalAmount = subtotal - totalDiscount;
 
   const selectedAddress = useMemo(
@@ -155,9 +201,11 @@ export default function OrderShell() {
       },
       {
         onSuccess: (data: any) => {
-          orderItems?.forEach((item) =>
-            removeFromCartMutate({ itemId: item.id, showToast: false }),
-          );
+          orderItems.forEach((item) => {
+            if (typeof item.id === "number") {
+              removeFromCartMutate({ itemId: item.id, showToast: false });
+            }
+          });
 
           const orderId = data?.id;
           router.replace(`/order/complete/${orderId}`);

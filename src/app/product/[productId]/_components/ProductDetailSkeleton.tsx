@@ -10,7 +10,6 @@ export default function ProductDetailSkeleton() {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        {/* 이미지 스켈레톤 */}
         <div className="space-y-4">
           <Skeleton className="aspect-square w-full" />
           <div className="grid grid-cols-4 gap-2">
@@ -20,7 +19,6 @@ export default function ProductDetailSkeleton() {
           </div>
         </div>
 
-        {/* 정보 스켈레톤 */}
         <div className="space-y-6">
           <Skeleton className="h-6 w-20" />
           <Skeleton className="h-8 w-full" />

@@ -54,7 +54,7 @@ export default function CartPage() {
 
   const onOrder = () => {
     const params = new URLSearchParams();
-    params.set("itemIds", selectedIds.join(","));
+    params.set("cartItemIds", selectedIds.join(","));
     router.push(`/order?${params.toString()}`);
   };
 

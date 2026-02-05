@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import ProductTopSection from "./ProductTopSection";
 import ProductDetailTabs from "./ProductDetailTabs";
 import { LangCode } from "@/types";
+import RecommendedProductsSection from "@/app/product/[productId]/_components/RecommendedProductsSection";
 
 export default function ProductShell({ productId }: { productId: number }) {
   const router = useRouter();
@@ -24,8 +25,16 @@ export default function ProductShell({ productId }: { productId: number }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as LangCode;
 
-  const { detailData, isDetailLoading, detailError } = useProducts(undefined, productId);
+  const {
+    listData: ProductList,
+    detailData,
+    isDetailLoading,
+    detailError,
+  } = useProducts(undefined, productId);
   const { listData: cartItems, addToCartMutate, isAddPending } = useCart();
+
+  const recommendedProducts =
+    ProductList?.data?.filter((p) => p.id !== productId)?.slice(0, 4) ?? [];
 
   const getCartQuantity = () => {
     const item = cartItems?.find((i) => i.product.id === productId);
@@ -147,6 +156,8 @@ export default function ProductShell({ productId }: { productId: number }) {
 
         {/* 하단: 탭(상세/사양/가이드/배송) */}
         <ProductDetailTabs detailData={detailData} isDetailLoading={isDetailLoading} />
+        {/* 추천 상품*/}
+        <RecommendedProductsSection productList={recommendedProducts} />
       </div>
     </div>
   );

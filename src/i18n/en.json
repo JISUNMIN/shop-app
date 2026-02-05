@@ -521,6 +521,7 @@
     }
   },
   "product": {
+    "recommendedProductsTitle": "Recommended products",
     "productTabs": {
       "detail": "Details",
       "specs": "Specifications",

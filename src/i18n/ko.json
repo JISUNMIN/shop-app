@@ -519,6 +519,7 @@
     }
   },
   "product": {
+    "recommendedProductsTitle": "추천 상품",
     "productTabs": {
       "detail": "상세정보",
       "specs": "제품사양",

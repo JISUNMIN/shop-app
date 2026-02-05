@@ -36,15 +36,14 @@ export default function TabDetail({ product }: { product: Product }) {
       <div className="space-y-4">
         {(product.images ?? []).map((img, index) => (
           <div key={index} className="bg-gray-50 rounded-lg overflow-hidden">
-            <div className="relative w-full aspect-[16/9] sm:aspect-[16/7]">
-              <Image
-                src={img}
-                alt={`${productName} - ${t("product.productTabs.detail")} ${index + 1}`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 1200px"
-              />
-            </div>
+            <Image
+              src={img}
+              alt={`${productName} - ${t("product.productTabs.detail")} ${index + 1}`}
+              width={1200}
+              height={800}
+              className="w-full h-auto"
+              sizes="(max-width: 768px) 100vw, 1200px"
+            />
           </div>
         ))}
       </div>

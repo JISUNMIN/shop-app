@@ -93,6 +93,7 @@ export default function OrderShell() {
   const { detailData: productDetail } = useProducts(
     undefined,
     shouldFetchProduct ? productId : undefined,
+    { enableList: false },
   );
 
   const orderItems: OrderItem[] = useMemo(() => {

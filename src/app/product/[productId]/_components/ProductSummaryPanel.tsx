@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 
 import QuantityRow from "./QuantityControl";
-import { LangCode } from "@/types";
+import { LangCode, ProductDetailsProps } from "@/types";
 import { useRouter } from "next/navigation";
 
 export default function ProductSummaryPanel({
@@ -22,17 +22,7 @@ export default function ProductSummaryPanel({
   onQuantityChange,
   onAddToCart,
   productId,
-}: {
-  detailData: any;
-  quantity: number;
-  maxAvailable: number;
-  getCartQuantity: () => number;
-  isAddPending: boolean;
-  onQuantityInput: (value: string) => void;
-  onQuantityChange: (delta: number) => void;
-  onAddToCart: () => void;
-  productId: string;
-}) {
+}: ProductDetailsProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as LangCode;
   const router = useRouter();

@@ -6,13 +6,17 @@ import TabDetail from "./TabDetail";
 import TabSpecs from "./TabSpecs";
 import TabGuide from "./TabGuide";
 import TabShipping from "./TabShipping";
-import useProducts from "@/hooks/useProducts";
 import ProductDetailTabsSkeleton from "./ProductDetailTabsSkeleton";
+import { Product } from "@/types";
 
-export default function ProductDetailTabs({ productId }: { productId: string }) {
+export default function ProductDetailTabs({
+  detailData,
+  isDetailLoading,
+}: {
+  detailData: Product;
+  isDetailLoading: boolean;
+}) {
   const [activeTab, setActiveTab] = useState<TabKey>("detail");
-
-  const { detailData, isDetailLoading } = useProducts(undefined, Number(productId));
 
   if (isDetailLoading || !detailData) return <ProductDetailTabsSkeleton />;
 

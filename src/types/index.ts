@@ -190,3 +190,16 @@ export type Specs = {
   };
   support?: { ko: string; en: string }[];
 };
+
+
+export interface ProductDetailsProps {
+  detailData: any;
+  quantity: number;
+  maxAvailable: number;
+  getCartQuantity: () => number;
+  isAddPending: boolean;
+  onQuantityInput: (value: string) => void;
+  onQuantityChange: (delta: number) => void;
+  onAddToCart: () => void;
+  productId: number;
+}

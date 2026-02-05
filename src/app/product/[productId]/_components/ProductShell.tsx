@@ -17,18 +17,18 @@ import ProductTopSection from "./ProductTopSection";
 import ProductDetailTabs from "./ProductDetailTabs";
 import { LangCode } from "@/types";
 
-export default function ProductShell({ productId }: { productId: string }) {
+export default function ProductShell({ productId }: { productId: number }) {
   const router = useRouter();
   const [quantity, setQuantity] = useState<number>(1);
 
   const { t, i18n } = useTranslation();
   const lang = i18n.language as LangCode;
 
-  const { detailData, isDetailLoading, detailError } = useProducts(undefined, Number(productId));
+  const { detailData, isDetailLoading, detailError } = useProducts(undefined, productId);
   const { listData: cartItems, addToCartMutate, isAddPending } = useCart();
 
   const getCartQuantity = () => {
-    const item = cartItems?.find((i) => i.product.id === Number(productId));
+    const item = cartItems?.find((i) => i.product.id === productId);
     return item?.quantity || 0;
   };
 
@@ -146,11 +146,7 @@ export default function ProductShell({ productId }: { productId: string }) {
         />
 
         {/* 하단: 탭(상세/사양/가이드/배송) */}
-        <ProductDetailTabs
-          productId={productId}
-          productName={detailData.name[lang] ?? ""}
-          detailImages={detailData.images}
-        />
+        <ProductDetailTabs detailData={detailData} isDetailLoading={isDetailLoading} />
       </div>
     </div>
   );

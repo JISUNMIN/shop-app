@@ -132,3 +132,61 @@ export interface Wishlist {
     category: string | null;
   };
 }
+
+export type FeatureItem = {
+  icon?: "smartphone" | "mic" | "camera" | "speaker";
+  title?: LocalizedText;
+  desc?: LocalizedText;
+};
+
+export type DetailInfo = {
+  maker?: string;
+  origin?: LocalizedText;
+  warranty?: LocalizedText;
+  as?: LocalizedText;
+  cert?: string;
+};
+
+export type GuideSection =
+  | {
+      type: "steps";
+      title?: LocalizedText;
+      items?: { title?: LocalizedText; desc?: LocalizedText }[];
+    }
+  | {
+      type: "cards";
+      title?: LocalizedText;
+      items?: { cmd?: LocalizedText; desc?: LocalizedText }[];
+    }
+  | {
+      type: "bullets";
+      title?: LocalizedText;
+      items?: LocalizedText[];
+    }
+  | {
+      type: "text";
+      title?: LocalizedText;
+      body?: LocalizedText;
+    };
+
+export type Guide = { sections?: GuideSection[] };
+
+export type Specs = {
+  basic?: {
+    size?: LocalizedText;
+    weight?: LocalizedText;
+    connect?: LocalizedText;
+    camera?: LocalizedText;
+    mic?: LocalizedText;
+    speaker?: LocalizedText;
+  };
+  performance?: {
+    cpu?: LocalizedText;
+    ram?: LocalizedText;
+    storage?: LocalizedText;
+    battery?: LocalizedText;
+    charge?: LocalizedText;
+    os?: LocalizedText;
+  };
+  support?: { ko: string; en: string }[];
+};

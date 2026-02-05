@@ -1,5 +1,5 @@
 // src/utils/helper.ts
-import { LangCode } from "@/types";
+import { LangCode, LocalizedText } from "@/types";
 
 // 고정 환율 (1 KRW = 0.00075 USD), 실시간 환율 적용 필요
 const KRW_TO_USD = 0.00075;
@@ -51,3 +51,12 @@ export const formatDate = (date: string, lang: LangCode) => {
     day: "2-digit",
   });
 };
+
+export function pickI18n(value: unknown, lang: string) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+
+  const v = value as LocalizedText;
+  const isKo = lang?.startsWith("ko");
+  return (isKo ? v.ko : v.en) ?? v.ko ?? v.en ?? "";
+}

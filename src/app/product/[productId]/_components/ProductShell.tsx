@@ -1,4 +1,3 @@
-// src/app/product/[productId]/_components/ProductShell.tsx
 "use client";
 
 import { useState } from "react";
@@ -148,6 +147,7 @@ export default function ProductShell({ productId }: { productId: string }) {
 
         {/* 하단: 탭(상세/사양/가이드/배송) */}
         <ProductDetailTabs
+          productId={productId}
           productName={detailData.name[lang] ?? ""}
           detailImages={detailData.images}
         />

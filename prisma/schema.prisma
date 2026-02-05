@@ -99,6 +99,11 @@ model Product {
   stock       Int      @default(0)
   category    Json?    // { "ko": "청소로봇", "en": "Cleaning Robot" }
 
+  features    Json?  // 주요 특징
+  detailInfo  Json?    // 제품 정보
+  specs       Json?    // 제품사양(기본/성능/지원)
+  guide       Json?    // 사용가이드(시작하기/음성명령/주의)
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

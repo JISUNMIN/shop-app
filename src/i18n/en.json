@@ -556,6 +556,42 @@
     "csTitle": "Customer support",
     "csDesc": "If you need help, please contact customer support (1234-5678). Business hours: Weekdays 10:00–18:00 (closed on weekends/holidays)."
   },
+  "productGuide": {
+    "startTitle": "Getting started",
+    "voiceTitle": "Key features",
+    "cautionTitle": "Caution",
+    "empty": "This product does not have a guide yet.",
+    "emptyCaution": "No caution information is available."
+  },
+  "productDetail": {
+    "featuresTitle": "Key features",
+    "infoTitle": "Product information",
+
+    "maker": "Manufacturer",
+    "origin": "Country of origin",
+    "warranty": "Warranty policy",
+    "as": "Customer service",
+    "cert": "KC certification"
+  },
+  "productSpecs": {
+    "basicTitle": "Basic specifications",
+    "performanceTitle": "Performance specifications",
+    "supportTitle": "Supported features",
+
+    "size": "Size",
+    "weight": "Weight",
+    "connect": "Connectivity",
+    "camera": "Camera",
+    "mic": "Microphone",
+    "speaker": "Speaker",
+
+    "cpu": "Processor",
+    "ram": "Memory",
+    "storage": "Storage",
+    "battery": "Battery",
+    "charge": "Charging",
+    "os": "Operating system"
+  },
   "register": "Register",
   "edit": "Edit",
   "searchPlaceholderMobile": "Search robot",

@@ -1,7 +1,7 @@
 // src/app/product/[productId]/_components/ProductPurchasePanel.tsx
 "use client";
 
-import { ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/utils/helper";
@@ -11,6 +11,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import QuantityRow from "./QuantityControl";
 import { LangCode, ProductDetailsProps } from "@/types";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toggleWishlist } from "@/hooks/features/wishlist";
+import useWishlist from "@/hooks/useWishlist";
+import { useSession } from "next-auth/react";
+import {
+  addLocalWishlist,
+  getLocalWishlist,
+  removeLocalWishlist,
+} from "@/utils/storage/wishlistLocal";
 
 export default function ProductSummaryPanel({
   detailData,
@@ -26,6 +35,10 @@ export default function ProductSummaryPanel({
   const { t, i18n } = useTranslation();
   const lang = i18n.language as LangCode;
   const router = useRouter();
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { data: session } = useSession();
+  const user = session?.user;
+  const { listData, addWishlistMutate, deleteWishlistMutate } = useWishlist();
 
   const isOutOfStock = detailData.stock === 0;
   const isLowStock = detailData.stock > 0 && detailData.stock <= 10;
@@ -33,6 +46,25 @@ export default function ProductSummaryPanel({
   const handleOrder = () => {
     router.push(`/order?productId=${productId}&quantity=${quantity}`);
   };
+
+  const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    toggleWishlist({
+      e,
+      productId: productId,
+      isWishlisted,
+      user,
+      setIsWishlisted,
+      addWishlistMutate,
+      deleteWishlistMutate,
+      addLocalWishlist,
+      removeLocalWishlist,
+    });
+  };
+
+  useEffect(() => {
+    const list = user ? listData?.productIds : getLocalWishlist();
+    setIsWishlisted(list?.some((item) => item === productId) ?? false);
+  }, [listData]);
 
   return (
     <div className="space-y-6">
@@ -43,7 +75,21 @@ export default function ProductSummaryPanel({
         </Badge>
       )}
 
-      <h1 className="text-3xl font-semibold">{detailData.name[lang] ?? ""}</h1>
+      <div className="flex items-start justify-between gap-4">
+        <h1 className="text-3xl font-semibold">{detailData.name[lang] ?? ""}</h1>
+
+        <button
+          onClick={handleWishlistClick}
+          className="p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all"
+          aria-label="Wishlist"
+        >
+          <Heart
+            className={`w-4 h-4 transition-colors ${
+              isWishlisted ? "fill-red-500 text-red-500" : "text-gray-600"
+            }`}
+          />
+        </button>
+      </div>
       <p className="text-3xl font-semibold">
         {t("price", { price: formatPrice(detailData.price, lang) })}
       </p>

@@ -21,6 +21,7 @@ import {
   removeLocalWishlist,
 } from "@/utils/storage/wishlistLocal";
 import useWishlist from "@/hooks/useWishlist";
+import { toggleWishlist } from "@/hooks/features/wishlist";
 
 interface ProductCardProps {
   product: Product;
@@ -42,54 +43,17 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isSoldOut = product.stock === 0;
 
   const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const next = !isWishlisted;
-    setIsWishlisted(next);
-
-    const productId = Number(product.id);
-
-    try {
-      // 비로그인 유저
-      if (!user) {
-        if (next) addLocalWishlist(productId);
-        else removeLocalWishlist(productId);
-        window.dispatchEvent(new Event("wishlist:changed"));
-        return;
-      }
-
-      // 로그인 유저
-      if (next) {
-        addWishlistMutate(
-          { productId: product.id },
-          {
-            onError: (err) => {
-              console.error(err);
-              setIsWishlisted(false);
-            },
-          },
-        );
-      } else {
-        deleteWishlistMutate(
-          { productId: product.id },
-          {
-            onError: (err) => {
-              console.error(err);
-              setIsWishlisted(true);
-            },
-          },
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      setIsWishlisted(!next);
-
-      if (!user) {
-        if (!next) addLocalWishlist(productId);
-        else removeLocalWishlist(productId);
-      }
-    }
+    toggleWishlist({
+      e,
+      productId: Number(product.id),
+      isWishlisted,
+      user,
+      setIsWishlisted,
+      addWishlistMutate,
+      deleteWishlistMutate,
+      addLocalWishlist,
+      removeLocalWishlist,
+    });
   };
 
   const handleAddToCartClick = (e: React.MouseEvent<HTMLButtonElement>) => {

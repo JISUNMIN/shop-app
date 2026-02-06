@@ -97,38 +97,44 @@ export default function WishlistTab() {
       <p className="text-gray-600 mb-6">{t("totalProductsCount", { count: displayIds.length })}</p>
 
       <div className="space-y-4">
-        {listData?.map((p) => (
-          <Card key={p.id} className="p-4 bg-gray-50">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <img
-                src={p.images?.[0] ?? "/placeholder.jpg"}
-                alt={p.name?.[lang] ?? ""}
-                className="w-full sm:w-24 h-48 sm:h-24 object-cover rounded-lg"
-              />
+        {listData?.map((p) => {
+          const isOutOfStock = Number(p.stock) <= 0;
+          return (
+            <Card key={p.id} className="p-4 bg-gray-50">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <img
+                  src={p.images?.[0] ?? "/placeholder.jpg"}
+                  alt={p.name?.[lang] ?? ""}
+                  className="w-full sm:w-24 h-48 sm:h-24 object-cover rounded-lg"
+                />
 
-              <div className="flex-1">
-                <h3 className="font-bold mb-1">{p.name?.[lang]}</h3>
-                <p className="text-xl font-bold text-blue-600">
-                  {t("price", { price: p.price.toLocaleString() })}
-                </p>
+                <div className="flex-1">
+                  <h3 className="font-bold mb-1">{p.name?.[lang]}</h3>
+                  <p className="text-xl font-bold text-blue-600">
+                    {t("price", { price: p.price.toLocaleString() })}
+                  </p>
+                </div>
+
+                <div className="flex sm:flex-col gap-2">
+                  <Button
+                    onClick={handleAddToCartClick(p.id)}
+                    disabled={pendingAddId === p.id || isOutOfStock}
+                  >
+                    {pendingAddId === p.id ? t("addingToCart") : t("cart")}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={onClickDelete(p.id)}
+                    disabled={pendingDeleteId === p.id}
+                  >
+                    {pendingDeleteId === p.id ? t("deleting") : t("delete")}
+                  </Button>
+                </div>
               </div>
-
-              <div className="flex sm:flex-col gap-2">
-                <Button onClick={handleAddToCartClick(p.id)} disabled={pendingAddId === p.id}>
-                  {pendingAddId === p.id ? t("addingToCart") : t("cart")}
-                </Button>
-
-                <Button
-                  variant="outline"
-                  onClick={onClickDelete(p.id)}
-                  disabled={pendingDeleteId === p.id}
-                >
-                  {pendingDeleteId === p.id ? t("deleting") : t("delete")}
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
         {listData?.length === 0 && (
           <div className="py-10 text-center text-muted-foreground">{t("wishlist.empty")}</div>
         )}

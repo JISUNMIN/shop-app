@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
       price: true,
       images: true,
       name: true,
+      stock: true,
     },
   });
 

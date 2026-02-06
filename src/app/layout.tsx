@@ -1,8 +1,6 @@
-// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-
 import QueryProvider from "@/providers/QueryProvider";
 import Header from "@/components/layout/Header";
 import { Toaster } from "@/components/ui/sonner";
@@ -27,9 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="ko" className="h-full">
-      <body
-        className={`${inter.className} min-h-screen bg-gradient-to-b from-muted/40 to-background`}
-      >
+      <body className={`${inter.className} min-h-screen bg-muted`}>
         <SessionProvider session={session}>
           <TranslationProvider>
             <QueryProvider>
@@ -44,7 +40,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <Footer />
                   <Chatbot />
                 </div>
-
                 <ClientLayout />
                 <Toaster />
               </I18nProvider>

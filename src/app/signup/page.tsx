@@ -19,6 +19,7 @@ import usePhoneVerification from "@/hooks/usePhoneVerification";
 import { getApiMessage } from "@/lib/otp";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
+import RoboShopLogo from "@/components/common/RoboShopLogo";
 
 type SignupForm = {
   userId: string;
@@ -323,10 +324,11 @@ export default function SignupPage() {
     <FullWidthSection>
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
-          <Bot className="w-10 h-10" />
-          <span className="text-2xl font-bold">RoboShop</span>
-        </Link>
+        <RoboShopLogo
+          className="flex items-center justify-center gap-2 mb-8"
+          botClassName="w-8 h-8"
+          textClassName="text-2xl"
+        />
 
         {/* Signup Card */}
         <Card className="w-full max-w-lg">
@@ -557,7 +559,10 @@ export default function SignupPage() {
 
             <div className="text-center text-sm">
               <span className="text-gray-600">{t("auth.haveAccount")} </span>
-              <Link href="/login" className="text-blue-600 hover:underline font-medium">
+              <Link
+                href="/login"
+                className="hover:underline font-medium text-[color:var(--link-accent)] hover:text-[color:var(--link-accent-hover)]"
+              >
                 {t("auth.login")}
               </Link>
             </div>

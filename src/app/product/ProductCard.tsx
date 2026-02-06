@@ -22,6 +22,7 @@ import {
 } from "@/utils/storage/wishlistLocal";
 import useWishlist from "@/hooks/useWishlist";
 import { toggleWishlist } from "@/hooks/features/wishlist";
+import { CATEGORY_BADGE_CLASS } from "@/utils/product";
 
 interface ProductCardProps {
   product: Product;
@@ -107,16 +108,20 @@ export default function ProductCard({ product }: ProductCardProps) {
             {/* 품절 표시 */}
             {isSoldOut && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                <Badge variant="destructive" className="text-sm">
-                  {t("soldOut")}
-                </Badge>
+                <span className="text-sm font-semibold text-white">{t("soldOut")}</span>
               </div>
             )}
 
             {/* 재고 부족 표시 */}
             {!isSoldOut && product.stock <= 10 && (
-              <div className="absolute right-2 top-2">
-                <Badge variant="secondary" className="text-xs">
+              <div className="absolute left-2 top-2">
+                <Badge
+                  className={
+                    product.stock <= 3
+                      ? "text-xs font-semibold text-white bg-red-500 border border-red-600"
+                      : "text-xs font-semibold text-white  bg-orange-500 border border-orange-500/80"
+                  }
+                >
                   {t("onlyLeft", { count: product.stock })}
                 </Badge>
               </div>
@@ -132,15 +137,17 @@ export default function ProductCard({ product }: ProductCardProps) {
                   className="absolute bottom-2 left-4 right-4 flex gap-2 z-20"
                 >
                   {/* 장바구니 담기 */}
-                  <Button
-                    className="flex-1 h-8 px-3 text-sm bg-white text-black hover:bg-gray-100"
-                    onClick={handleAddToCartClick}
-                    disabled={isSoldOut}
-                    aria-disabled={isSoldOut}
-                  >
-                    <ShoppingCart className="w-4 h-4 mr-1.5" />
-                    {isAddPending ? t("addingToCart") : t("addToCart")}
-                  </Button>
+                  {!isSoldOut && (
+                    <Button
+                      className="flex-1 h-8 px-3 text-sm text-white bg-[color:var(--button-bg)] hover:bg-[color:var(--button-bg-hover)]"
+                      onClick={handleAddToCartClick}
+                      disabled={isSoldOut}
+                      aria-disabled={isSoldOut}
+                    >
+                      <ShoppingCart className="w-4 h-4 mr-1.5" />
+                      {isAddPending ? t("addingToCart") : t("addToCart")}
+                    </Button>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -148,7 +155,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {/* 찜하기 버튼 */}
             <button
               onClick={handleWishlistClick}
-              className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all"
+              className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all border border-gray-200"
               aria-label="Wishlist"
             >
               <Heart
@@ -161,13 +168,13 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <CardContent className="p-4">
             <div className="space-y-2">
-              <h3 className="font-medium line-clamp-2 text-sm leading-tight">
+              <h3 className="font-medium line-clamp-2 text-sm leading-tight text-gray-900">
                 {product.name[lang]}
               </h3>
 
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
-                  <span className="text-lg font-bold text-primary">
+                  <span className="text-lg font-bold text-[color:var(--link-accent)]">
                     {t("price", {
                       price: formatPrice(product.price ?? 0, lang),
                     })}
@@ -176,7 +183,11 @@ export default function ProductCard({ product }: ProductCardProps) {
               </div>
 
               {product.category && (
-                <Badge variant="outline" className="text-xs">
+                <Badge
+                  className={`text-xs font-medium border ${
+                    CATEGORY_BADGE_CLASS[product.category.en] ?? CATEGORY_BADGE_CLASS.default
+                  }`}
+                >
                   {product.category[lang]}
                 </Badge>
               )}

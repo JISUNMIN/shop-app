@@ -17,6 +17,7 @@ import SidebarContent, { TabType } from "@/components/common/SidebarContent";
 import MypageButton from "../common/MypageButton";
 import { menuItems } from "@/app/mypage/_components/menuItems";
 import WishlistSheet from "@/components/common/WishlistSheet";
+import RoboShopLogo from "../common/RoboShopLogo";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -63,9 +64,16 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="w-full border-b bg-background/95">
+    <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur">
+      <div
+        className="absolute inset-x-0 bottom-0 h-[1px] pointer-events-none"
+        style={{
+          backgroundColor: "color-mix(in oklch, var(--button-bg) 18%, transparent)",
+        }}
+      />
+
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
-        {/* 로고 + 모바일 햄버거 메뉴 */}
+        {/* 로고 + 모바일 햄버거 */}
         <div className="flex items-center space-x-2">
           {user && (
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -88,43 +96,50 @@ export default function Header() {
             </Sheet>
           )}
 
-          <Link href="/" className="flex items-center space-x-2">
-            <Bot className="w-8 h-8" />
-            <span className="hidden sm:inline-block font-bold">RoboShop</span>
-          </Link>
+          <RoboShopLogo
+            className="group flex items-center space-x-2"
+            botClassName="w-5 h-5"
+            textClassName="text-base"
+            hideTextOnMobile
+          />
         </div>
 
         {isMobile ? (
           <div className="flex flex-col flex-1 px-4 space-y-3">
             <form onSubmit={handleSearch} className="w-full">
               <div className="relative w-full">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="search"
                   placeholder={t("searchPlaceholderMobile")}
-                  className="pl-8"
+                  className="pl-9 bg-white border-gray-200 shadow-none"
+                  style={
+                    {
+                      "--tw-ring-color": "color-mix(in oklch, var(--button-bg) 35%, transparent)",
+                    } as React.CSSProperties
+                  }
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </form>
 
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end space-x-1">
               <Button
                 variant="ghost"
                 size="sm"
                 className="flex items-center space-x-1"
                 onClick={toggleLang}
               >
-                <Globe className="h-4 w-4" />
-                <span>{lang}</span>
+                <Globe className="h-4 w-4 text-gray-600" />
+                <span className="font-medium text-gray-700">{lang}</span>
               </Button>
 
               <WishlistSheet />
 
               <Link href="/cart" className="relative">
-                <Button variant="ghost" size="sm">
-                  <ShoppingCart className="h-5 w-5" />
+                <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                  <ShoppingCart className="h-5 w-5 text-gray-700" />
                   {cartItemCount > 0 && (
                     <Badge
                       variant="destructive"
@@ -146,11 +161,16 @@ export default function Header() {
                 className="flex flex-col sm:flex-row flex-1 max-w-2xl mx-4 sm:mx-6 items-center sm:items-stretch space-y-2 sm:space-y-0 sm:space-x-2"
               >
                 <div className="relative flex-1 w-full">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     type="search"
                     placeholder={t("searchPlaceholderDesktop")}
-                    className="pl-8"
+                    className="pl-9 bg-white border-gray-200 shadow-none"
+                    style={
+                      {
+                        "--tw-ring-color": "color-mix(in oklch, var(--button-bg) 35%, transparent)",
+                      } as React.CSSProperties
+                    }
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -161,48 +181,47 @@ export default function Header() {
                 </Button>
               </form>
             </div>
+
             {/* 지구본(언어변경) */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               <Button
                 variant="ghost"
                 size="sm"
                 className="flex items-center space-x-1"
                 onClick={toggleLang}
               >
-                <Globe className="h-4 w-4" />
-                <span>{lang}</span>
+                <Globe className="h-4 w-4 text-gray-600" />
+                <span className="font-medium text-gray-700">{lang}</span>
               </Button>
-
               {/* 로그인*/}
               {!user && (
                 <Link href="/login">
-                  <Button variant="ghost" size="sm" className="px-2">
+                  <Button variant="ghost" size="sm" className="font-medium text-gray-700">
                     {t("auth.login")}
                   </Button>
                 </Link>
               )}
-
               {/* 회원가입 */}
               {!user && (
                 <>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-gray-200">|</span>
                   <Link href="/signup">
-                    <Button variant="ghost" size="sm" className="px-2 font-semibold">
+                    <Button variant="outline" size="sm" className="px-3 font-semibold">
                       {t("auth.signup")}
                     </Button>
                   </Link>
                 </>
               )}
               {/* 마이페이지 */}
+
               {user && <MypageButton />}
-
               {/* 찜하기 */}
-              <WishlistSheet />
 
+              <WishlistSheet />
               {/* 장바구니 */}
               <Link href="/cart">
-                <Button variant="ghost" size="sm" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
+                <Button variant="ghost" size="sm" className="relative hover:bg-gray-100">
+                  <ShoppingCart className="h-5 w-5 text-gray-700" />
                   {cartItemCount > 0 && (
                     <Badge
                       variant="destructive"
@@ -211,7 +230,9 @@ export default function Header() {
                       {cartItemCount > 99 ? "99+" : cartItemCount}
                     </Badge>
                   )}
-                  <span className="hidden sm:ml-2 sm:inline">{t("cart")}</span>
+                  <span className="hidden sm:ml-2 sm:inline text-gray-800 font-medium">
+                    {t("cart")}
+                  </span>
                 </Button>
               </Link>
             </div>

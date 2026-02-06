@@ -44,6 +44,10 @@
 }
 
 :root {
+  --button-bg: oklch(0.536 0.083 243.7);
+  --button-bg-hover: oklch(0.462 0.091 244.1);
+  --button-fg: oklch(1 0 0);
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -118,5 +122,12 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  :root {
+    --button: var(--button-bg);
+    --button-hover: var(--button-bg-hover);
+    --button-foreground: var(--button-fg);
+    --link-accent: var(--color-blue-500);
+    --link-accent-hover: var(--color-blue-600);
   }
 }

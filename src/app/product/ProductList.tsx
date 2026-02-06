@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { useCategoriesStore } from "@/store/categoryStore";
 import { RotateCcw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const validSorts = ["newest", "oldest", "price_asc", "price_desc", "name"] as const;
 type SortType = (typeof validSorts)[number];
@@ -79,7 +80,6 @@ export default function ProductList() {
 
       updateURL({
         page: 1,
-        // categories가 비면 파라미터 제거되게 "" 처리
         category: next.length > 0 ? next.join(",") : "",
       });
     },
@@ -89,6 +89,12 @@ export default function ProductList() {
   const handleAllClick = useCallback(() => {
     updateURL({ page: 1, category: "" });
   }, [updateURL]);
+
+  const handleReset = useCallback(() => {
+    setIsResetAnimating(true);
+    handleAllClick();
+    setTimeout(() => setIsResetAnimating(false), 400);
+  }, [handleAllClick]);
 
   const handleSortChange = useCallback(
     (newSort: SortType) => {
@@ -100,7 +106,6 @@ export default function ProductList() {
   const handlePageChange = useCallback(
     (page: number) => {
       updateURL({ page });
-      // window.scrollTo({ top: 0, behavior: "smooth" });
     },
     [updateURL],
   );
@@ -115,17 +120,17 @@ export default function ProductList() {
 
   return (
     <div className="container py-8">
-      {/* 헤더 섹션 */}
+      {/* 헤더 */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl mb-2">
+            <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-gray-900">
               {currentParams.search
                 ? t("searchResults", { query: currentParams.search })
                 : t("allProducts")}
             </h1>
             {listData && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-500">
                 {t("totalProducts", {
                   total: listData.total,
                   page: listData.total === 0 ? 0 : listData.page,
@@ -136,17 +141,9 @@ export default function ProductList() {
           </div>
         </div>
 
-        {/* 필터 및 정렬 */}
-        <div
-          className="
-              mb-6 mt-4 rounded-lg shadow-md bg-white p-4
-              flex flex-col gap-4
-              md:flex-row md:items-center md:justify-between
-            "
-        >
-          {/* 왼쪽: 카테고리 칩 + 상태 텍스트 */}
+        {/* 필터 & 정렬 */}
+        <div className="mb-6 mt-4 rounded-2xl border border-gray-200 bg-white p-4 md:p-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-2 min-w-0">
-            {/* 상태 표시 */}
             <div className="text-sm text-gray-500">
               {selectedCategories.length === 0
                 ? t("allProducts")
@@ -156,14 +153,19 @@ export default function ProductList() {
             <div className="flex flex-wrap gap-2">
               {/* 전체 */}
               <Badge
-                variant={selectedCategories.length === 0 ? "default" : "outline"}
-                className="cursor-pointer hover:bg-gray-100"
+                variant="outline"
+                className={cn(
+                  "cursor-pointer select-none px-3 py-1.5",
+                  selectedCategories.length === 0
+                    ? "border-[color-mix(in_oklch,var(--button-bg)_30%,transparent)] text-[var(--button-bg)] bg-[color-mix(in_oklch,var(--button-bg)_10%,transparent)] hover:bg-[color-mix(in_oklch,var(--button-bg)_10%,transparent)]"
+                    : "border-gray-200 text-gray-700 hover:bg-gray-50",
+                )}
                 onClick={handleAllClick}
               >
                 {t("all")}
               </Badge>
 
-              {/* 카테고리 멀티 선택 */}
+              {/* 카테고리 */}
               {categories.map((category) => {
                 const label = lang.startsWith("ko") ? category.ko : category.en;
                 const active = selectedCategories.includes(category.en);
@@ -171,8 +173,13 @@ export default function ProductList() {
                 return (
                   <Badge
                     key={category.en}
-                    variant={active ? "default" : "outline"}
-                    className="cursor-pointer hover:bg-gray-100 px-2 py-2"
+                    variant="outline"
+                    className={cn(
+                      "cursor-pointer select-none px-3 py-1.5",
+                      active
+                        ? "border-[color-mix(in_oklch,var(--button-bg)_30%,transparent)] text-[var(--button-bg)] bg-[color-mix(in_oklch,var(--button-bg)_10%,transparent)] hover:bg-[color-mix(in_oklch,var(--button-bg)_10%,transparent)]"
+                        : "border-gray-200 text-gray-700 hover:bg-gray-50",
+                    )}
                     onClick={() => handleCategoryToggle(category.en)}
                   >
                     {label}
@@ -180,26 +187,21 @@ export default function ProductList() {
                 );
               })}
 
-              {/* 리셋 버튼 */}
+              {/* 리셋 */}
               <Badge
-                variant="secondary"
-                className="cursor-pointer"
-                onClick={() => {
-                  setIsResetAnimating(true);
-                  handleAllClick();
-                  setTimeout(() => setIsResetAnimating(false), 400);
-                }}
+                variant="outline"
+                className="cursor-pointer border-gray-200 text-gray-700 hover:bg-gray-50 px-3 py-1.5"
+                onClick={handleReset}
                 aria-label="초기화"
               >
-                <RotateCcw className={`${isResetAnimating ? "animate-spin" : ""}`} />
+                <RotateCcw className={cn("h-4 w-4", isResetAnimating && "animate-spin")} />
               </Badge>
             </div>
           </div>
 
-          {/* 정렬 옵션 */}
           <div className="w-full md:w-auto md:shrink-0">
             <Select value={currentParams.sort} onValueChange={handleSortChange}>
-              <SelectTrigger className="w-full md:w-40">
+              <SelectTrigger className="w-full md:w-44 border-gray-200 focus:ring-1 focus:ring-[color-mix(in_oklch,var(--button-bg)_40%,transparent)]">
                 <SelectValue placeholder={t("sortPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
@@ -214,33 +216,37 @@ export default function ProductList() {
         </div>
       </motion.div>
 
-      {/* 상품 그리드 */}
+      {/* 상품 리스트 */}
       {isListLoading ? (
         <ProductGridSkeleton />
       ) : listData && listData.data.length > 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.12 }}
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
         >
           {listData.data.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <motion.div
+              key={product.id}
+              whileHover={{ y: -3 }}
+              transition={{ type: "spring", stiffness: 280, damping: 24 }}
+              className="will-change-transform"
+            >
+              <ProductCard product={product} />
+            </motion.div>
           ))}
         </motion.div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center justify-center py-12"
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12">
           <div className="text-center">
-            <h2 className="text-xl font-semibold">{t("noProducts")}</h2>
-            <p className="mt-2 text-muted-foreground">
+            <h2 className="text-xl font-semibold text-gray-900">{t("noProducts")}</h2>
+            <p className="mt-2 text-gray-500">
               {currentParams.search ? t("noProductsSearch") : t("noProductsDefault")}
             </p>
+
             {currentParams.search && (
-              <Button onClick={() => router.push("/")} className="mt-4 cursor-pointer">
+              <Button onClick={() => router.push("/")} className="mt-4">
                 {t("viewAllProducts")}
               </Button>
             )}
@@ -251,9 +257,9 @@ export default function ProductList() {
       {/* 페이지네이션 */}
       {listData && listData.data.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.2 }}
           className="mt-8 flex justify-center"
         >
           <div className="flex items-center space-x-2">

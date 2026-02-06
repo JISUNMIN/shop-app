@@ -17,6 +17,7 @@ import FormInput from "@/components/common/FormInput";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useState } from "react";
+import RoboShopLogo from "@/components/common/RoboShopLogo";
 
 type LoginForm = {
   userId: string;
@@ -66,13 +67,15 @@ export default function LoginPage() {
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
           <div className="w-full max-w-md">
             {/* 로고 */}
-            <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
-              <Bot className="w-10 h-10" />
-              <span className="text-2xl font-bold">RoboShop</span>
-            </Link>
+
+            <RoboShopLogo
+              className="flex items-center justify-center gap-2 mb-8"
+              botClassName="w-8 h-8"
+              textClassName="text-2xl"
+            />
 
             {/* 카드 영역 */}
-            <Card>
+            <Card className="border-gray-200 bg-white/80 backdrop-blur shadow-sm">
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl text-center">{t("auth.login")}</CardTitle>
                 <CardDescription className="text-center">
@@ -97,7 +100,10 @@ export default function LoginPage() {
                   error={errors.password?.message}
                   label={t("auth.password")}
                 >
-                  <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm hover:underline text-[color:var(--link-accent)]"
+                  >
                     {t("auth.forgotPassword")}
                   </Link>
                 </FormInput>
@@ -122,8 +128,8 @@ export default function LoginPage() {
 
                 <div className="text-center text-sm">
                   <span className="text-gray-600 mr-1">{t("auth.noAccount")}</span>
-                  <Link href="/signup" className="text-blue-600 hover:underline font-medium">
-                    {t("auth.signup")}
+                  <Link href="/signup" className="hover:underline font-medium">
+                    <span className="text-[color:var(--link-accent)]">{t("auth.signup")}</span>
                   </Link>
                 </div>
               </CardContent>

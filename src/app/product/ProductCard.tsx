@@ -148,7 +148,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {/* 찜하기 버튼 */}
             <button
               onClick={handleWishlistClick}
-              className="absolute top-3 left-3 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all"
+              className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all"
               aria-label="Wishlist"
             >
               <Heart

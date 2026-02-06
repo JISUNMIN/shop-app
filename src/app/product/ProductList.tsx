@@ -120,7 +120,6 @@ export default function ProductList() {
 
   return (
     <div className="container py-8">
-      {/* 헤더 */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>

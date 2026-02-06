@@ -8,7 +8,7 @@ import { formatPrice } from "@/utils/helper";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 
-import QuantityRow from "./QuantityControl";
+import QuantityControl from "./QuantityControl";
 import { LangCode, ProductDetailsProps } from "@/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -20,6 +20,7 @@ import {
   getLocalWishlist,
   removeLocalWishlist,
 } from "@/utils/storage/wishlistLocal";
+import { CATEGORY_BADGE_CLASS } from "@/utils/product";
 
 export default function ProductSummaryPanel({
   detailData,
@@ -70,7 +71,9 @@ export default function ProductSummaryPanel({
     <div className="space-y-6">
       {/* 카테고리 뱃지*/}
       {detailData.category && (
-        <Badge className="bg-blue-100 text-blue-600 hover:bg-blue-100">
+        <Badge
+          className={CATEGORY_BADGE_CLASS[detailData.category.en] ?? CATEGORY_BADGE_CLASS.default}
+        >
           {detailData.category[lang] ?? ""}
         </Badge>
       )}
@@ -122,7 +125,7 @@ export default function ProductSummaryPanel({
       )}
 
       {/* 수량 변경 */}
-      <QuantityRow
+      <QuantityControl
         quantity={quantity}
         maxAvailable={maxAvailable}
         cartQty={getCartQuantity()}
@@ -153,11 +156,7 @@ export default function ProductSummaryPanel({
           {isAddPending ? t("addingToCart") : t("addToCart")}
         </Button>
 
-        <Button
-          onClick={handleOrder}
-          size="lg"
-          className="w-full bg-blue-600 text-white hover:bg-blue-700"
-        >
+        <Button onClick={handleOrder} disabled={isOutOfStock || maxAvailable <= 0} size="lg">
           {t("order.buyNow")}
         </Button>
       </div>

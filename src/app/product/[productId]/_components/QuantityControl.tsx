@@ -22,6 +22,8 @@ export default function QuantityControl({
   onQuantityChange: (delta: number) => void;
 }) {
   const { t } = useTranslation();
+  const isOutOfStock = stock <= 0;
+  const isCartLimitReached = !isOutOfStock && maxAvailable <= 0;
 
   return (
     <div className="space-y-2">
@@ -59,7 +61,7 @@ export default function QuantityControl({
         </Button>
       </div>
 
-      {maxAvailable <= 0 && (
+      {isCartLimitReached && (
         <p className="text-sm text-gray-500">{t("cartLimitReached", { count: cartQty })}</p>
       )}
 

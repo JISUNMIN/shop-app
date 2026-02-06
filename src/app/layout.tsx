@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+
 import QueryProvider from "@/providers/QueryProvider";
 import Header from "@/components/layout/Header";
 import { Toaster } from "@/components/ui/sonner";
@@ -12,6 +13,7 @@ import ClientLayout from "@/components/layout/ClientLayout";
 import { auth } from "@/auth";
 import SessionProvider from "@/providers/SessionProvider";
 import Chatbot from "@/components/common/chatbot/Chatbot";
+import Footer from "@/components/layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,17 +26,25 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await auth();
 
   return (
-    <html lang="ko">
-      <body className={inter.className}>
+    <html lang="ko" className="h-full">
+      <body
+        className={`${inter.className} min-h-screen bg-gradient-to-b from-muted/40 to-background`}
+      >
         <SessionProvider session={session}>
           <TranslationProvider>
             <QueryProvider>
               <I18nProvider>
-                <div className="flex min-h-screen flex-col items-center">
+                <div className="min-h-screen flex flex-col">
                   <Header />
-                  <main className="flex-1 w-full max-w-6xl px-4">{children}</main>
-                   <Chatbot />
+
+                  <main className="flex-1 w-full">
+                    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">{children}</div>
+                  </main>
+
+                  <Footer />
+                  <Chatbot />
                 </div>
+
                 <ClientLayout />
                 <Toaster />
               </I18nProvider>

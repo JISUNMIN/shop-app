@@ -593,6 +593,128 @@
     "charge": "Charging",
     "os": "Operating system"
   },
+
+  "footer": {
+    "brandTagline": "We provide the best robot shopping experience.",
+    "support": {
+      "title": "Support",
+      "center": "Customer center",
+      "faq": "FAQ",
+      "inquiry": "1:1 inquiry"
+    },
+    "shopping": {
+      "title": "Shopping info",
+      "shippingReturns": "Shipping / Returns",
+      "terms": "Terms of service",
+      "privacy": "Privacy policy"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About us"
+    },
+    "copyright": "© {{year}} RoboShop. All rights reserved."
+  },
+
+  "support": {
+    "title": "Customer center",
+    "subtitle": "Use our FAQ or chatbot first. If your issue is not resolved, please contact us by email.",
+    "contact": {
+      "title": "Contact",
+      "hours": "Hours: Weekdays 10:00–17:00 (Lunch 12:00–13:00)",
+      "inquiryLabel": "1:1 inquiry:"
+    },
+    "faq": {
+      "title": "Frequently asked questions (FAQ)",
+      "q1": "Where can I view my order history?",
+      "a1": "After logging in, you can check it in My Page.",
+      "q2": "How long does shipping take?",
+      "a2": "After payment is confirmed, the carrier will provide separate guidance depending on the delivery schedule.",
+      "link": "Shipping / Returns.",
+      "q3": "How do returns/exchanges work?",
+      "a3": {
+        "prefix": "You can check the return/exchange policy in ",
+        "link": "Shipping / Returns",
+        "suffix": ". If you still need help, please email us and we will respond in order."
+      }
+    }
+  },
+
+  "shoppingInfo": {
+    "title": "Shipping / Returns",
+    "subtitle": "Shipping and return/exchange information. Please check the product page for item-specific details.",
+    "shipping": {
+      "title": "Shipping",
+      "b1": "Shipping time: After payment is confirmed, the carrier will provide separate guidance",
+      "b2": {
+        "label": "Shipping fee:",
+        "value": "Free"
+      },
+      "b3": "Jeju/remote areas: Additional shipping fees may apply"
+    },
+    "returns": {
+      "title": "Returns / Exchanges",
+      "b1": "Change of mind: within 7 days of delivery (unused, original packaging)",
+      "b2": "Defect/wrong item: contact customer center as soon as possible",
+      "b3": "Some items (consumables/custom orders, etc.) may be non-returnable"
+    }
+  },
+
+  "legal": {
+    "updatedAt": "Last updated: {{date}}",
+    "terms": {
+      "title": "Terms of service",
+      "intro": "These terms define the rights, obligations, and responsibilities between RoboShop and users related to the use of the service.",
+      "s1": {
+        "title": "1. Purpose",
+        "body": "Defines conditions and procedures for using the service, and the rights/obligations of users and the company."
+      },
+      "s2": {
+        "title": "2. Account",
+        "body": "Users must provide accurate information and are responsible for managing their account information."
+      },
+      "s3": {
+        "title": "3. Orders & Payments",
+        "body": "Product information/advertising, payments, and refunds follow relevant laws and our policies."
+      },
+      "s4": {
+        "title": "4. Disclaimer",
+        "body": "We may not be liable for service disruptions caused by circumstances beyond our control (force majeure, etc.)."
+      }
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "intro": "RoboShop collects and uses personal data only as necessary to provide the service and complies with applicable laws.",
+      "s1": {
+        "title": "1. Data we collect",
+        "b1": "Sign-up: email, password (encrypted), name/phone (optional)",
+        "b2": "Orders/Shipping: recipient info, address, payment info (handled by the payment provider)"
+      },
+      "s2": {
+        "title": "2. Purpose of use",
+        "body": "Account management, order processing, shipping, customer support, and service improvement."
+      },
+      "s3": {
+        "title": "3. Retention & disposal",
+        "body": "We retain and delete data in accordance with laws and internal policies."
+      },
+      "s4": {
+        "title": "4. Contact",
+        "body": "For privacy inquiries:"
+      }
+    }
+  },
+
+  "company": {
+    "about": {
+      "title": "About us",
+      "subtitle": "RoboShop is a robot-focused commerce platform that helps you explore and purchase smart robots more easily.",
+      "workTitle": "What we do",
+      "workBody": "From companion robots to industrial robots, we provide curated products, reliable information, and a seamless shopping experience.",
+      "contactTitle": "Contact",
+      "contactBody": "For partnerships or other inquiries:"
+    }
+  },
+
   "register": "Register",
   "edit": "Edit",
   "searchPlaceholderMobile": "Search robot",
@@ -695,5 +817,6 @@
   "errorOccurred": "An error has occurred",
   "cannotLoadData": "Unable to load data.",
   "retry": "Retry",
-  "viewAll": "View all"
+  "viewAll": "View all",
+    "tagline": "Smart robot store"
 }

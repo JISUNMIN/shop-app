@@ -14,7 +14,6 @@ export type TabType =
   | "orders"
   | "coupons"
   | "wishlist"
-  // | "points"
   | "profile"
   | "password"
   | "address";
@@ -41,19 +40,26 @@ export default function SidebarContent({
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user;
+
   return (
     <>
       {/* 사용자 정보 */}
       <Card className="p-6 mb-6">
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white text-2xl font-bold">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold"
+            style={{
+              background:
+                "linear-gradient(135deg, color-mix(in oklch, var(--button-bg) 85%, #111), color-mix(in oklch, var(--button-bg) 55%, transparent))",
+            }}
+          >
             {getAvatarText(user?.name)}
           </div>
           <div>
             <p className="font-bold text-lg">
               {user?.name ?? `${user?.provider} ${t("mypage.user")}`}
             </p>
-            <p className="text-sm text-gray-500"> {user?.email ?? ""}</p>
+            <p className="text-sm text-gray-500">{user?.email ?? ""}</p>
           </div>
         </div>
       </Card>
@@ -63,6 +69,8 @@ export default function SidebarContent({
         <nav className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
+            const isActive = activeTab === item.id;
+
             return (
               <button
                 key={item.id}
@@ -70,13 +78,33 @@ export default function SidebarContent({
                   onSelectTab(item.id);
                   setMobileMenuOpen?.(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id ? "bg-black text-white" : "hover:bg-gray-100 text-gray-700"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                  ${
+                    isActive
+                      ? "bg-white text-gray-900"
+                      : "hover:bg-gray-100 text-gray-700"
+                  }
+                `}
+                style={
+                  isActive
+                    ? ({
+                        boxShadow:
+                          "0 0 0 2px color-mix(in oklch, var(--button-bg) 30%, transparent) inset",
+                      } as React.CSSProperties)
+                    : undefined
+                }
               >
-                <Icon className="w-5 h-5" />
+                <Icon
+                  className={`w-5 h-5 ${
+                    isActive ? "text-gray-900" : "text-gray-600"
+                  }`}
+                />
                 <span className="font-medium">{t(item.labelKey)}</span>
-                <ChevronRight className="w-4 h-4 ml-auto" />
+                <ChevronRight
+                  className={`w-4 h-4 ml-auto ${
+                    isActive ? "text-gray-700" : "text-gray-400"
+                  }`}
+                />
               </button>
             );
           })}

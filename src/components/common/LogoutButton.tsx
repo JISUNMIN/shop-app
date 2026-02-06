@@ -17,13 +17,13 @@ export function LogoutButton() {
 
   return (
     <Button
-          variant="outline"
-        className="w-full mt-4 text-red-600 border-red-300 hover:bg-red-50"
+      variant="outline"
+      className="w-full mt-4 text-red-600 border-red-300 hover:bg-red-50 hover:text-red-800"
       onClick={handleLogout}
       disabled={isLoggingOut}
     >
       {isLoggingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
-        {isLoggingOut ? t("auth.loggingOut") : t("auth.logout")}
+      {isLoggingOut ? t("auth.loggingOut") : t("auth.logout")}
     </Button>
   );
 }

@@ -16,13 +16,13 @@ export default function ShoppingInfoPage() {
         <h2 className="text-lg font-semibold">{t("shoppingInfo.shipping.title")}</h2>
         <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
           <li>{t("shoppingInfo.shipping.b1")}</li>
-          <li>{t("shoppingInfo.shipping.b2")}</li>
           <li className="text-sm text-muted-foreground">
-            {t("shoppingInfo.shipping.b2.label")}{" "}
+            {t("shoppingInfo.shipping.b2.label")}
             <span className="font-medium text-green-600">
               {t("shoppingInfo.shipping.b2.value")}
             </span>
           </li>
+          <li>{t("shoppingInfo.shipping.b3")}</li>
         </ul>
       </section>
 

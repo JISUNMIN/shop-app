@@ -121,10 +121,10 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <SNSButton type="kakao" />
-                  <SNSButton type="naver" />
-                </div>
+                {/* <div className="grid grid-cols-3 gap-3"> */}
+                  <SNSButton type="kakao" hasLabel isLogin/>
+                  {/* <SNSButton type="naver" /> */}
+                {/* </div> */}
 
                 <div className="text-center text-sm">
                   <span className="text-gray-600 mr-1">{t("auth.noAccount")}</span>

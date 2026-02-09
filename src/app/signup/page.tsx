@@ -341,7 +341,7 @@ export default function SignupPage() {
             {/* SNS Signup */}
             <div className="space-y-3">
               <SNSButton className="h-12 gap-3" hasLabel type="kakao" />
-              <SNSButton className="h-12 gap-3" hasLabel type="naver" />
+              {/* <SNSButton className="h-12 gap-3" hasLabel type="naver" /> */}
             </div>
 
             <div className="relative">

@@ -19,9 +19,10 @@ import useCart from "@/hooks/useCart";
 
 type Props = {
   iconOnlyTrigger?: boolean;
+  size?: "default" | "sm" | "lg" | "icon" | "icon-sm" | "icon-lg" | null | undefined;
 };
 
-export default function WishlistSheet({ iconOnlyTrigger = true }: Props) {
+export default function WishlistSheet({ iconOnlyTrigger = true, size = "default" }: Props) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
   const { addToCartMutate } = useCart();
@@ -111,7 +112,7 @@ export default function WishlistSheet({ iconOnlyTrigger = true }: Props) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="relative">
+        <Button variant="ghost" className="relative" size={size}>
           <Heart className="h-5 w-5" />
           {displayIds.length > 0 && (
             <Badge

@@ -18,6 +18,7 @@ import MypageButton from "../common/MypageButton";
 import { menuItems } from "@/app/mypage/_components/menuItems";
 import WishlistSheet from "@/components/common/WishlistSheet";
 import RoboShopLogo from "../common/RoboShopLogo";
+import { cn } from "@/lib/utils";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -73,72 +74,89 @@ export default function Header() {
       />
 
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
-        {/* 로고 + 모바일 햄버거 */}
-        <div className="flex items-center space-x-2">
-          {user && (
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </SheetTrigger>
+        {isMobile ? (
+          <div className="flex flex-col flex-1 px-2">
+            <div className={cn("flex items-center py-1", !user && "justify-around")}>
+              {/* 로고 + 모바일 햄버거 */}
+              {user && (
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="lg:hidden">
+                      <Menu className="w-5 h-5" />
+                    </Button>
+                  </SheetTrigger>
 
-              <SheetContent side="left" className="w-80 overflow-y-auto">
-                <div className="mt-12">
-                  <SidebarContent
-                    menuItems={menuItems}
-                    activeTab={activeTab}
-                    onSelectTab={handleSelectTab}
-                    setMobileMenuOpen={setMobileMenuOpen}
+                  <SheetContent side="left" className="w-80 overflow-y-auto">
+                    <div className="mt-12">
+                      <SidebarContent
+                        menuItems={menuItems}
+                        activeTab={activeTab}
+                        onSelectTab={handleSelectTab}
+                        setMobileMenuOpen={setMobileMenuOpen}
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              )}
+              <RoboShopLogo
+                className="group flex items-center space-x-2"
+                botClassName="w-5 h-5"
+                textClassName="text-base"
+              />
+              <div>
+                {/* 로그인*/}
+                {!user && (
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm" className="font-medium text-gray-700">
+                      {t("auth.login")}
+                    </Button>
+                  </Link>
+                )}
+                {/* 회원가입 */}
+                {!user && (
+                  <>
+                    <span className="text-gray-200">|</span>
+                    <Link href="/signup">
+                      <Button variant="outline" size="sm" className="px-3 font-semibold">
+                        {t("auth.signup")}
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="flex w-full items-center">
+              <form onSubmit={handleSearch} className="w-full">
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="search"
+                    placeholder={t("searchPlaceholderMobile")}
+                    className="pl-9 bg-white border-gray-200 shadow-none"
+                    style={
+                      {
+                        "--tw-ring-color": "color-mix(in oklch, var(--button-bg) 35%, transparent)",
+                      } as React.CSSProperties
+                    }
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-              </SheetContent>
-            </Sheet>
-          )}
-
-          <RoboShopLogo
-            className="group flex items-center space-x-2"
-            botClassName="w-5 h-5"
-            textClassName="text-base"
-            hideTextOnMobile
-          />
-        </div>
-
-        {isMobile ? (
-          <div className="flex flex-col flex-1 px-4 space-y-3">
-            <form onSubmit={handleSearch} className="w-full">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  type="search"
-                  placeholder={t("searchPlaceholderMobile")}
-                  className="pl-9 bg-white border-gray-200 shadow-none"
-                  style={
-                    {
-                      "--tw-ring-color": "color-mix(in oklch, var(--button-bg) 35%, transparent)",
-                    } as React.CSSProperties
-                  }
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </form>
-
-            <div className="flex justify-end space-x-1">
+              </form>
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 className="flex items-center space-x-1"
                 onClick={toggleLang}
               >
                 <Globe className="h-4 w-4 text-gray-600" />
-                <span className="font-medium text-gray-700">{lang}</span>
               </Button>
 
-              <WishlistSheet />
+              <WishlistSheet size="icon" />
 
               <Link href="/cart" className="relative">
-                <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                <Button variant="ghost" size="icon" className="hover:bg-gray-100">
                   <ShoppingCart className="h-5 w-5 text-gray-700" />
                   {cartItemCount > 0 && (
                     <Badge
@@ -156,6 +174,12 @@ export default function Header() {
           <>
             {/* 검색바 */}
             <div className="flex flex-1 items-center justify-center px-4">
+              <RoboShopLogo
+                className="group flex items-center space-x-2"
+                botClassName="w-5 h-5"
+                textClassName="text-base"
+                hideTextOnMobile
+              />
               <form
                 onSubmit={handleSearch}
                 className="flex flex-col sm:flex-row flex-1 max-w-2xl mx-4 sm:mx-6 items-center sm:items-stretch space-y-2 sm:space-y-0 sm:space-x-2"

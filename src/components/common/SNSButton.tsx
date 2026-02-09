@@ -12,14 +12,21 @@ interface SNSButtonProps {
   type: SNSType;
   hasLabel?: boolean;
   className?: string;
+  isLogin?: boolean;
 }
 
-export default function SNSButton({ type, hasLabel = false, className }: SNSButtonProps) {
+export default function SNSButton({
+  type,
+  hasLabel = false,
+  isLogin = false,
+  className,
+}: SNSButtonProps) {
   const { t } = useTranslation();
 
   const provider = t(`sns.${type}`);
-  const ariaLabel = t("sns.loginWith", { provider });
-  const label = t("sns.startWith", { provider });
+  const loginLabel = t("sns.loginWith", { provider });
+  const signUpLabel = t("sns.startWith", { provider });
+  const label = isLogin ? loginLabel : signUpLabel;
 
   const handleSNSSignup = async () => {
     if (type === "kakao") {
@@ -35,7 +42,7 @@ export default function SNSButton({ type, hasLabel = false, className }: SNSButt
         variant="outline"
         type="button"
         className={cn("w-full hover:bg-green-50", className)}
-        aria-label={ariaLabel}
+        aria-label={label}
         onClick={handleSNSSignup}
       >
         <span className="text-[#03C75A] text-xl font-extrabold leading-none">N</span>
@@ -50,7 +57,7 @@ export default function SNSButton({ type, hasLabel = false, className }: SNSButt
         variant="outline"
         type="button"
         className={cn("w-full hover:bg-yellow-50", className)}
-        aria-label={ariaLabel}
+        aria-label={label}
         onClick={handleSNSSignup}
       >
         <div className="w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -72,7 +79,7 @@ export default function SNSButton({ type, hasLabel = false, className }: SNSButt
         variant="outline"
         type="button"
         className={cn("w-full bg-gray-50", className)}
-        aria-label={ariaLabel}
+        aria-label={label}
         onClick={handleSNSSignup}
       >
         <Image

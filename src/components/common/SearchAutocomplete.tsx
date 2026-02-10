@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Command,
@@ -8,9 +8,10 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
+  CommandSearchInput,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { Search, X } from "lucide-react";
+import { X } from "lucide-react";
 import {
   getLocalStrings,
   addLocalString,
@@ -39,7 +40,6 @@ export default function SearchAutocomplete({
   onChange,
   placeholder,
   className,
-  inputClassName,
   minLength = 1,
 }: {
   value: string;
@@ -57,9 +57,30 @@ export default function SearchAutocomplete({
   const [open, setOpen] = useState(false);
   const [recent, setRecent] = useState<string[]>([]);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const isComposingRef = useRef(false);
+  const latestValueRef = useRef(value);
+  useEffect(() => {
+    latestValueRef.current = value;
+  }, [value]);
 
   useEffect(() => {
     setRecent(getLocalStrings(RECENT_KEY));
+  }, []);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      const el = wrapRef.current;
+      if (!el) return;
+      if (e.target instanceof Node && !el.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+    };
   }, []);
 
   const { listData, isListLoading, isListFetching } = useSuggest({
@@ -72,8 +93,12 @@ export default function SearchAutocomplete({
   const items = listData?.data ?? [];
   const loading = isListLoading || isListFetching;
 
-  const submit = (q: string) => {
-    const keyword = q.trim();
+  const submit = (q?: string) => {
+    const raw = typeof q === "string" ? q : latestValueRef.current;
+    const keyword = raw.trim();
+
+    onChange(raw);
+
     if (!keyword) {
       router.push("/");
       setOpen(false);
@@ -96,45 +121,54 @@ export default function SearchAutocomplete({
   const showRecent = recentFiltered.length > 0;
   const showSuggest = value.trim().length >= minLength;
 
+  const hasSelectedItem = () => {
+    const root = wrapRef.current;
+    if (!root) return false;
+    return !!root.querySelector('[cmdk-item][data-selected="true"]');
+  };
+
   return (
     <div ref={wrapRef} className={cn("relative w-full", className)}>
-      <div className="relative w-full">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2">
-          <Search className="h-4 w-4 text-gray-400" />
-        </div>
+      <Command
+        shouldFilter={false}
+        className="bg-transparent text-foreground overflow-visible rounded-none"
+        onKeyDownCapture={(e) => {
+          if (e.key !== "Enter") return;
+          if (isComposingRef.current) return;
+          if (hasSelectedItem()) return;
 
-        <input
-          type="search"
+          e.preventDefault();
+          submit();
+        }}
+      >
+        <CommandSearchInput
           value={value}
-          onChange={(e) => {
-            onChange(e.target.value);
+          onValueChange={(v) => {
+            onChange(v);
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              submit(value);
-            }
             if (e.key === "Escape") setOpen(false);
           }}
           placeholder={placeholder}
-          className={cn(
-            "w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-none outline-none pl-9",
-            inputClassName,
-          )}
-          style={
-            {
-              "--tw-ring-color": "color-mix(in oklch, var(--button-bg) 35%, transparent)",
-            } as CSSProperties
-          }
+          onSearch={submit}
         />
-      </div>
 
-      {open && (showRecent || showSuggest) && (
-        <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border bg-white shadow-lg">
-          <Command shouldFilter={false}>
-            <CommandList className="max-h-72">
+        {open && (showRecent || showSuggest) && (
+          <div className="absolute z-50 mt-10 w-full overflow-hidden rounded-xl border bg-white shadow-lg">
+            <CommandList
+              className="max-h-72 outline-none"
+              ref={listRef as any}
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  setOpen(false);
+                  return;
+                }
+              }}
+            >
               {showRecent && (
                 <CommandGroup
                   heading={
@@ -205,9 +239,9 @@ export default function SearchAutocomplete({
                 </CommandGroup>
               )}
             </CommandList>
-          </Command>
-        </div>
-      )}
+          </div>
+        )}
+      </Command>
     </div>
   );
 }

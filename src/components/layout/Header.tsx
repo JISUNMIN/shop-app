@@ -66,7 +66,6 @@ export default function Header() {
       value={searchQuery}
       onChange={setSearchQuery}
       placeholder={t("searchPlaceholderDesktop")}
-      inputClassName="bg-white border-gray-200 shadow-none"
     />
   );
 

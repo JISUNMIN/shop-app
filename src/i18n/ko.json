@@ -708,6 +708,14 @@
       "contactBody": "제휴 및 기타 문의:"
     }
   },
+  "searchAutocomplete": {
+    "recentSearches": "최근 검색어",
+    "clear": "전체 삭제",
+    "removeRecentAria": "최근 검색어 삭제",
+    "suggestions": "추천 검색어",
+    "loading": "불러오는 중...",
+    "noResults": "결과가 없어요."
+  },
   "register": "등록",
   "edit": "수정",
   "searchPlaceholderMobile": "로봇 검색",

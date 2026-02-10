@@ -2,14 +2,12 @@
 "use client";
 
 import Link from "next/link";
-import { Search, ShoppingCart, Bot, Globe, Menu } from "lucide-react";
+import { ShoppingCart, Globe, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useCart from "@/hooks/useCart";
-import { useLangStore } from "@/store/langStore";
 import { useTranslation } from "react-i18next";
 import { useSession } from "next-auth/react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -19,6 +17,8 @@ import { menuItems } from "@/app/mypage/_components/menuItems";
 import WishlistSheet from "@/components/common/WishlistSheet";
 import RoboShopLogo from "../common/RoboShopLogo";
 import { cn } from "@/lib/utils";
+import SearchAutocomplete from "@/components/common/SearchAutocomplete";
+import { LangCode } from "@/types";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -32,10 +32,14 @@ export default function Header() {
   const [isMobile, setIsMobile] = useState(false);
   const { listData: cartItems } = useCart();
   const cartItemCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-  const { lang, toggleLang } = useLangStore();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as LangCode;
   const user = session?.user;
   const activeTab = (searchParams.get("tab") as TabType) || "dashboard";
+
+  const toggleLang = () => {
+    i18n.changeLanguage(lang === "ko" ? "en" : "ko");
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +60,15 @@ export default function Header() {
     }
     setMobileMenuOpen(false);
   };
+
+  const searchAutocomplete = (
+    <SearchAutocomplete
+      value={searchQuery}
+      onChange={setSearchQuery}
+      placeholder={t("searchPlaceholderDesktop")}
+      inputClassName="bg-white border-gray-200 shadow-none"
+    />
+  );
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -128,22 +141,9 @@ export default function Header() {
 
             <div className="flex w-full items-center">
               <form onSubmit={handleSearch} className="w-full">
-                <div className="relative w-full">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    type="search"
-                    placeholder={t("searchPlaceholderMobile")}
-                    className="pl-9 bg-white border-gray-200 shadow-none"
-                    style={
-                      {
-                        "--tw-ring-color": "color-mix(in oklch, var(--button-bg) 35%, transparent)",
-                      } as React.CSSProperties
-                    }
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
+                {searchAutocomplete}
               </form>
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -184,21 +184,7 @@ export default function Header() {
                 onSubmit={handleSearch}
                 className="flex flex-col sm:flex-row flex-1 max-w-2xl mx-4 sm:mx-6 items-center sm:items-stretch space-y-2 sm:space-y-0 sm:space-x-2"
               >
-                <div className="relative flex-1 w-full">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    type="search"
-                    placeholder={t("searchPlaceholderDesktop")}
-                    className="pl-9 bg-white border-gray-200 shadow-none"
-                    style={
-                      {
-                        "--tw-ring-color": "color-mix(in oklch, var(--button-bg) 35%, transparent)",
-                      } as React.CSSProperties
-                    }
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
+                <div className="relative flex-1 w-full">{searchAutocomplete}</div>
 
                 <Button type="submit" size="sm" className="w-full sm:w-auto">
                   {t("searchButton")}
@@ -237,10 +223,8 @@ export default function Header() {
                 </>
               )}
               {/* 마이페이지 */}
-
               {user && <MypageButton />}
               {/* 찜하기 */}
-
               <WishlistSheet />
               {/* 장바구니 */}
               <Link href="/cart">

@@ -715,6 +715,15 @@
     }
   },
 
+  "searchAutocomplete": {
+    "recentSearches": "Recent searches",
+    "clear": "Clear",
+    "removeRecentAria": "Remove recent",
+    "suggestions": "Suggestions",
+    "loading": "Loading...",
+    "noResults": "No results."
+  },
+
   "register": "Register",
   "edit": "Edit",
   "searchPlaceholderMobile": "Search robot",
@@ -818,5 +827,5 @@
   "cannotLoadData": "Unable to load data.",
   "retry": "Retry",
   "viewAll": "View all",
-    "tagline": "Smart robot store"
+  "tagline": "Smart robot store"
 }

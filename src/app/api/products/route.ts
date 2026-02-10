@@ -3,77 +3,96 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
+const PRODUCT_TABLE = "products";
+
+const normalize = (s: string) => s.trim().replace(/\s+/g, " ");
+
+const stripSpaceSql = (expr: Prisma.Sql) =>
+  Prisma.sql`regexp_replace(COALESCE(${expr}, ''), '\\s+', '', 'g')`;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const search = searchParams.get("search") || "";
-    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+
+    const searchRaw = normalize(searchParams.get("search") || "");
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const sort = searchParams.get("sort") || "newest";
-    const category = searchParams.get("category") || "";
+    const categoryRaw = normalize(searchParams.get("category") || "");
 
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ProductWhereInput = {};
-    const and: Prisma.ProductWhereInput[] = [];
-
-    // 검색 조건
-    if (search) {
-      and.push({
-        OR: [
-          { name: { path: ["ko"], string_contains: search } },
-          { description: { path: ["ko"], string_contains: search } },
-          { name: { path: ["en"], string_contains: search } },
-          { description: { path: ["en"], string_contains: search } },
-        ],
-      });
+    let orderBySql = Prisma.sql`"createdAt" DESC`;
+    switch (sort) {
+      case "oldest":
+        orderBySql = Prisma.sql`"createdAt" ASC`;
+        break;
+      case "price_asc":
+        orderBySql = Prisma.sql`price ASC`;
+        break;
+      case "price_desc":
+        orderBySql = Prisma.sql`price DESC`;
+        break;
+      case "name":
+        orderBySql = Prisma.sql`(name->>'ko') ASC`;
+        break;
+      default:
+        orderBySql = Prisma.sql`"createdAt" DESC`;
+        break;
     }
 
-    if (category) {
-      const categoryList = category
+    const conditions: Prisma.Sql[] = [];
+
+    if (searchRaw) {
+      const qNoSpace = searchRaw.replace(/\s+/g, "");
+      const like = `%${qNoSpace}%`;
+
+      conditions.push(Prisma.sql`
+        (
+          ${stripSpaceSql(Prisma.sql`name->>'ko'`)} ILIKE ${like}
+          OR ${stripSpaceSql(Prisma.sql`description->>'ko'`)} ILIKE ${like}
+          OR ${stripSpaceSql(Prisma.sql`name->>'en'`)} ILIKE ${like}
+          OR ${stripSpaceSql(Prisma.sql`description->>'en'`)} ILIKE ${like}
+        )
+      `);
+    }
+
+    if (categoryRaw) {
+      const categoryList = categoryRaw
         .split(",")
-        .map((c) => c.trim())
+        .map((c) => normalize(c))
         .filter(Boolean);
 
       if (categoryList.length > 0) {
-        and.push({
-          OR: categoryList.flatMap((c) => [
-            { category: { path: ["en"], equals: c } },
-            { category: { path: ["ko"], equals: c } },
-          ]),
-        });
+        const categoryOr = Prisma.join(
+          categoryList.map((c) => Prisma.sql`(category->>'en' = ${c} OR category->>'ko' = ${c})`),
+          " OR ",
+        );
+        conditions.push(Prisma.sql`(${categoryOr})`);
       }
     }
 
-    if (and.length > 0) where.AND = and;
+    const whereSql =
+      conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}` : Prisma.empty;
 
-    // 정렬
-    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" }; // 기본값: 최신순
-    switch (sort) {
-      case "oldest":
-        orderBy = { createdAt: "asc" };
-        break;
-      case "price_asc":
-        orderBy = { price: "asc" };
-        break;
-      case "price_desc":
-        orderBy = { price: "desc" };
-        break;
-      case "name":
-        orderBy = { name: "asc" };
-        break;
-    }
+    const table = Prisma.raw(PRODUCT_TABLE);
 
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        orderBy,
-        skip,
-        take: limit,
-      }),
-      prisma.product.count({ where }),
+    const [products, totalRes] = await Promise.all([
+      prisma.$queryRaw<any[]>`
+        SELECT *
+        FROM ${table}
+        ${whereSql}
+        ORDER BY ${orderBySql}
+        LIMIT ${limit} OFFSET ${skip};
+      `,
+      prisma.$queryRaw<{ count: bigint }[]>`
+        SELECT COUNT(*)::bigint as count
+        FROM ${table}
+        ${whereSql};
+      `,
     ]);
 
+    const total = Number(totalRes[0]?.count ?? 0);
     const totalPages = Math.ceil(total / limit);
 
     return NextResponse.json({

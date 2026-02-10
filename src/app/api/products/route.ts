@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const sort = searchParams.get("sort") || "newest";
     const categoryRaw = normalize(searchParams.get("category") || "");
+    const locale = searchParams.get("locale");
 
     const limit = 10;
     const skip = (page - 1) * limit;
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
         orderBySql = Prisma.sql`price DESC`;
         break;
       case "name":
-        orderBySql = Prisma.sql`(name->>'ko') ASC`;
+        orderBySql = Prisma.sql`(name->>${locale}) ASC`;
         break;
       default:
         orderBySql = Prisma.sql`"createdAt" DESC`;

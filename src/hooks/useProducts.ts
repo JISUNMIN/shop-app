@@ -31,6 +31,8 @@ const useProducts = (
       if (params?.page) searchParams.set("page", params.page.toString());
       if (params?.sort) searchParams.set("sort", params.sort);
       if (params?.category) searchParams.set("category", params.category);
+      if (params?.locale) searchParams.set("locale", params.locale);
+
 
       const res = await axiosInstance.get<ApiResponse<Product[]>>(
         `${PRODUCTS_API_PATH}?${searchParams.toString()}`,

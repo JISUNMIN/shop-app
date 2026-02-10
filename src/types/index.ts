@@ -79,6 +79,7 @@ export interface SearchParams {
   page?: number;
   sort?: "newest" | "oldest" | "price_asc" | "price_desc" | "name";
   category?: string;
+  locale?: LangCode;
 }
 
 export interface ApiResponse<T> {
@@ -190,7 +191,6 @@ export type Specs = {
   };
   support?: { ko: string; en: string }[];
 };
-
 
 export interface ProductDetailsProps {
   detailData: any;

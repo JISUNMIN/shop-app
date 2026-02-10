@@ -21,13 +21,14 @@ import { useTranslation } from "react-i18next";
 import { useCategoriesStore } from "@/store/categoryStore";
 import { RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LangCode } from "@/types";
 
 const validSorts = ["newest", "oldest", "price_asc", "price_desc", "name"] as const;
 type SortType = (typeof validSorts)[number];
 
 export default function ProductList() {
   const { t, i18n } = useTranslation();
-  const lang = i18n.language;
+  const lang = i18n.language as LangCode;
   const router = useRouter();
   const searchParams = useSearchParams();
   const { categories, fetchCategories } = useCategoriesStore();
@@ -51,9 +52,10 @@ export default function ProductList() {
       search: searchParam,
       page: pageParam,
       sort,
+      locale: lang as LangCode,
       category: categoriesParam,
     };
-  }, [searchParam, pageParam, categoriesParam, sort]);
+  }, [searchParam, pageParam, categoriesParam, sort, lang]);
 
   const { listData, isListLoading, listError } = useProducts(currentParams);
 
@@ -65,6 +67,9 @@ export default function ProductList() {
       if (updated.search) params.set("search", updated.search);
       if (updated.page > 1) params.set("page", updated.page.toString());
       if (updated.sort !== "newest") params.set("sort", updated.sort);
+      if (updated.sort === "name" && updated.locale) {
+        params.set("locale", updated.locale);
+      }
       if (updated.category) params.set("category", updated.category);
 
       router.replace(`/?${params.toString()}`, { scroll: false });
@@ -98,9 +103,13 @@ export default function ProductList() {
 
   const handleSortChange = useCallback(
     (newSort: SortType) => {
-      updateURL({ sort: newSort, page: 1 });
+      updateURL({
+        sort: newSort,
+        page: 1,
+        locale: newSort === "name" ? lang : undefined,
+      });
     },
-    [updateURL],
+    [updateURL, lang],
   );
 
   const handlePageChange = useCallback(

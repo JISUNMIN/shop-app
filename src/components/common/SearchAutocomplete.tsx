@@ -158,8 +158,8 @@ export default function SearchAutocomplete({
                 >
                   {recentFiltered.map((k) => (
                     <CommandItem
-                      key={k}
-                      value={k}
+                      key={`recent:${k}`}
+                      value={`recent:${k}`}
                       onSelect={() => submit(k)}
                       className="cursor-pointer flex items-center justify-between"
                     >
@@ -193,8 +193,8 @@ export default function SearchAutocomplete({
                   ) : (
                     items.map((it) => (
                       <CommandItem
-                        key={it.id}
-                        value={it.value}
+                        key={`suggest:${it.id}`}
+                        value={`suggest:${it.id}`}
                         onSelect={() => submit(it.value)}
                         className="cursor-pointer"
                       >

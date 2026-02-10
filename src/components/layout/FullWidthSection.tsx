@@ -6,9 +6,5 @@ type FullWidthSectionProps = {
 };
 
 export default function FullWidthSection({ children, className = "" }: FullWidthSectionProps) {
-  return (
-    <div className={`relative w-screen left-1/2 -ml-[50vw] bg-gray-50 ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`relative w-screen left-1/2 -ml-[50vw] ${className}`}>{children}</div>;
 }

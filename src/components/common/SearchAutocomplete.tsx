@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Command,
@@ -57,13 +57,6 @@ export default function SearchAutocomplete({
   const [open, setOpen] = useState(false);
   const [recent, setRecent] = useState<string[]>([]);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
-
-  const isComposingRef = useRef(false);
-  const latestValueRef = useRef(value);
-  useEffect(() => {
-    latestValueRef.current = value;
-  }, [value]);
 
   useEffect(() => {
     setRecent(getLocalStrings(RECENT_KEY));
@@ -94,7 +87,7 @@ export default function SearchAutocomplete({
   const loading = isListLoading || isListFetching;
 
   const submit = (q?: string) => {
-    const raw = typeof q === "string" ? q : latestValueRef.current;
+    const raw = typeof q === "string" ? q : value;
     const keyword = raw.trim();
 
     onChange(raw);
@@ -134,7 +127,6 @@ export default function SearchAutocomplete({
         className="bg-transparent text-foreground overflow-visible rounded-none"
         onKeyDownCapture={(e) => {
           if (e.key !== "Enter") return;
-          if (isComposingRef.current) return;
           if (hasSelectedItem()) return;
 
           e.preventDefault();
@@ -159,13 +151,11 @@ export default function SearchAutocomplete({
           <div className="absolute z-50 mt-10 w-full overflow-hidden rounded-xl border bg-white shadow-lg">
             <CommandList
               className="max-h-72 outline-none"
-              ref={listRef as any}
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   e.preventDefault();
                   setOpen(false);
-                  return;
                 }
               }}
             >

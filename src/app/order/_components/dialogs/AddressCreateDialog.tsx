@@ -31,11 +31,12 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editingAddress?: Address | null;
+  onCreated?: (created: Address) => void;
 }
 
-export function AddressCreateDialog({ open, onOpenChange, editingAddress }: Props) {
+export function AddressCreateDialog({ open, onOpenChange, editingAddress, onCreated }: Props) {
   const { t } = useTranslation();
-  const { addAddressMutate, editAddressMutate } = useAddress();
+  const { addAddressMutateAsync, editAddressMutate, listData } = useAddress();
   const isEditingDefault = editingAddress?.isDefault;
 
   const schema = useMemo(
@@ -76,13 +77,15 @@ export function AddressCreateDialog({ open, onOpenChange, editingAddress }: Prop
     formState: { errors, isValid, isSubmitting },
   } = methods;
 
-  const submit = handleSubmit((data) => {
+  const submit = handleSubmit(async (data) => {
     if (editingAddress) {
       editAddressMutate({ id: editingAddress.id, ...data });
-    } else {
-      addAddressMutate(data);
+      onOpenChange(false);
+      return;
     }
 
+    const created = await addAddressMutateAsync(data);
+    onCreated?.(created);
     onOpenChange(false);
   });
 
@@ -105,10 +108,10 @@ export function AddressCreateDialog({ open, onOpenChange, editingAddress }: Prop
         phone: "",
         address1: "",
         address2: "",
-        isDefault: false,
+        isDefault: (listData?.length ?? 0) === 0,
       });
     }
-  }, [open, editingAddress, reset]);
+  }, [open, editingAddress, reset, listData]);
 
   return (
     <FormProvider {...methods}>

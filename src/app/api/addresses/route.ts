@@ -4,9 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
 // 배송지 조회
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const userId = request.nextUrl.searchParams.get("userId")?.trim();
+    const session = await auth();
+    const userId = session?.user.id;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const addressList = await prisma.address.findMany({
       where: { userId },

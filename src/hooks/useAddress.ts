@@ -23,7 +23,7 @@ const useAddress = () => {
   });
 
   // 배송지 추가
-  const { mutateAsync: addAddressMutate, isPending: isAddPending } = useMutation<
+  const { mutateAsync: addAddressMutateAsync, isPending: isAddPending } = useMutation<
     Address,
     Error,
     Address
@@ -69,7 +69,7 @@ const useAddress = () => {
     isListFetching,
     listError,
     // add
-    addAddressMutate,
+    addAddressMutateAsync,
     isAddPending,
     // edit
     editAddressMutate,

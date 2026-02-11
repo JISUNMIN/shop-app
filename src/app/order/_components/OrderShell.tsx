@@ -135,7 +135,7 @@ export default function OrderShell() {
     },
   });
 
-  const { watch } = methods;
+  const { watch, setValue } = methods;
 
   const selectedAddressId = watch("selectedAddressId");
   const selectedCouponId = watch("selectedCouponId");
@@ -265,7 +265,13 @@ export default function OrderShell() {
           </div>
         </main>
 
-        <AddressCreateDialog open={showAddressDialog} onOpenChange={setShowAddressDialog} />
+        <AddressCreateDialog
+          open={showAddressDialog}
+          onOpenChange={setShowAddressDialog}
+          onCreated={(created) => {
+            setValue("selectedAddressId", created.id, { shouldDirty: true });
+          }}
+        />
 
         <CouponSelectDialog
           open={showCouponDialog}

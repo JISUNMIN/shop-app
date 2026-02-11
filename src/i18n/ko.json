@@ -407,7 +407,8 @@
       "title": "배송지 정보",
       "newAddress": "새 배송지",
       "default": "기본 배송지",
-      "maxAddress": "배송지는 최대 5개까지 등록할 수 있어요"
+      "maxAddress": "배송지는 최대 5개까지 등록할 수 있어요",
+      "empty": "배송지정보를 추가해주세요"
     },
 
     "deliveryMemo": {

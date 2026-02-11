@@ -82,6 +82,7 @@ export function OrderAddressSection({ onOpenAddressDialog }: OrderAddressSection
           {t("order.shipping.newAddress")}
         </Button>
       </div>
+
       {(listData?.length ?? 0) >= 5 && (
         <p className="text-xs text-gray-500 mt-1">{t("order.shipping.maxAddress")}</p>
       )}
@@ -89,6 +90,11 @@ export function OrderAddressSection({ onOpenAddressDialog }: OrderAddressSection
       <div className="space-y-3">
         {isListLoading ? (
           <OrderAddressSkeleton />
+        ) : (listData?.length ?? 0) === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center text-gray-500">
+            <Truck className="w-10 h-10 mb-3 text-gray-300" />
+            <p className="text-sm">{t("order.shipping.empty")}</p>
+          </div>
         ) : (
           listData?.map((address) => (
             <div

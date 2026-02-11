@@ -55,8 +55,8 @@ export default function OrderCompleteShell() {
     });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-gray-50 to-white">
-      <div className="relative flex justify-center px-4 py-14">
+    <div className="min-h-screen">
+      <div className="relative flex justify-center px-4 py-4">
         <main className="w-full max-w-2xl space-y-10">
           <motion.section initial="hidden" animate="show" className="text-center">
             <div className="mx-auto w-full max-w-xl rounded-3xl border border-white bg-white/80 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] px-6 py-10">

@@ -409,7 +409,8 @@
       "title": "Shipping Address",
       "newAddress": "New address",
       "default": "Default",
-      "maxAddress": "You can register up to 5 delivery addresses"
+      "maxAddress": "You can register up to 5 delivery addresses",
+      "empty": "Please add a shipping address."
     },
 
     "deliveryMemo": {

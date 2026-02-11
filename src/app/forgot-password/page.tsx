@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import FullWidthSection from "@/components/layout/FullWidthSection";
 import { useTranslation } from "@/context/TranslationContext";
 
 export default function ForgotPasswordPage() {
@@ -21,7 +20,6 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <FullWidthSection>
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
           <Bot className="w-10 h-10" />
@@ -140,6 +138,5 @@ export default function ForgotPasswordPage() {
           </div>
         )}
       </div>
-    </FullWidthSection>
   );
 }

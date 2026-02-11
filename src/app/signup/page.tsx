@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Controller, useForm } from "react-hook-form";
-import FullWidthSection from "@/components/layout/FullWidthSection";
 import SNSButton from "@/components/common/SNSButton";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -317,7 +316,6 @@ export default function SignupPage() {
   }, [otpExpiresSec, mobileVerified]);
 
   return (
-    <FullWidthSection>
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         {/* Logo */}
         <RoboShopLogo
@@ -572,6 +570,5 @@ export default function SignupPage() {
           </CardContent>
         </Card>
       </div>
-    </FullWidthSection>
   );
 }

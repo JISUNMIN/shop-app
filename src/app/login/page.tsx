@@ -10,7 +10,6 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signIn } from "next-auth/react";
-import FullWidthSection from "@/components/layout/FullWidthSection";
 import SNSButton from "@/components/common/SNSButton";
 import FormInput from "@/components/common/FormInput";
 import { useTranslation } from "react-i18next";
@@ -68,7 +67,6 @@ export default function LoginPage() {
   };
 
   return (
-    <FullWidthSection>
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
           <div className="w-full max-w-md">
@@ -143,6 +141,5 @@ export default function LoginPage() {
           </div>
         </div>
       </form>
-    </FullWidthSection>
   );
 }

@@ -233,6 +233,7 @@
       "orders": "Orders",
       "availableCoupons": "Available coupons",
       "recentOrders": "Recent orders",
+      "no_recent_orders": "No recent orders found.",
       "ordersCount": "{{count}} orders",
       "couponsCount": "{{count}} coupons",
       "won": "{{amount}} KRW",

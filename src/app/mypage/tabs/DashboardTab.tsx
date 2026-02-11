@@ -93,43 +93,50 @@ export default function DashboardTab() {
 
       {/* 최근 주문 */}
       <div className="space-y-3">
-        {orderList?.slice(0, 3).map((order) => {
-          const productName = getOrderItemTitle(order.orderItems, lang, t);
-          const orderDate = formatDate(order.createdAt, lang);
-          const statusLabel = getOrderStatusLabel(order.status, t);
-          const badgeClass = ORDER_STATUS_BADGE_CLASS[order.status] ?? "bg-gray-100 text-gray-700";
+        {orderList?.length === 0 ? (
+          <div className="text-center">
+            <p className="text-sm text-gray-500">{t("mypage.dashboard.no_recent_orders")}</p>
+          </div>
+        ) : (
+          orderList?.slice(0, 3).map((order) => {
+            const productName = getOrderItemTitle(order.orderItems, lang, t);
+            const orderDate = formatDate(order.createdAt, lang);
+            const statusLabel = getOrderStatusLabel(order.status, t);
+            const badgeClass =
+              ORDER_STATUS_BADGE_CLASS[order.status] ?? "bg-gray-100 text-gray-700";
 
-          return (
-            <Card
-              key={order.id}
-              className="p-4 border bg-gray-50 shadow-sm transition hover:shadow-md"
-              style={{
-                boxShadow: "0 1px 0 0 color-mix(in oklch, var(--button-bg) 10%, transparent)",
-              }}
-            >
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="font-semibold truncate">{productName}</p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {orderDate} · #{order.id}
-                  </p>
-                </div>
+            return (
+              <Card
+                key={order.id}
+                className="p-4 border bg-gray-50 shadow-sm transition hover:shadow-md"
+                style={{
+                  boxShadow: "0 1px 0 0 color-mix(in oklch, var(--button-bg) 10%, transparent)",
+                }}
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-semibold truncate">{productName}</p>
+                    <p className="mt-1 text-sm text-gray-500">
+                      {orderDate} · #{order.id}
+                    </p>
+                  </div>
 
-                <div className="text-right shrink-0">
-                  <p className="font-extrabold">
-                    {t("mypage.dashboard.won", {
-                      amount: order.totalAmount.toLocaleString(),
-                    })}
-                  </p>
+                  <div className="text-right shrink-0">
+                    <p className="font-extrabold">
+                      {t("mypage.dashboard.won", {
+                        amount: order.totalAmount.toLocaleString(),
+                      })}
+                    </p>
 
-                  <div className="mt-2 flex justify-end">
-                    <Badge className={badgeClass}>{statusLabel}</Badge>
+                    <div className="mt-2 flex justify-end">
+                      <Badge className={badgeClass}>{statusLabel}</Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          );
-        })}
+              </Card>
+            );
+          })
+        )}
       </div>
     </div>
   );

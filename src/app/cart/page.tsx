@@ -68,11 +68,9 @@ export default function CartPage() {
 
   if (isListLoading) {
     return (
-      <div className="container py-8">
-        <div className="mb-8">
+      <div>
           <Skeleton className="h-10 w-32 mb-4" />
           <Skeleton className="h-6 w-48" />
-        </div>
         <CartSkeleton />
       </div>
     );
@@ -84,7 +82,6 @@ export default function CartPage() {
 
   return (
     <>
-      <div className="container py-8">
         {/* 헤더 */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -178,7 +175,6 @@ export default function CartPage() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
     </>
   );
 }

@@ -26,7 +26,6 @@ export default function OrderDetailShell() {
 
   const { detailData: order, isDetailLoading } = useOrder(Number(orderId));
 
-  // ✅ 로딩 먼저 처리 (로딩 중 !order로 Empty 뜨는 문제 방지)
   if (isDetailLoading) {
     return <OrderDetailSkeleton />;
   }

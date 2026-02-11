@@ -235,6 +235,7 @@
       "orders": "주문내역",
       "availableCoupons": "사용 가능 쿠폰",
       "recentOrders": "최근 주문",
+      "no_recent_orders": "최근 주문내역이 없습니다.",
       "ordersCount": "{{count}}건",
       "couponsCount": "{{count}}장",
       "won": "{{amount}}원",

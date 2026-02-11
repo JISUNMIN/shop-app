@@ -11,14 +11,16 @@ import { useTranslation } from "react-i18next";
 interface SNSButtonProps {
   type: SNSType;
   hasLabel?: boolean;
-  className?: string;
   isLogin?: boolean;
+  callbackUrl?: string;
+  className?: string;
 }
 
 export default function SNSButton({
   type,
   hasLabel = false,
   isLogin = false,
+  callbackUrl,
   className,
 }: SNSButtonProps) {
   const { t } = useTranslation();
@@ -30,8 +32,8 @@ export default function SNSButton({
 
   const handleSNSSignup = async () => {
     if (type === "kakao") {
-      const res = await signIn(type, {
-        callbackUrl: "/",
+      await signIn(type, {
+        callbackUrl: callbackUrl || "/",
       });
     }
   };

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Bot, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -36,6 +36,11 @@ type SignupForm = {
 export default function SignupPage() {
   const router = useRouter();
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
+  const loginHref = callbackUrl
+    ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : "/login";
 
   const { signupMutate, checkUserIdMutate, isCheckUserIdPending } = useSignup();
   //   const {
@@ -202,7 +207,8 @@ export default function SignupPage() {
     try {
       const { userId, password, name, mobileNumber, email } = data;
       await signupMutate({ userId, password, name, mobileNumber, email });
-      router.push("/login");
+
+      router.replace(loginHref);
     } catch {}
   };
 

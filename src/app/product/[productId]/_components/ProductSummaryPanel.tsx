@@ -21,6 +21,7 @@ import {
   removeLocalWishlist,
 } from "@/utils/storage/wishlistLocal";
 import { CATEGORY_BADGE_CLASS } from "@/utils/product";
+import { toast } from "sonner";
 
 export default function ProductSummaryPanel({
   detailData,
@@ -45,7 +46,13 @@ export default function ProductSummaryPanel({
   const isLowStock = detailData.stock > 0 && detailData.stock <= 10;
 
   const handleOrder = () => {
-    router.push(`/order?productId=${productId}&quantity=${quantity}`);
+    const orderUrl = `/order?productId=${productId}&quantity=${quantity}`;
+    if (!user) {
+      toast.warning(t("loginRequired")); 
+      const loginUrl = `/login?callbackUrl=${encodeURIComponent(orderUrl)}`;
+      return router.push(loginUrl);
+    }
+    router.push(orderUrl);
   };
 
   const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {

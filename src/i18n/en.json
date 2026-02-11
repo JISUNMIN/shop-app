@@ -828,5 +828,6 @@
   "cannotLoadData": "Unable to load data.",
   "retry": "Retry",
   "viewAll": "View all",
-  "tagline": "Smart robot store"
+  "tagline": "Smart robot store",
+  "loginRequired": "Login required to continue."
 }

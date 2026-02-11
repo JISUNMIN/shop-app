@@ -818,5 +818,6 @@
   "cannotLoadData": "데이터를 불러올 수 없습니다.",
   "retry": "다시 시도",
   "viewAll": "전체보기",
-  "tagline": "스마트 로봇 전문몰"
+  "tagline": "스마트 로봇 전문몰",
+  "loginRequired": "로그인 후 이용 가능합니다."
 }

@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Bot } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +27,12 @@ export default function LoginPage() {
   const router = useRouter();
   const { t } = useTranslation();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
+  const signupHref = callbackUrl
+    ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : "/signup";
+
   const schema = yup
     .object({
       userId: yup.string().required(t("auth.validation.userIdRequired")),
@@ -58,7 +63,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/");
+    router.replace(callbackUrl ? callbackUrl : "/");
   };
 
   return (
@@ -122,13 +127,13 @@ export default function LoginPage() {
                 </div>
 
                 {/* <div className="grid grid-cols-3 gap-3"> */}
-                  <SNSButton type="kakao" hasLabel isLogin/>
-                  {/* <SNSButton type="naver" /> */}
+                <SNSButton type="kakao" hasLabel isLogin callbackUrl={callbackUrl ?? undefined} />
+                {/* <SNSButton type="naver" /> */}
                 {/* </div> */}
 
                 <div className="text-center text-sm">
                   <span className="text-gray-600 mr-1">{t("auth.noAccount")}</span>
-                  <Link href="/signup" className="hover:underline font-medium">
+                  <Link href={signupHref} className="hover:underline font-medium">
                     <span className="text-[color:var(--link-accent)]">{t("auth.signup")}</span>
                   </Link>
                 </div>

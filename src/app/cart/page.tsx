@@ -69,8 +69,8 @@ export default function CartPage() {
   if (isListLoading) {
     return (
       <div>
-          <Skeleton className="h-10 w-32 mb-4" />
-          <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-10 w-32 mb-4" />
+        <Skeleton className="h-6 w-48" />
         <CartSkeleton />
       </div>
     );
@@ -82,99 +82,95 @@ export default function CartPage() {
 
   return (
     <>
-        {/* 헤더 */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div>
-                <h1 className="text-2xl font-bold sm:text-xl">{t("cart")}</h1>
-                <p className="text-muted-foreground text-sm sm:text-xs">
-                  {t("cartRobotCount", { count: totalItems })}
-                </p>
-              </div>
+      {/* 헤더 */}
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold sm:text-xl">{t("cart")}</h1>
+              <p className="text-muted-foreground text-sm sm:text-xs">
+                {t("cartRobotCount", { count: totalItems })}
+              </p>
             </div>
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
 
-        {cartItems && cartItems.length > 0 && (
-          <div className="flex items-center justify-between mb-4 space-x-2">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                checked={cartItems.every((item) => selectedItems[item.id])}
-                onCheckedChange={(val) => handleSelectAll(!!val)}
-              />
-              <span className="text-sm">{t("selectAll")}</span>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="default"
-                onClick={handleDeleteSelected}
-                disabled={!Object.values(selectedItems).some(Boolean)}
-              >
-                {t("deleteSelected")}
-              </Button>
-
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => {
-                  cartItems.forEach((item) => removeFromCartMutate({ itemId: item.id }));
-                  setSelectedItems({});
-                }}
-                disabled={cartItems.length === 0 || isRemovePending}
-              >
-                {t("deleteAll")}
-              </Button>
-            </div>
+      {cartItems && cartItems.length > 0 && (
+        <div className="flex items-center justify-between mb-4 space-x-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={cartItems.every((item) => selectedItems[item.id])}
+              onCheckedChange={(val) => handleSelectAll(!!val)}
+            />
+            <span className="text-sm">{t("selectAll")}</span>
           </div>
-        )}
 
-        {/* 메인 콘텐츠 */}
-        <AnimatePresence mode="wait">
-          {!cartItems || cartItems.length === 0 ? (
-            <EmptyCart key="empty" />
-          ) : (
-            <motion.div
-              key="content"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid gap-8 lg:grid-cols-3"
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="default"
+              onClick={handleDeleteSelected}
+              disabled={!Object.values(selectedItems).some(Boolean)}
             >
-              <div className="lg:col-span-2">
-                <div className="space-y-4">
-                  <AnimatePresence mode="popLayout">
-                    {cartItems.map((item, index) => (
-                      <CartItem
-                        key={item.id}
-                        item={item}
-                        index={index}
-                        checked={!!selectedItems[item.id]}
-                        onCheckChange={handleCheckChange}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </div>
-              </div>
+              {t("deleteSelected")}
+            </Button>
 
-              {/* 주문 요약 */}
-              <div className="lg:col-span-1">
-                <CartSummary
-                  totalItems={totalItems}
-                  totalPrice={totalPrice}
-                  shippingFee={shippingFee}
-                  finalPrice={finalPrice}
-                  onOrder={onOrder}
-                />
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => {
+                cartItems.forEach((item) => removeFromCartMutate({ itemId: item.id }));
+                setSelectedItems({});
+              }}
+              disabled={cartItems.length === 0 || isRemovePending}
+            >
+              {t("deleteAll")}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* 메인 콘텐츠 */}
+      <AnimatePresence mode="wait">
+        {!cartItems || cartItems.length === 0 ? (
+          <EmptyCart key="empty" />
+        ) : (
+          <motion.div
+            key="content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid gap-8 lg:grid-cols-3"
+          >
+            <div className="lg:col-span-2">
+              <div className="space-y-4">
+                <AnimatePresence mode="popLayout">
+                  {cartItems.map((item, index) => (
+                    <CartItem
+                      key={item.id}
+                      item={item}
+                      index={index}
+                      checked={!!selectedItems[item.id]}
+                      onCheckChange={handleCheckChange}
+                    />
+                  ))}
+                </AnimatePresence>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+
+            {/* 주문 요약 */}
+            <div className="lg:col-span-1">
+              <CartSummary
+                totalItems={totalItems}
+                totalPrice={totalPrice}
+                shippingFee={shippingFee}
+                finalPrice={finalPrice}
+                onOrder={onOrder}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

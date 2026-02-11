@@ -20,6 +20,7 @@
     "verifying": "확인중...",
     "loginfail": "로그인에 실패했습니다.",
     "loggingOut": "로그아웃 중...",
+    "signingUp": "회원가입 중...",
 
     "checkDuplicate": "중복확인",
     "checking": "확인중...",

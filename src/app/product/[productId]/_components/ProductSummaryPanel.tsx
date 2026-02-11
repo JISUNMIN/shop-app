@@ -47,9 +47,13 @@ export default function ProductSummaryPanel({
 
   const handleOrder = () => {
     const orderUrl = `/order?productId=${productId}&quantity=${quantity}`;
+
     if (!user) {
-      toast.warning(t("loginRequired")); 
-      const loginUrl = `/login?callbackUrl=${encodeURIComponent(orderUrl)}`;
+      toast.warning(t("loginRequired"));
+      const loginUrl = `/login?${new URLSearchParams({
+        callbackUrl: orderUrl,
+      }).toString()}`;
+
       return router.push(loginUrl);
     }
     router.push(orderUrl);

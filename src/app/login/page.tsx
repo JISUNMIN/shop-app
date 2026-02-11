@@ -28,9 +28,10 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
+  const rawCallbackUrl = searchParams.get("callbackUrl");
+  const callbackUrl = rawCallbackUrl && rawCallbackUrl.startsWith("/") ? rawCallbackUrl : null;
   const signupHref = callbackUrl
-    ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    ? `/signup?${new URLSearchParams({ callbackUrl }).toString()}`
     : "/signup";
 
   const schema = yup
@@ -63,7 +64,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.replace(callbackUrl ? callbackUrl : "/");
+    router.replace(callbackUrl ?? "/");
   };
 
   return (

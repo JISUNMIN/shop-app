@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Bot, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,7 @@ import { getApiMessage } from "@/lib/otp";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import RoboShopLogo from "@/components/common/RoboShopLogo";
+import { signIn } from "next-auth/react";
 
 type SignupForm = {
   userId: string;
@@ -36,11 +37,16 @@ type SignupForm = {
 export default function SignupPage() {
   const router = useRouter();
   const { t } = useTranslation();
+
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
-  const loginHref = callbackUrl
-    ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
-    : "/login";
+  const rawCallbackUrl = searchParams.get("callbackUrl");
+
+  const safeCallbackUrl = rawCallbackUrl && rawCallbackUrl.startsWith("/") ? rawCallbackUrl : "/";
+
+  const loginHref =
+    rawCallbackUrl && rawCallbackUrl.startsWith("/")
+      ? `/login?callbackUrl=${encodeURIComponent(rawCallbackUrl)}`
+      : "/login";
 
   const { signupMutate, checkUserIdMutate, isCheckUserIdPending } = useSignup();
   //   const {
@@ -60,6 +66,7 @@ export default function SignupPage() {
   const [otpExpiresSec, setOtpExpiresSec] = useState(0);
   const [userIdChecked, setUserIdChecked] = useState(false);
   const [checkedUserId, setCheckedUserId] = useState<string | null>(null);
+  const [isSigningUp, setIsSigningUp] = useState(false);
 
   const formattedTime = `${Math.floor(otpExpiresSec / 60)
     .toString()
@@ -88,41 +95,34 @@ export default function SignupPage() {
         .string()
         .required(t("auth.validation.passwordRequired"))
         .min(8, t("auth.passwordPlaceholder")),
-
       passwordConfirm: yup
         .string()
         .required(t("auth.validation.passwordConfirmRequired"))
         .min(8, t("auth.passwordPlaceholder"))
         .oneOf([yup.ref("password")], t("auth.validation.passwordMismatch")),
-
       mobileNumber: yup
         .string()
         .required(t("auth.validation.mobileNumberRequired"))
         .transform((value) => (value ? value.replace(/-/g, "").trim() : value))
         .matches(/^\d{11}$/, t("auth.validation.mobileNumberInvalid")),
-
       mobileCode: yup
         .string()
         .required(t("auth.validation.mobileCodeRequired"))
         .transform((value) => (value ? value.trim() : value))
         .matches(/^\d{4,6}$/, t("auth.validation.mobileCodeInvalid")),
-
       name: yup
         .string()
         .required(t("auth.validation.nameRequired"))
         .max(10, t("auth.validation.nameMaxLength")),
-
       email: yup
         .string()
         .transform((v) => (v?.trim() === "" ? undefined : v?.trim()))
         .optional()
         .email(t("auth.validation.emailInvalid")),
-
       agreeTerms: yup
         .boolean()
         .oneOf([true], t("auth.validation.agreeTermsRequired"))
         .required(t("auth.validation.agreeTermsRequired")),
-
       agreePrivacy: yup
         .boolean()
         .oneOf([true], t("auth.validation.agreePrivacyRequired"))
@@ -205,11 +205,27 @@ export default function SignupPage() {
     }
 
     try {
+      setIsSigningUp(true);
+
       const { userId, password, name, mobileNumber, email } = data;
+
       await signupMutate({ userId, password, name, mobileNumber, email });
 
-      router.replace(loginHref);
-    } catch {}
+      const res = await signIn("credentials", {
+        userId,
+        password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        router.replace(loginHref);
+        return;
+      }
+      router.replace(safeCallbackUrl);
+    } catch {
+    } finally {
+      setIsSigningUp(false);
+    }
   };
 
   // 코드 전송
@@ -223,26 +239,18 @@ export default function SignupPage() {
       const res = await sendPhoneCodeMutate({ phone: mobileNumber });
       const { code } = res;
 
-      if (!res?.ok) {
-        throw new Error(res?.message ?? t("auth.validation.mobileNumberInvalid"));
-      }
+      if (!res?.ok) throw new Error(res?.message ?? t("auth.validation.mobileNumberInvalid"));
 
       setCodeSent(true);
       setValue("mobileCode", code!);
       setOtpExpiresSec(res.expiresInSec ?? 0);
     } catch (e: unknown) {
       const msg = getApiMessage(e, t, t("auth.validation.mobileNumberInvalid"));
-
-      setError("mobileNumber", {
-        type: "manual",
-        message: msg,
-      });
+      setError("mobileNumber", { type: "manual", message: msg });
 
       if (axios.isAxiosError(e) && e.response?.status === 429) {
         const sec = e.response.data?.retryAfterSec;
-        if (typeof sec === "number") {
-          setResendCooldownSec(sec);
-        }
+        if (typeof sec === "number") setResendCooldownSec(sec);
       }
     } finally {
       clearErrors("mobileCode");
@@ -256,26 +264,17 @@ export default function SignupPage() {
     const mobileCode = getValues("mobileCode")?.trim();
 
     if (!codeSent) {
-      setError("mobileCode", {
-        type: "manual",
-        message: t("auth.validation.sendCodeFirst"),
-      });
+      setError("mobileCode", { type: "manual", message: t("auth.validation.sendCodeFirst") });
       return;
     }
 
     if (!mobileCode) {
-      setError("mobileCode", {
-        type: "manual",
-        message: t("auth.validation.mobileCodeRequired"),
-      });
+      setError("mobileCode", { type: "manual", message: t("auth.validation.mobileCodeRequired") });
       return;
     }
 
     if (!/^\d{4,6}$/.test(mobileCode)) {
-      setError("mobileCode", {
-        type: "manual",
-        message: t("auth.validation.mobileCodeInvalid"),
-      });
+      setError("mobileCode", { type: "manual", message: t("auth.validation.mobileCodeInvalid") });
       return;
     }
 
@@ -283,24 +282,15 @@ export default function SignupPage() {
     setIsVerifyingCode(true);
 
     try {
-      const res = await verifyPhoneCodeMutate({
-        phone: mobileNumber,
-        code: mobileCode,
-      });
+      const res = await verifyPhoneCodeMutate({ phone: mobileNumber, code: mobileCode });
 
-      if (!res?.ok) {
-        throw new Error(res?.message ?? t("auth.validation.mobileCodeInvalid"));
-      }
+      if (!res?.ok) throw new Error(res?.message ?? t("auth.validation.mobileCodeInvalid"));
 
       setMobileVerified(true);
     } catch (e: unknown) {
       setMobileVerified(false);
       const msg = getApiMessage(e, t, t("auth.validation.mobileCodeInvalid"));
-
-      setError("mobileCode", {
-        type: "manual",
-        message: msg,
-      });
+      setError("mobileCode", { type: "manual", message: msg });
     } finally {
       clearErrors("mobileNumber");
       setIsVerifyingCode(false);
@@ -346,8 +336,13 @@ export default function SignupPage() {
           <CardContent className="space-y-4">
             {/* SNS Signup */}
             <div className="space-y-3">
-              <SNSButton className="h-12 gap-3" hasLabel type="kakao" />
-              {/* <SNSButton className="h-12 gap-3" hasLabel type="naver" /> */}
+              <SNSButton
+                className="h-12 gap-3"
+                hasLabel
+                type="kakao"
+                callbackUrl={rawCallbackUrl ?? undefined}
+              />
+              {/* <SNSButton className="h-12 gap-3" hasLabel type="naver" callbackUrl={rawCallbackUrl ?? undefined} /> */}
             </div>
 
             <div className="relative">
@@ -560,13 +555,15 @@ export default function SignupPage() {
                 )}
               </div>
 
-              <Button className="w-full h-11">{t("auth.signupButton")}</Button>
+              <Button className="w-full h-11" disabled={isSigningUp}>
+                {isSigningUp ? t("auth.signingUp") : t("auth.signupButton")}
+              </Button>
             </form>
 
             <div className="text-center text-sm">
               <span className="text-gray-600">{t("auth.haveAccount")} </span>
               <Link
-                href="/login"
+                href={loginHref}
                 className="hover:underline font-medium text-[color:var(--link-accent)] hover:text-[color:var(--link-accent-hover)]"
               >
                 {t("auth.login")}

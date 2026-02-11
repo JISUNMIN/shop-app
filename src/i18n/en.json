@@ -20,6 +20,7 @@
     "verifying": "Verifying...",
     "loginfail": "Login failed.",
     "loggingOut": "Logging out...",
+    "signingUp": "Signing up...",
 
     "checkDuplicate": "Check",
     "checking": "Checking...",

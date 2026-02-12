@@ -85,6 +85,8 @@
       "mobileCodeRequired": "Please enter the verification code.",
       "mobileCodeInvalid": "Please enter a valid verification code.",
       "sendCodeFirst": "Please send the verification code first.",
+      "mobileNumberAlreadyInUse": "This mobile number is already in use.",
+      "mobileVerificationRequired": "Mobile verification is required.",
 
       "emailInvalid": "Please enter a valid email address.",
       "passwordRequired": "Please enter your password.",

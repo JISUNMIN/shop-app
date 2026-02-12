@@ -11,7 +11,18 @@ export async function POST(request: NextRequest) {
     const { phone } = await request.json();
 
     if (!phone) {
-      return NextResponse.json({ ok: false, messageKey: "auth.serverError.phoneInvalid" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, messageKey: "auth.serverError.phoneInvalid" },
+        { status: 400 },
+      );
+    }
+    const existingUser = await prisma.user.findUnique({
+      where: { phone },
+      select: { id: true },
+    });
+
+    if (existingUser) {
+      return NextResponse.json({ ok: true, alreadyVerified: true }, { status: 200 });
     }
 
     const now = new Date();
@@ -21,26 +32,23 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      if (existing.verifiedAt) {
-        return NextResponse.json({ ok: true, alreadyVerified: true }, { status: 200 });
-      }
-
       const diffSec = Math.floor((now.getTime() - existing.lastSentAt.getTime()) / 1000);
+
       if (diffSec < RESEND_COOLDOWN_SEC) {
         return NextResponse.json(
           {
             ok: false,
             messageKey: "auth.serverError.phoneResendCooldown",
-            retryAfterSec:  RESEND_COOLDOWN_SEC - diffSec ,
+            retryAfterSec: RESEND_COOLDOWN_SEC - diffSec,
           },
-          { status: 429 }
+          { status: 429 },
         );
       }
 
       if (existing.resendCount >= MAX_RESEND) {
         return NextResponse.json(
           { ok: false, messageKey: "auth.serverError.phoneTooManyResendRequests" },
-          { status: 429 }
+          { status: 429 },
         );
       }
     }
@@ -74,11 +82,14 @@ export async function POST(request: NextRequest) {
       {
         ok: true,
         expiresInSec: EXPIRES_SEC,
-        code: code,
+        code,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch {
-    return NextResponse.json({ ok: false, messageKey: "auth.serverError.serverError" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, messageKey: "auth.serverError.serverError" },
+      { status: 500 },
+    );
   }
 }

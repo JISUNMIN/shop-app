@@ -17,6 +17,7 @@ export type SendPhoneCodeResponse = {
   expiresInSec?: number;
   code?: string;
   message?: string;
+  alreadyVerified?: boolean;
 };
 
 export type VerifyPhoneCodePayload = {
@@ -43,7 +44,7 @@ const usePhoneVerification = () => {
       return res.data;
     },
     onSuccess: (res) => {
-      if (res?.ok) {
+      if (res?.ok && !res?.alreadyVerified) {
         toast.success(t("auth.mobileCodeSent"));
       } else {
         toast.error(res?.message ?? t("auth.mobileCodeSendFail"));
@@ -63,7 +64,7 @@ const usePhoneVerification = () => {
     mutationFn: async (data) => {
       const res = await axiosSession.post<VerifyPhoneCodeResponse>(
         VERIFY_PHONE_CODE_API_PATH,
-        data
+        data,
       );
       return res.data;
     },

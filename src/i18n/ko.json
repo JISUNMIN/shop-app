@@ -85,6 +85,8 @@
       "mobileCodeRequired": "인증번호를 입력해주세요.",
       "mobileCodeInvalid": "인증번호 형식이 올바르지 않습니다.",
       "sendCodeFirst": "먼저 인증번호를 발송해주세요.",
+      "mobileNumberAlreadyInUse": "이미 사용 중인 번호입니다.",
+      "mobileVerificationRequired": "휴대폰 인증이 필요합니다.",
 
       "emailInvalid": "이메일 형식이 올바르지 않습니다.",
       "passwordRequired": "비밀번호를 입력해주세요.",

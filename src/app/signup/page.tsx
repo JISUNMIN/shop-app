@@ -145,6 +145,8 @@ export default function SignupPage() {
     defaultValues: {
       agreeTerms: false,
       agreePrivacy: false,
+      mobileNumber: "",
+      mobileCode: "",
     },
   });
 
@@ -203,6 +205,14 @@ export default function SignupPage() {
       return;
     }
 
+    if (!mobileVerified) {
+      setError("mobileCode", {
+        type: "manual",
+        message: t("auth.validation.mobileVerificationRequired"),
+      });
+      return;
+    }
+
     try {
       setIsSigningUp(true);
 
@@ -231,18 +241,27 @@ export default function SignupPage() {
   const handleSendCode = async () => {
     const isValid = await trigger("mobileNumber");
     if (!isValid) return;
+
     const mobileNumber = getValues("mobileNumber")?.trim();
     setIsSendingCode(true);
 
     try {
       const res = await sendPhoneCodeMutate({ phone: mobileNumber });
-      const { code } = res;
+
+      if (res?.alreadyVerified) {
+        setError("mobileNumber", {
+          type: "manual",
+          message: t("auth.validation.mobileNumberAlreadyInUse"),
+        });
+        return;
+      }
 
       if (!res?.ok) throw new Error(res?.message ?? t("auth.validation.mobileNumberInvalid"));
 
       setCodeSent(true);
-      setValue("mobileCode", code!);
+      if (res.code) setValue("mobileCode", res.code);
       setOtpExpiresSec(res.expiresInSec ?? 0);
+      clearErrors("mobileNumber");
     } catch (e: unknown) {
       const msg = getApiMessage(e, t, t("auth.validation.mobileNumberInvalid"));
       setError("mobileNumber", { type: "manual", message: msg });
@@ -316,259 +335,260 @@ export default function SignupPage() {
   }, [otpExpiresSec, mobileVerified]);
 
   return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        {/* Logo */}
-        <RoboShopLogo
-          className="flex items-center justify-center gap-2 mb-8"
-          botClassName="w-8 h-8"
-          textClassName="text-2xl"
-        />
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      {/* Logo */}
+      <RoboShopLogo
+        className="flex items-center justify-center gap-2 mb-8"
+        botClassName="w-8 h-8"
+        textClassName="text-2xl"
+      />
 
-        {/* Signup Card */}
-        <Card className="w-full max-w-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">{t("auth.signupTitle")}</CardTitle>
-            <CardDescription className="text-center">{t("auth.signupDescription")}</CardDescription>
-          </CardHeader>
+      {/* Signup Card */}
+      <Card className="w-full max-w-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl text-center">{t("auth.signupTitle")}</CardTitle>
+          <CardDescription className="text-center">{t("auth.signupDescription")}</CardDescription>
+        </CardHeader>
 
-          <CardContent className="space-y-4">
-            {/* SNS Signup */}
-            <div className="space-y-3">
-              <SNSButton
-                className="h-12 gap-3"
-                hasLabel
-                type="kakao"
-                callbackUrl={rawCallbackUrl ?? undefined}
+        <CardContent className="space-y-4">
+          {/* SNS Signup */}
+          <div className="space-y-3">
+            <SNSButton
+              className="h-12 gap-3"
+              hasLabel
+              type="kakao"
+              callbackUrl={rawCallbackUrl ?? undefined}
+            />
+            {/* <SNSButton className="h-12 gap-3" hasLabel type="naver" callbackUrl={rawCallbackUrl ?? undefined} /> */}
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-gray-500">{t("auth.orEmailSignup")}</span>
+            </div>
+          </div>
+
+          {/* 일반 회원가입*/}
+          <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <FormInput
+                id="userId"
+                placeholder={t("auth.placeholders.userIdPlaceholder")}
+                registration={register("userId", {
+                  onChange: () => {
+                    setUserIdChecked(false);
+                    setCheckedUserId(null);
+                  },
+                })}
+                error={errors.userId?.message}
+                label={t("auth.userId")}
+                rightElement={
+                  <Button
+                    type="button"
+                    className="h-10 px-3 whitespace-nowrap"
+                    onClick={handleCheckUserId}
+                    disabled={isCheckUserIdPending}
+                  >
+                    {isCheckUserIdPending
+                      ? t("auth.checking")
+                      : userIdChecked
+                        ? t("auth.checked")
+                        : t("auth.checkDuplicate")}
+                  </Button>
+                }
               />
-              {/* <SNSButton className="h-12 gap-3" hasLabel type="naver" callbackUrl={rawCallbackUrl ?? undefined} /> */}
             </div>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">{t("auth.orEmailSignup")}</span>
-              </div>
+            <div className="space-y-2">
+              <FormInput
+                id="password"
+                type="password"
+                placeholder={t("auth.passwordPlaceholder")}
+                registration={register("password")}
+                error={errors.password?.message}
+                label={t("auth.password")}
+              />
             </div>
 
-            {/* 일반 회원가입*/}
-            <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <FormInput
-                  id="userId"
-                  placeholder={t("auth.placeholders.userIdPlaceholder")}
-                  registration={register("userId", {
-                    onChange: () => {
-                      setUserIdChecked(false);
-                      setCheckedUserId(null);
-                    },
-                  })}
-                  error={errors.userId?.message}
-                  label={t("auth.userId")}
-                  rightElement={
-                    <Button
-                      type="button"
-                      className="h-10 px-3 whitespace-nowrap"
-                      onClick={handleCheckUserId}
-                      disabled={isCheckUserIdPending}
-                    >
-                      {isCheckUserIdPending
-                        ? t("auth.checking")
-                        : userIdChecked
-                          ? t("auth.checked")
-                          : t("auth.checkDuplicate")}
-                    </Button>
-                  }
-                />
-              </div>
+            <div className="space-y-2">
+              <FormInput
+                id="confirmPassword"
+                type="password"
+                placeholder={t("auth.confirmPasswordPlaceholder")}
+                registration={register("passwordConfirm")}
+                error={errors.passwordConfirm?.message}
+                label={t("auth.confirmPassword")}
+              />
+            </div>
 
-              <div className="space-y-2">
-                <FormInput
-                  id="password"
-                  type="password"
-                  placeholder={t("auth.passwordPlaceholder")}
-                  registration={register("password")}
-                  error={errors.password?.message}
-                  label={t("auth.password")}
-                />
-              </div>
+            {/* 이름*/}
+            <div className="space-y-2">
+              <FormInput
+                id="name"
+                placeholder={t("auth.placeholders.nameExample")}
+                registration={register("name")}
+                error={errors.name?.message}
+                label={t("auth.name")}
+              />
+            </div>
 
-              <div className="space-y-2">
-                <FormInput
-                  id="confirmPassword"
-                  type="password"
-                  placeholder={t("auth.confirmPasswordPlaceholder")}
-                  registration={register("passwordConfirm")}
-                  error={errors.passwordConfirm?.message}
-                  label={t("auth.confirmPassword")}
-                />
-              </div>
-
-              {/* 이름*/}
-              <div className="space-y-2">
-                <FormInput
-                  id="name"
-                  placeholder={t("auth.placeholders.nameExample")}
-                  registration={register("name")}
-                  error={errors.name?.message}
-                  label={t("auth.name")}
-                />
-              </div>
-
-              {/* 핸드폰 번호*/}
-              <div className="space-y-2">
-                <FormInput
-                  id="mobileNumber"
-                  placeholder={t("auth.placeholders.mobileNumberExample")}
-                  registration={register("mobileNumber", {
-                    onChange: (e) => {
-                      e.target.value = e.target.value.replace(/\D/g, "");
-                    },
-                  })}
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  minLength={11}
-                  error={errors.mobileNumber?.message}
-                  label={t("auth.mobileNumber")}
-                  disabled={mobileVerified}
-                  rightElement={
-                    <Button
-                      type="button"
-                      className="h-10 px-3 whitespace-nowrap"
-                      onClick={handleSendCode}
-                      disabled={isSendingCode || resendCooldownSec > 0 || mobileVerified}
-                    >
-                      {getSendCodeButtonText()}
-                    </Button>
-                  }
-                />
-              </div>
-
-              {/* 핸드폰 인증*/}
-              <div className="space-y-2">
-                <FormInput
-                  id="mobileCode"
-                  label={t("auth.mobileVerification")}
-                  placeholder={t("auth.placeholders.mobileCodeExample")}
-                  registration={register("mobileCode", {
-                    onChange: (e) => {
-                      e.target.value = e.target.value.replace(/\D/g, "");
-                    },
-                  })}
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={6}
-                  error={errors.mobileCode?.message}
-                  disabled={mobileVerified}
-                  rightElement={
-                    <Button
-                      type="button"
-                      className="h-10 px-3 whitespace-nowrap"
-                      onClick={handleVerifyCode}
-                      disabled={mobileVerified}
-                    >
-                      {isVerifyingCode ? t("auth.verifying") : t("auth.verify")}
-                    </Button>
-                  }
-                />
-
-                {/* 남은 시간(타이머) */}
-                {codeSent && !mobileVerified && (
-                  <div
-                    className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
-                      otpExpiresSec > 0 ? "bg-red-50 text-red-700" : "bg-gray-50 text-gray-600"
-                    }`}
+            {/* 핸드폰 번호*/}
+            <div className="space-y-2">
+              <FormInput
+                id="mobileNumber"
+                placeholder={t("auth.placeholders.mobileNumberExample")}
+                registration={register("mobileNumber", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/\D/g, "");
+                  },
+                })}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                minLength={11}
+                maxLength={11}
+                error={errors.mobileNumber?.message}
+                label={t("auth.mobileNumber")}
+                disabled={mobileVerified}
+                rightElement={
+                  <Button
+                    type="button"
+                    className="h-10 px-3 whitespace-nowrap"
+                    onClick={handleSendCode}
+                    disabled={isSendingCode || resendCooldownSec > 0 || mobileVerified}
                   >
-                    <Clock className="h-4 w-4" />
-                    <span className="font-semibold">
-                      {otpExpiresSec > 0
-                        ? t("auth.otpRemainingTime", { time: formattedTime })
-                        : t("auth.otpExpired")}
-                    </span>
-                  </div>
-                )}
-              </div>
+                    {getSendCodeButtonText()}
+                  </Button>
+                }
+              />
+            </div>
 
-              {/* 이메일 */}
-              <div className="space-y-2">
-                <FormInput
-                  id="email"
-                  type="email"
-                  placeholder="robot@email.com"
-                  registration={register("email")}
-                  error={errors.email?.message}
-                  label={`${t("auth.email")}(${t("auth.optional")})`}
-                />
-              </div>
-
-              {/* 약관 동의 */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-start space-x-2">
-                  <Controller
-                    name="agreeTerms"
-                    control={control}
-                    render={({ field }) => (
-                      <Checkbox
-                        id="agreeTerms"
-                        checked={field.value}
-                        onCheckedChange={(checked) => field.onChange(checked === true)}
-                        className="h-5 w-5"
-                      />
-                    )}
-                  />
-                  <label
-                    htmlFor="agreeTerms"
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            {/* 핸드폰 인증*/}
+            <div className="space-y-2">
+              <FormInput
+                id="mobileCode"
+                label={t("auth.mobileVerification")}
+                placeholder={t("auth.placeholders.mobileCodeExample")}
+                registration={register("mobileCode", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/\D/g, "");
+                  },
+                })}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                error={errors.mobileCode?.message}
+                disabled={mobileVerified}
+                rightElement={
+                  <Button
+                    type="button"
+                    className="h-10 px-3 whitespace-nowrap"
+                    onClick={handleVerifyCode}
+                    disabled={mobileVerified}
                   >
-                    <span className="text-red-500">{t("auth.requiredMark")}</span>
-                    {t("auth.agreeTerms")}
-                  </label>
+                    {isVerifyingCode ? t("auth.verifying") : t("auth.verify")}
+                  </Button>
+                }
+              />
+
+              {/* 남은 시간(타이머) */}
+              {codeSent && !mobileVerified && (
+                <div
+                  className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
+                    otpExpiresSec > 0 ? "bg-red-50 text-red-700" : "bg-gray-50 text-gray-600"
+                  }`}
+                >
+                  <Clock className="h-4 w-4" />
+                  <span className="font-semibold">
+                    {otpExpiresSec > 0
+                      ? t("auth.otpRemainingTime", { time: formattedTime })
+                      : t("auth.otpExpired")}
+                  </span>
                 </div>
+              )}
+            </div>
 
-                <div className="flex items-start space-x-2">
-                  <Controller
-                    name="agreePrivacy"
-                    control={control}
-                    render={({ field }) => (
-                      <Checkbox
-                        id="agreePrivacy"
-                        checked={field.value}
-                        onCheckedChange={(checked) => field.onChange(checked === true)}
-                        className="h-5 w-5"
-                      />
-                    )}
-                  />
-                  <label
-                    htmlFor="agreePrivacy"
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    <span className="text-red-500">{t("auth.requiredMark")}</span>{" "}
-                    {t("auth.agreePrivacy")}
-                  </label>
-                </div>
+            {/* 이메일 */}
+            <div className="space-y-2">
+              <FormInput
+                id="email"
+                type="email"
+                placeholder="robot@email.com"
+                registration={register("email")}
+                error={errors.email?.message}
+                label={`${t("auth.email")}(${t("auth.optional")})`}
+              />
+            </div>
 
-                {errors.agreeTerms?.message && (
-                  <p className="text-sm text-red-500">{errors.agreeTerms.message}</p>
-                )}
+            {/* 약관 동의 */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-start space-x-2">
+                <Controller
+                  name="agreeTerms"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="agreeTerms"
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === true)}
+                      className="h-5 w-5"
+                    />
+                  )}
+                />
+                <label
+                  htmlFor="agreeTerms"
+                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  <span className="text-red-500">{t("auth.requiredMark")}</span>
+                  {t("auth.agreeTerms")}
+                </label>
               </div>
 
-              <Button className="w-full h-11" disabled={isSigningUp}>
-                {isSigningUp ? t("auth.signingUp") : t("auth.signupButton")}
-              </Button>
-            </form>
+              <div className="flex items-start space-x-2">
+                <Controller
+                  name="agreePrivacy"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="agreePrivacy"
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === true)}
+                      className="h-5 w-5"
+                    />
+                  )}
+                />
+                <label
+                  htmlFor="agreePrivacy"
+                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  <span className="text-red-500">{t("auth.requiredMark")}</span>{" "}
+                  {t("auth.agreePrivacy")}
+                </label>
+              </div>
 
-            <div className="text-center text-sm">
-              <span className="text-gray-600">{t("auth.haveAccount")} </span>
-              <Link
-                href={loginHref}
-                className="hover:underline font-medium text-[color:var(--link-accent)] hover:text-[color:var(--link-accent-hover)]"
-              >
-                {t("auth.login")}
-              </Link>
+              {errors.agreeTerms?.message && (
+                <p className="text-sm text-red-500">{errors.agreeTerms.message}</p>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+
+            <Button className="w-full h-11" disabled={isSigningUp}>
+              {isSigningUp ? t("auth.signingUp") : t("auth.signupButton")}
+            </Button>
+          </form>
+
+          <div className="text-center text-sm">
+            <span className="text-gray-600">{t("auth.haveAccount")} </span>
+            <Link
+              href={loginHref}
+              className="hover:underline font-medium text-[color:var(--link-accent)] hover:text-[color:var(--link-accent-hover)]"
+            >
+              {t("auth.login")}
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Package, Gift } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,61 +33,65 @@ export default function DashboardTab() {
 
       {/* 요약 카드 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card
-          className="p-5 sm:p-6 border shadow-sm"
-          style={{
-            background: "color-mix(in oklch, var(--button-bg) 4%, white)",
-          }}
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-sm text-gray-500">{t("mypage.dashboard.orders")}</p>
-              <p className="mt-1 text-3xl font-extrabold tracking-tight">
-                {t("mypage.dashboard.ordersCount", {
-                  count: orderList?.length ?? 0,
-                })}
-              </p>
-            </div>
+        <Link href="/mypage?tab=orders" className="block">
+          <Card
+            className="p-5 sm:p-6 border shadow-sm"
+            style={{
+              background: "color-mix(in oklch, var(--button-bg) 4%, white)",
+            }}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-sm text-gray-500">{t("mypage.dashboard.orders")}</p>
+                <p className="mt-1 text-3xl font-extrabold tracking-tight">
+                  {t("mypage.dashboard.ordersCount", {
+                    count: orderList?.length ?? 0,
+                  })}
+                </p>
+              </div>
 
-            <div
-              className="h-11 w-11 rounded-xl flex items-center justify-center"
-              style={{
-                background: "color-mix(in oklch, var(--button-bg) 14%, transparent)",
-                border: "1px solid color-mix(in oklch, var(--button-bg) 22%, transparent)",
-              }}
-            >
-              <Package className="h-5 w-5" style={{ color: "var(--button-bg)" }} />
+              <div
+                className="h-11 w-11 rounded-xl flex items-center justify-center"
+                style={{
+                  background: "color-mix(in oklch, var(--button-bg) 14%, transparent)",
+                  border: "1px solid color-mix(in oklch, var(--button-bg) 22%, transparent)",
+                }}
+              >
+                <Package className="h-5 w-5" style={{ color: "var(--button-bg)" }} />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </Link>
 
-        <Card
-          className="p-5 sm:p-6 border shadow-sm"
-          style={{
-            background: "color-mix(in oklch, var(--button-bg) 4%, white)",
-          }}
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-sm text-gray-500">{t("mypage.dashboard.availableCoupons")}</p>
-              <p className="mt-1 text-3xl font-extrabold tracking-tight">
-                {t("mypage.dashboard.couponsCount", {
-                  count: typeof availableCouponCount === "number" ? availableCouponCount : 0,
-                })}
-              </p>
-            </div>
+        <Link href="/mypage?tab=coupons" className="block">
+          <Card
+            className="p-5 sm:p-6 border shadow-sm"
+            style={{
+              background: "color-mix(in oklch, var(--button-bg) 4%, white)",
+            }}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-sm text-gray-500">{t("mypage.dashboard.availableCoupons")}</p>
+                <p className="mt-1 text-3xl font-extrabold tracking-tight">
+                  {t("mypage.dashboard.couponsCount", {
+                    count: typeof availableCouponCount === "number" ? availableCouponCount : 0,
+                  })}
+                </p>
+              </div>
 
-            <div
-              className="h-11 w-11 rounded-xl flex items-center justify-center"
-              style={{
-                background: "color-mix(in oklch, var(--button-bg) 14%, transparent)",
-                border: "1px solid color-mix(in oklch, var(--button-bg) 22%, transparent)",
-              }}
-            >
-              <Gift className="h-5 w-5" style={{ color: "var(--button-bg)" }} />
+              <div
+                className="h-11 w-11 rounded-xl flex items-center justify-center"
+                style={{
+                  background: "color-mix(in oklch, var(--button-bg) 14%, transparent)",
+                  border: "1px solid color-mix(in oklch, var(--button-bg) 22%, transparent)",
+                }}
+              >
+                <Gift className="h-5 w-5" style={{ color: "var(--button-bg)" }} />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </Link>
       </div>
 
       <h2 className="text-lg md:text-xl font-bold mb-4">{t("mypage.dashboard.recentOrders")}</h2>
@@ -106,34 +111,35 @@ export default function DashboardTab() {
               ORDER_STATUS_BADGE_CLASS[order.status] ?? "bg-gray-100 text-gray-700";
 
             return (
-              <Card
-                key={order.id}
-                className="p-4 border bg-gray-50 shadow-sm transition hover:shadow-md"
-                style={{
-                  boxShadow: "0 1px 0 0 color-mix(in oklch, var(--button-bg) 10%, transparent)",
-                }}
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="font-semibold truncate">{productName}</p>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {orderDate} · #{order.id}
-                    </p>
-                  </div>
+              <Link key={order.id} href={`/mypage/orders/${order.id}`} className="block">
+                <Card
+                  className="p-4 border bg-gray-50 shadow-sm transition hover:shadow-md"
+                  style={{
+                    boxShadow: "0 1px 0 0 color-mix(in oklch, var(--button-bg) 10%, transparent)",
+                  }}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="font-semibold truncate">{productName}</p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {orderDate} · #{order.id}
+                      </p>
+                    </div>
 
-                  <div className="text-right shrink-0">
-                    <p className="font-extrabold">
-                      {t("mypage.dashboard.won", {
-                        amount: order.totalAmount.toLocaleString(),
-                      })}
-                    </p>
+                    <div className="text-right shrink-0">
+                      <p className="font-extrabold">
+                        {t("mypage.dashboard.won", {
+                          amount: order.totalAmount.toLocaleString(),
+                        })}
+                      </p>
 
-                    <div className="mt-2 flex justify-end">
-                      <Badge className={badgeClass}>{statusLabel}</Badge>
+                      <div className="mt-2 flex justify-end">
+                        <Badge className={badgeClass}>{statusLabel}</Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </Link>
             );
           })
         )}

@@ -5,7 +5,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 const banners = [
   { src: "/banners/banner1.png", action: "route", to: "/signup" },
-  { src: "/banners/banner2.png", action: "route", to: "/product/15" },
+  { src: "/banners/banner2.png", action: "route", to: "/product/30" },
   { src: "/banners/banner3.png" },
 ] satisfies Banner[];
 

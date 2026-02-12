@@ -125,7 +125,9 @@ export default function OrderCompleteShell() {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xs text-gray-400">Order</p>
+                    <p className="text-xs text-gray-400">
+                      {t("mypage.orders.plainOrderNumber")}
+                    </p>
                     <p className="text-sm font-semibold text-gray-900">#{detailData?.id}</p>
                   </div>
                 </div>

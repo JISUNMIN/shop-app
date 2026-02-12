@@ -92,7 +92,7 @@ export default function OrderClaimDialog({
         <div className="space-y-4">
           {orderId != null && (
             <div className="text-sm text-gray-600">
-              {t("mypage.orderDetail.requestDialog.orderNumber", { id: orderId })}
+              {t("mypage.orders.orderNumber", { id: orderId })}
             </div>
           )}
 

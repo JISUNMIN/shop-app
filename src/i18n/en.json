@@ -248,6 +248,7 @@
       "title": "Order history",
       "loading": "Loading your orders...",
       "empty": "You have no orders yet.",
+      "plainOrderNumber": "Order No.",
       "orderNumber": "Order No. {{id}}",
       "viewDetail": "View details",
       "itemSummary": "{{name}} and {{count}} more",
@@ -267,7 +268,6 @@
       "invalidOrderId": "Invalid order ID.",
       "backToOrders": "Back to order history",
       "back": "Back",
-      "orderNumber": "Order No. {{id}}",
       "orderedAt": "Ordered at: {{date}}",
 
       "requestDialog": {
@@ -275,7 +275,6 @@
           "cancel": "Cancel request",
           "returnExchange": "Return / Exchange request"
         },
-        "orderNumber": "Order No. {{id}}",
         "refundAmount": "Refund amount",
         "cancelReason": {
           "label": "Cancel reason",

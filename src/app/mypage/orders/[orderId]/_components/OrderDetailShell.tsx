@@ -122,7 +122,7 @@ export default function OrderDetailShell() {
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-gray-600">
-                <span>{t("mypage.orderDetail.orderNumber", { id: order.id })}</span>
+                <span>{t("mypage.orders.orderNumber", { id: order.id })}</span>
                 <span>{t("mypage.orderDetail.orderedAt", { date: orderedAt })}</span>
               </div>
             </div>

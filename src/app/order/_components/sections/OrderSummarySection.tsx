@@ -14,7 +14,7 @@ interface OrderSummarySectionProps {
   isLoading: boolean;
 
   subtotal: number;
-  deliveryFee: number;
+  // deliveryFee: number;
 
   couponDiscount: number;
   pointsDiscount: number;

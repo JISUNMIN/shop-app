@@ -274,6 +274,34 @@
       "orderNumber": "주문번호: {{id}}",
       "orderedAt": "주문일시: {{date}}",
 
+      "requestDialog": {
+        "title": {
+          "cancel": "취소 요청",
+          "returnExchange": "반품/교환 요청"
+        },
+        "orderNumber": "주문번호 {{id}}",
+        "refundAmount": "환불될 금액",
+        "cancelReason": {
+          "label": "취소 사유",
+          "placeholder": "취소 사유를 입력해주세요."
+        },
+        "returnExchangeType": {
+          "label": "반품/교환 선택",
+          "options": {
+            "return": "반품",
+            "exchange": "교환"
+          },
+          "error": "반품 또는 교환을 선택해 주세요."
+        },
+        "returnExchangeReason": {
+          "label": "반품/교환 사유",
+          "placeholder": "반품/교환 사유를 입력해주세요."
+        },
+        "actions": {
+          "close": "닫기",
+          "confirm": "확인"
+        }
+      },
       "deliveryInfo": {
         "title": "배송 정보",
         "currentStatus": "현재 상태",
@@ -321,7 +349,10 @@
         "reorder": "재주문하기",
         "track": "배송조회",
         "trackDisabled": "아직 운송장 정보가 없습니다.",
-        "returnExchange": "교환/반품 신청"
+        "returnExchange": "교환/반품 신청",
+        "cancel": "취소 신청",
+        "close": "닫기",
+        "confirm": "확인"
       }
     },
 

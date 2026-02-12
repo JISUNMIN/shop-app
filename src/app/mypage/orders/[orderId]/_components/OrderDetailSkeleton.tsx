@@ -86,7 +86,7 @@ export default function OrderDetailSkeleton() {
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              {[1, 2, 3].map((i) => (
+              {[1, 2].map((i) => (
                 <Skeleton key={i} className="flex-1 h-12 rounded-lg" />
               ))}
             </div>

@@ -13,18 +13,26 @@ import { Badge } from "@/components/ui/badge";
 
 import {
   getDeliveryProgressStep,
+  getOrderStatusLabel,
   getShipMemoText,
   getShippingStatusLabel,
   ORDER_STATUS_BADGE_CLASS,
 } from "@/utils/orders";
+import OrderClaimDialog from "./OrderClaimDialog";
+import { useState } from "react";
 
 export default function OrderDetailShell() {
   const router = useRouter();
   const { orderId } = useParams<{ orderId: string }>();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as LangCode;
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"cancel" | "return_exchange">("cancel");
 
   const { detailData: order, isDetailLoading } = useOrder(Number(orderId));
+  const canCancel =
+    order?.status === "PAID" || order?.status === "PENDING" || order?.status === "CONFIRMED";
+  const canReturn = order?.status === "DELIVERED";
 
   if (isDetailLoading) {
     return <OrderDetailSkeleton />;
@@ -38,8 +46,7 @@ export default function OrderDetailShell() {
 
   const shipMemo = getShipMemoText(order.shipMemo, t);
 
-  const statusLabel = t(`order.status.${order.status.toLowerCase()}` as any);
-
+  const statusLabel = getOrderStatusLabel(order.status, t);
   const shippingStatusLabel = getShippingStatusLabel(order.status, t);
 
   const progressStep = getDeliveryProgressStep(order.status);
@@ -58,6 +65,30 @@ export default function OrderDetailShell() {
   const shippingFee = 0;
   const totalPrice = Math.max(productPrice - discount + shippingFee, 0);
   const items = order.orderItems ?? [];
+
+  const orderActionLabel = canCancel
+    ? "mypage.orderDetail.actions.cancel"
+    : "mypage.orderDetail.actions.returnExchange";
+
+  const handleOrderAction = () => {
+    if (canCancel) {
+      openCancel();
+      return;
+    }
+
+    if (canReturn) {
+      openRefundReturn();
+    }
+  };
+
+  const openCancel = () => {
+    setMode("cancel");
+    setOpen(true);
+  };
+  const openRefundReturn = () => {
+    setMode("return_exchange");
+    setOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -272,13 +303,25 @@ export default function OrderDetailShell() {
                 {t("mypage.orderDetail.actions.track")}
               </button>
 
-              <button className="w-full sm:flex-1 min-w-[180px] px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                {t("mypage.orderDetail.actions.returnExchange")}
-              </button>
+              {(canCancel || canReturn) && (
+                <button
+                  className="w-full sm:flex-1 min-w-[180px] px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={handleOrderAction}
+                >
+                  {t(orderActionLabel)}
+                </button>
+              )}
             </div>
           </div>
         </main>
       </div>
+      <OrderClaimDialog
+        open={open}
+        onOpenChange={setOpen}
+        mode={mode}
+        orderId={Number(order.id)}
+        refundAmount={t("price", { price: formatPrice(totalPrice, lang) })}
+      />
     </div>
   );
 }

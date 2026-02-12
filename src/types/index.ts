@@ -42,12 +42,12 @@ export interface Order {
   discountAmount: number;
   carrier?: string;
   trackingNumber?: string;
-  shipName: String;
-  shipPhone: String;
-  shipZip?: String;
-  shipAddress1: String;
-  shipAddress2?: String;
-  shipMemo?: String;
+  shipName: string;
+  shipPhone: string;
+  shipZip?: string;
+  shipAddress1: string;
+  shipAddress2?: string;
+  shipMemo?: string;
 }
 
 export interface OrderItem {

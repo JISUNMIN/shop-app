@@ -270,6 +270,35 @@
       "orderNumber": "Order No. {{id}}",
       "orderedAt": "Ordered at: {{date}}",
 
+      "requestDialog": {
+        "title": {
+          "cancel": "Cancel request",
+          "returnExchange": "Return / Exchange request"
+        },
+        "orderNumber": "Order No. {{id}}",
+        "refundAmount": "Refund amount",
+        "cancelReason": {
+          "label": "Cancel reason",
+          "placeholder": "Please enter the reason for cancellation."
+        },
+        "returnExchangeType": {
+          "label": "Select return or exchange",
+          "options": {
+            "return": "Return",
+            "exchange": "Exchange"
+          },
+          "error": "Please select return or exchange."
+        },
+        "returnExchangeReason": {
+          "label": "Return/Exchange reason",
+          "placeholder": "Please enter the reason for return/exchange."
+        },
+        "actions": {
+          "close": "Close",
+          "confirm": "Confirm"
+        }
+      },
+
       "deliveryInfo": {
         "title": "Delivery information",
         "currentStatus": "Current status",
@@ -322,7 +351,8 @@
         "reorder": "Reorder",
         "track": "Track delivery",
         "trackDisabled": "Tracking information is not available yet.",
-        "returnExchange": "Request return / exchange"
+        "returnExchange": "Request return / exchange",
+        "cancel": "Request cancel"
       }
     },
 

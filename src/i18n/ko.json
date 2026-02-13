@@ -113,35 +113,33 @@
 
       "serverError": "서버 오류가 발생했습니다.",
       "userIdAlreadyExists": "이미 존재하는 아이디입니다",
-      "unauthorized": "로그인이 필요합니다."
+      "unauthorized": "로그인이 필요합니다.",
+      "userIdAndPhoneRequired": "아이디와 휴대폰 번호를 입력해 주세요.",
+      "noUserMatched": "입력하신 아이디와 휴대폰 번호로 가입된 사용자를 찾을 수 없습니다."
     },
 
     "signupSuccess": "회원가입이 완료되었습니다.",
-    "signupfail": "회원가입에 실패했습니다. 다시 시도해주세요.",
+    "signupfail": "회원가입에 실패했습니다. 다시 시도해 주세요.",
 
     "forgotPasswordTitle": "비밀번호 재설정",
-    "forgotPasswordDescriptionDefault": "가입 시 사용한 이메일 주소를 입력해 주세요.",
-    "forgotPasswordDescriptionSubmitted": "비밀번호 재설정 링크를 발송했습니다. 이메일을 확인해 주세요.",
+    "forgotPasswordDescriptionDefault": "가입 시 사용한 아이디와 휴대폰 번호를 입력해 주세요.",
+    "forgotPasswordDescriptionSubmitted": "비밀번호 재설정 안내 문자를 발송했습니다. 메시지를 확인해 주세요.",
 
-    "forgotPasswordEmailLabel": "이메일",
-    "forgotPasswordEmailPlaceholder": "example@email.com",
-    "forgotPasswordSubmitButton": "재설정 링크 보내기",
+    "forgotPasswordPhoneLabel": "휴대폰 번호",
+    "forgotPasswordSubmitButton": "재설정 코드 발송",
 
-    "forgotPasswordRememberedPassword": "비밀번호가 생각나셨나요?",
+    "forgotPasswordRememberedPassword": "비밀번호가 기억나셨나요?",
     "forgotPasswordBackToLogin": "로그인 페이지로 돌아가기",
 
-    "forgotPasswordSuccessSentToPrefix": "",
-    "forgotPasswordSuccessSentToSuffix": "로 비밀번호 재설정 링크를 발송했습니다.",
-    "forgotPasswordSuccessInstructionLine1": "이메일을 확인하고 링크를 클릭하여 비밀번호를 재설정하세요.",
+    "forgotPasswordTempPasswordSent": "임시 비밀번호가 발송되었습니다.",
+    "forgotPasswordSuccessInstructionLine1": "문자를 확인한 후 안내에 따라 비밀번호를 재설정해 주세요.",
 
-    "forgotPasswordResendTitle": "이메일이 보이지 않나요?",
-    "forgotPasswordResendHint": "스팸함을 확인하거나, 몇 분 후 다시 시도해 주세요.",
-    "forgotPasswordResendButton": "링크 다시 보내기",
-    "forgotPasswordTryAnotherEmailButton": "다른 이메일로 다시 시도하기",
-    "forgotPasswordResendAlert": "비밀번호 재설정 링크를 다시 보내드렸습니다.",
+    "forgotPasswordResendAlert": "비밀번호 재설정 코드를 다시 발송했습니다.",
+    "forgotPasswordResendButton": "코드 재발송",
+    "forgotPasswordTryAnotherButton": "다시 입력하기",
 
     "forgotPasswordHelpTitle": "도움이 필요하신가요?",
-    "forgotPasswordHelpDescription": "계정 복구에 문제가 있는 경우 고객센터(1234-5678)로 문의해주세요."
+    "forgotPasswordHelpDescription": "계정 복구에 문제가 있다면 고객센터(1234-5678)로 문의해 주세요."
   },
 
   "sns": {
@@ -853,5 +851,6 @@
   "retry": "다시 시도",
   "viewAll": "전체보기",
   "tagline": "스마트 로봇 전문몰",
-  "loginRequired": "로그인 후 이용 가능합니다."
+  "loginRequired": "로그인 후 이용 가능합니다.",
+  "loading": "로딩 중.."
 }

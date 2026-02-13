@@ -97,6 +97,7 @@
 
       "userIdInvalid": "User ID can only contain letters and numbers."
     },
+
     "serverError": {
       "phoneInvalid": "Invalid phone number",
       "phoneOrCodeInvalid": "Invalid phone or code",
@@ -112,32 +113,30 @@
 
       "serverError": "Server error",
       "userIdAlreadyExists": "This ID already exists.",
-      "unauthorized": "Unauthorized."
+      "unauthorized": "Unauthorized.",
+      "userIdAndPhoneRequired": "Please enter your user ID and phone number.",
+      "noUserMatched": "No user matched with the provided user ID and phone number."
     },
 
     "signupSuccess": "Sign-up completed successfully.",
     "signupfail": "Sign-up failed. Please try again.",
 
     "forgotPasswordTitle": "Reset password",
-    "forgotPasswordDescriptionDefault": "Please enter the email address you used to sign up.",
-    "forgotPasswordDescriptionSubmitted": "We've sent you a password reset link. Please check your email.",
+    "forgotPasswordDescriptionDefault": "Please enter your user ID and phone number you used to sign up.",
+    "forgotPasswordDescriptionSubmitted": "We've sent you password reset instructions via SMS. Please check your messages.",
 
-    "forgotPasswordEmailLabel": "Email",
-    "forgotPasswordEmailPlaceholder": "example@email.com",
-    "forgotPasswordSubmitButton": "Send reset link",
+    "forgotPasswordPhoneLabel": "Phone number",
+    "forgotPasswordSubmitButton": "Send reset code",
 
     "forgotPasswordRememberedPassword": "Remembered your password?",
     "forgotPasswordBackToLogin": "Back to login page",
 
-    "forgotPasswordSuccessSentToPrefix": "We've sent a password reset link to ",
-    "forgotPasswordSuccessSentToSuffix": ".",
-    "forgotPasswordSuccessInstructionLine1": "Please check your email and click the link to reset your password.",
+    "forgotPasswordTempPasswordSent": "A temporary password has been sent.",
+    "forgotPasswordSuccessInstructionLine1": "Please check the SMS and follow the instructions to reset your password.",
 
-    "forgotPasswordResendTitle": "Don't see the email?",
-    "forgotPasswordResendHint": "Check your spam folder or try again in a few minutes.",
-    "forgotPasswordResendButton": "Resend link",
-    "forgotPasswordTryAnotherEmailButton": "Try a different email",
-    "forgotPasswordResendAlert": "We've resent the password reset link.",
+    "forgotPasswordResendAlert": "We've resent the password reset code.",
+    "forgotPasswordResendButton": "Resend code",
+    "forgotPasswordTryAnotherButton": "Try again",
 
     "forgotPasswordHelpTitle": "Need help?",
     "forgotPasswordHelpDescription": "If you have trouble recovering your account, please contact support (1234-5678)."
@@ -862,5 +861,6 @@
   "retry": "Retry",
   "viewAll": "View all",
   "tagline": "Smart robot store",
-  "loginRequired": "Login required to continue."
+  "loginRequired": "Login required to continue.",
+  "loading": "Loading..."
 }

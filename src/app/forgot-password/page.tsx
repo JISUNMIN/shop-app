@@ -2,37 +2,58 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bot, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useTranslation } from "@/context/TranslationContext";
+import RoboShopLogo from "@/components/common/RoboShopLogo";
+import { useTranslation } from "react-i18next";
+import useForgotPassword from "@/hooks/useForgotPassword";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 export default function ForgotPasswordPage() {
-  const { auth } = useTranslation();
+  const { t } = useTranslation();
+  const { requestForgotPasswordAsync, isRequestForgotPasswordPending } = useForgotPassword();
 
-  const [email, setEmail] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [phone, setPhone] = useState("");
 
-  const handleSubmit = () => {
-    setIsSubmitted(true);
+  const [isSubmitted, setIsSubmitted] = useState(true);
+
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    setErrorMsg(null);
+
+    try {
+      await requestForgotPasswordAsync({ userId, phone });
+      setIsSubmitted(true);
+    } catch (err) {
+      const error = err as AxiosError<{ errorKey?: string }>;
+      const errorKey = error.response?.data?.errorKey;
+
+      setErrorMsg(errorKey ? t(errorKey) : t("auth.serverError.serverError"));
+    }
   };
 
   return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
-          <Bot className="w-10 h-10" />
-          <span className="text-2xl font-bold">RoboShop</span>
-        </Link>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <RoboShopLogo
+        className="flex items-center justify-center gap-2 mb-8"
+        botClassName="w-8 h-8"
+        textClassName="text-2xl"
+      />
 
-        <Card className="w-full max-w-md">
+      <div className="w-full max-w-md">
+        <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">{auth.forgotPasswordTitle}</CardTitle>
+            <CardTitle className="text-2xl text-center">{t("auth.forgotPasswordTitle")}</CardTitle>
             <CardDescription className="text-center">
               {isSubmitted
-                ? auth.forgotPasswordDescriptionSubmitted
-                : auth.forgotPasswordDescriptionDefault}
+                ? t("auth.forgotPasswordDescriptionSubmitted")
+                : t("auth.forgotPasswordDescriptionDefault")}
             </CardDescription>
           </CardHeader>
 
@@ -47,58 +68,81 @@ export default function ForgotPasswordPage() {
                   className="space-y-4"
                 >
                   <div className="space-y-2">
-                    <Label htmlFor="email">{auth.forgotPasswordEmailLabel}</Label>
+                    <Label htmlFor="username">{t("auth.userId")}</Label>
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder={auth.forgotPasswordEmailPlaceholder}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="username"
+                      type="text"
+                      placeholder={t("auth.placeholders.userIdPlaceholder")}
+                      value={userId}
+                      onChange={(e) => setUserId(e.target.value)}
                       required
+                      autoComplete="username"
                     />
                   </div>
-                  <Button type="submit" className="w-full">
-                    {auth.forgotPasswordSubmitButton}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">{t("auth.forgotPasswordPhoneLabel")}</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="010-0000-0000"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      autoComplete="tel"
+                    />
+                  </div>
+
+                  {errorMsg && (
+                    <div className="p-3 rounded-lg border border-red-200 bg-red-50">
+                      <p className="text-sm text-red-700 text-center">{errorMsg}</p>
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isRequestForgotPasswordPending}
+                  >
+                    {isRequestForgotPasswordPending
+                      ? t("loading")
+                      : t("auth.forgotPasswordSubmitButton")}
                   </Button>
                 </form>
 
                 <div className="text-center text-sm space-y-2">
-                  <div>
-                    <span className="text-gray-600">{auth.forgotPasswordRememberedPassword} </span>
-                    <Link href="/login" className="text-blue-600 hover:underline font-medium">
-                      {auth.login}
-                    </Link>
-                  </div>
+                  <span className="text-gray-600">
+                    {t("auth.forgotPasswordRememberedPassword")}{" "}
+                  </span>
+                  <Link href="/login" className="text-blue-600 hover:underline font-medium">
+                    {t("auth.login")}
+                  </Link>
                 </div>
               </>
             ) : (
               <div className="space-y-4">
                 <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                  <p className="text-sm text-green-800 text-center">
-                    <strong>{email}</strong>
-                    {auth.forgotPasswordSuccessSentToSuffix}
-                    <br />
-                    {auth.forgotPasswordSuccessInstructionLine1}
-                  </p>
+                  <div className="flex flex-col items-center text-center space-y-3">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100">
+                      <Check className="w-5 h-5 text-green-600" />
+                    </div>
+
+                    <p className="text-sm text-green-800">
+                      {t("auth.forgotPasswordSuccessInstructionLine1")}
+                    </p>
+                  </div>
                 </div>
 
-                {/* 재발송 */}
                 <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-                  <div className="text-center space-y-1">
-                    <p className="text-sm font-medium text-gray-700">
-                      {auth.forgotPasswordResendTitle}
-                    </p>
-                    <p className="text-xs text-gray-500">{auth.forgotPasswordResendHint}</p>
-                  </div>
-
                   <Button
                     variant="outline"
                     className="w-full"
                     onClick={() => {
-                      alert(auth.forgotPasswordResendAlert);
+                      // 전송 로직은 아직 X -> 안내만
+                      toast.info(t("auth.forgotPasswordResendAlert"));
                     }}
                   >
-                    {auth.forgotPasswordResendButton}
+                    {t("auth.forgotPasswordResendButton")}
                   </Button>
 
                   <Button
@@ -106,10 +150,12 @@ export default function ForgotPasswordPage() {
                     className="w-full"
                     onClick={() => {
                       setIsSubmitted(false);
-                      setEmail("");
+                      setUserId("");
+                      setPhone("");
+                      setErrorMsg(null);
                     }}
                   >
-                    {auth.forgotPasswordTryAnotherEmailButton}
+                    {t("auth.forgotPasswordTryAnotherButton")}
                   </Button>
                 </div>
 
@@ -119,7 +165,7 @@ export default function ForgotPasswordPage() {
                     className="inline-flex items-center gap-2 text-sm text-blue-600 hover:underline font-medium"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    {auth.forgotPasswordBackToLogin}
+                    {t("auth.forgotPasswordBackToLogin")}
                   </Link>
                 </div>
               </div>
@@ -128,15 +174,14 @@ export default function ForgotPasswordPage() {
         </Card>
 
         {/* 도움말 */}
-        {!isSubmitted && (
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-800 text-center">
-              <strong>{auth.forgotPasswordHelpTitle}</strong>
-              <br />
-              {auth.forgotPasswordHelpDescription}
-            </p>
-          </div>
-        )}
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm text-blue-800 text-center">
+            <strong>{t("auth.forgotPasswordHelpTitle")}</strong>
+            <br />
+            {t("auth.forgotPasswordHelpDescription")}
+          </p>
+        </div>
       </div>
+    </div>
   );
 }

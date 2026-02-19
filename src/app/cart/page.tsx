@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -11,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CartSkeleton, EmptyCart, CartSummary, CartItem } from "@/app/cart";
 import ErrorMessage from "@/components/ErrorMessage";
 import { useTranslation } from "react-i18next";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 export default function CartPage() {
   const router = useRouter();
@@ -21,12 +23,17 @@ export default function CartPage() {
     removeFromCartMutate,
     isRemovePending,
   } = useCart();
+
   const { t } = useTranslation();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>({});
 
-  const selectedCartItems = cartItems?.filter((item) => selectedItems[item.id]) || [];
-  const selectedIds = selectedCartItems.map((i) => i.id);
+  const selectedCartItems = useMemo(
+    () => cartItems?.filter((item) => selectedItems[item.id]) || [],
+    [cartItems, selectedItems],
+  );
 
   const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = selectedCartItems.reduce(
@@ -52,10 +59,32 @@ export default function CartPage() {
     setSelectedItems({});
   };
 
+  const selectedOrderItems = useMemo(
+    () =>
+      selectedCartItems.map((ci) => ({
+        productId: ci.product.id,
+        quantity: ci.quantity,
+      })),
+    [selectedCartItems],
+  );
+
   const onOrder = () => {
     const params = new URLSearchParams();
-    params.set("cartItemIds", selectedIds.join(","));
-    router.push(`/order?${params.toString()}`);
+    params.set("items", JSON.stringify(selectedOrderItems));
+
+    const orderUrl = `/order?${params.toString()}`;
+
+    if (!user) {
+      toast.warning(t("loginRequired"));
+
+      const loginUrl = `/login?${new URLSearchParams({
+        callbackUrl: orderUrl,
+      }).toString()}`;
+
+      return router.push(loginUrl);
+    }
+
+    router.push(orderUrl);
   };
 
   useEffect(() => {

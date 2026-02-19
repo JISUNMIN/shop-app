@@ -24,7 +24,6 @@ import useCoupon from "@/hooks/useCoupon";
 import useOrder from "@/hooks/useOrder";
 import useProducts from "@/hooks/useProducts";
 
-import { formatCartItems } from "@/utils/cart";
 import type { LocalizedText } from "@/types";
 
 export type PaymentMethod = "card" | "bank" | "kakao" | "naver";
@@ -49,7 +48,19 @@ type OrderItem = {
   price: number;
   quantity: number;
   stock: number;
+  image?: any;
 };
+
+type SelectedProductItem = {
+  productId: number;
+  quantity: number;
+};
+
+function isValidSelectedItem(v: any): v is SelectedProductItem {
+  const productId = Number(v?.productId);
+  const quantity = Number(v?.quantity);
+  return Number.isFinite(productId) && productId > 0 && Number.isFinite(quantity) && quantity > 0;
+}
 
 export default function OrderShell() {
   const router = useRouter();
@@ -66,30 +77,32 @@ export default function OrderShell() {
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
 
-  const cartItemIdsParam = searchParams.get("cartItemIds"); // 장바구니 주문
+  const itemsParam = searchParams.get("items"); // 장바구니 주문(비로그인 포함)
   const productIdParam = searchParams.get("productId"); // 바로 구매
   const quantityParamRaw = Number(searchParams.get("quantity") ?? "1");
   const quantityParam = Number.isFinite(quantityParamRaw) ? Math.max(1, quantityParamRaw) : 1;
 
-  const selectedCartItemIds = useMemo(() => {
-    if (!cartItemIdsParam) return [];
-    return Array.from(
-      new Set(
-        cartItemIdsParam
-          .split(",")
-          .map((v) => v.trim())
-          .filter(Boolean),
-      ),
-    );
-  }, [cartItemIdsParam]);
+  const selectedProductItems: SelectedProductItem[] = useMemo(() => {
+    if (!itemsParam) return [];
 
-  const selectedCartItems = useMemo(() => {
-    if (!selectedCartItemIds.length) return [];
-    return cartItems?.filter((item) => selectedCartItemIds.includes(String(item.id))) ?? [];
-  }, [cartItems, selectedCartItemIds]);
+    try {
+      const parsed = JSON.parse(itemsParam);
+      if (!Array.isArray(parsed)) return [];
+
+      const map = new Map<number, number>();
+      parsed.forEach((x) => {
+        if (!isValidSelectedItem(x)) return;
+        map.set(x.productId, (map.get(x.productId) ?? 0) + x.quantity);
+      });
+
+      return Array.from(map.entries()).map(([productId, quantity]) => ({ productId, quantity }));
+    } catch {
+      return [];
+    }
+  }, [itemsParam]);
 
   const productId = productIdParam ? Number(productIdParam) : undefined;
-  const shouldFetchProduct = !!productId && selectedCartItemIds.length === 0;
+  const shouldFetchProduct = !!productId && selectedProductItems.length === 0;
   const { detailData: productDetail } = useProducts(
     undefined,
     shouldFetchProduct ? productId : undefined,
@@ -97,8 +110,26 @@ export default function OrderShell() {
   );
 
   const orderItems: OrderItem[] = useMemo(() => {
-    if (selectedCartItems.length) {
-      return formatCartItems(selectedCartItems, lang) as unknown as OrderItem[];
+    if (selectedProductItems.length) {
+      const cartByProductId = new Map<number, any>();
+      (cartItems ?? []).forEach((ci) => cartByProductId.set(ci.product.id, ci));
+
+      return selectedProductItems
+        .map(({ productId, quantity }) => {
+          const ci = cartByProductId.get(productId);
+          if (!ci) return null;
+
+          return {
+            id: ci.id,
+            productId: ci.product.id,
+            name: ci.product.name?.[lang] ?? "",
+            price: Number(ci.product.price) ?? 0,
+            quantity,
+            stock: Number(ci.product.stock) ?? 0,
+            image: ci.product.images,
+          } as OrderItem;
+        })
+        .filter(Boolean) as OrderItem[];
     }
 
     if (productDetail) {
@@ -115,7 +146,7 @@ export default function OrderShell() {
     }
 
     return [];
-  }, [selectedCartItems, lang, productDetail, quantityParam]);
+  }, [selectedProductItems, cartItems, lang, productDetail, quantityParam]);
 
   const defaultAddressId = useMemo(() => {
     const def = addressList?.find((a) => a.isDefault)?.id;

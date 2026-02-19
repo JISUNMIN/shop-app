@@ -172,6 +172,8 @@ model Order {
   returnReason      String?
   returnMemo        String?
 
+  paymentMethod PaymentMethod @default(CARD)
+
 
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -278,6 +280,7 @@ model WishlistItem {
 }
 
 enum OrderStatus {
+  PENDING // 결제 대기
   PAID       // 결제완료
   SHIPPING   // 배송중
   DELIVERED  // 배송완료
@@ -299,4 +302,11 @@ enum UserCouponStatus {
   USED
   EXPIRED
   REVOKED
+}
+
+enum PaymentMethod {
+  BANK
+  KAKAO
+  NAVER
+  CARD
 }

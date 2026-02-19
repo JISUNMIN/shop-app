@@ -81,9 +81,9 @@ export default function CartSummary({
         </Button>
 
         <div className="text-xs text-muted-foreground space-y-1">
-          <p>{t("deliveryNote1")}</p>
-          <p>{t("deliveryNote2")}</p>
-          <p>{t("deliveryNote3")}</p>
+          <p>{t("order.summary.info1")}</p>
+          <p>{t("order.summary.info2")}</p>
+          <p>{t("order.summary.info3")}</p>
         </div>
       </CardContent>
     </Card>

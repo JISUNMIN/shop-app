@@ -40,7 +40,7 @@ export function OrderItemsSection({ orderItems, isListLoading }: OrderItemsSecti
             const isOut = item.quantity > item.stock;
 
             return (
-              <div key={item.id} className="flex gap-4 pb-4 border-b last:border-b-0">
+              <div key={item.productId} className="flex gap-4 pb-4 border-b last:border-b-0">
                 <Image
                   src={item.image[0]}
                   alt={item.name}

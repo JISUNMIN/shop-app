@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
 
       couponId, // userCouponId
       discountAmount,
+      paymentMethod,
     } = body;
 
     const now = new Date();
@@ -100,7 +101,8 @@ export async function POST(request: NextRequest) {
           totalAmount,
           discountAmount: discountAmount ?? 0,
 
-          status: "PAID",
+          status: paymentMethod === "BANK" ? "PENDING" : "PAID",
+          paymentMethod: paymentMethod,
           paidAt: now,
 
           couponId: userCoupon ? userCoupon.couponId : null,

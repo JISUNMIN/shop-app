@@ -44,16 +44,17 @@ export const getShippingStatusLabel = (status: string, t: TFunction) => {
 
 export const getDeliveryProgressStep = (status: string) => {
   switch (status) {
-    case "PAID":
     case "PENDING":
-      return 0; // ordered
+      return 0;
+    case "PAID":
+      return 1;
     case "CONFIRMED":
     case "SHIPPING":
-      return 1; // preparing
+      return 2; // preparing
     case "SHIPPED":
-      return 2; // shipping
+      return 3; // shipping
     case "DELIVERED":
-      return 3; // delivered
+      return 4; // delivered
     default:
       return 0;
   }

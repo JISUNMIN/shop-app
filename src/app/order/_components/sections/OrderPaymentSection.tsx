@@ -28,10 +28,10 @@ export function OrderPaymentSection() {
             <div className="space-y-3">
               <div
                 className={`flex items-center p-4 rounded-lg border-2 cursor-pointer ${
-                  field.value === "card" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                  field.value === "CARD" ? "border-blue-500 bg-blue-50" : "border-gray-200"
                 }`}
               >
-                <RadioGroupItem value="card" id="card" />
+                <RadioGroupItem value="CARD" id="card" />
                 <Label htmlFor="card" className="flex-1 ml-3 cursor-pointer">
                   <div className="flex items-center gap-2">
                     <CreditCard className="w-5 h-5" />
@@ -42,10 +42,10 @@ export function OrderPaymentSection() {
 
               <div
                 className={`flex items-center p-4 rounded-lg border-2 cursor-pointer ${
-                  field.value === "bank" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                  field.value === "BANK" ? "border-blue-500 bg-blue-50" : "border-gray-200"
                 }`}
               >
-                <RadioGroupItem value="bank" id="bank" />
+                <RadioGroupItem value="BANK" id="bank" />
                 <Label htmlFor="bank" className="flex-1 ml-3 cursor-pointer">
                   <div className="flex items-center gap-2">
                     <Wallet className="w-5 h-5" />
@@ -56,10 +56,10 @@ export function OrderPaymentSection() {
 
               <div
                 className={`flex items-center p-4 rounded-lg border-2 cursor-pointer ${
-                  field.value === "kakao" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                  field.value === "KAKAO" ? "border-blue-500 bg-blue-50" : "border-gray-200"
                 }`}
               >
-                <RadioGroupItem value="kakao" id="kakao" />
+                <RadioGroupItem value="KAKAO" id="kakao" />
                 <Label htmlFor="kakao" className="flex-1 ml-3 cursor-pointer">
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 bg-yellow-400 rounded" />
@@ -70,10 +70,10 @@ export function OrderPaymentSection() {
 
               <div
                 className={`flex items-center p-4 rounded-lg border-2 cursor-pointer ${
-                  field.value === "naver" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                  field.value === "NAVER" ? "border-blue-500 bg-blue-50" : "border-gray-200"
                 }`}
               >
-                <RadioGroupItem value="naver" id="naver" />
+                <RadioGroupItem value="NAVER" id="naver" />
                 <Label htmlFor="naver" className="flex-1 ml-3 cursor-pointer">
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 bg-green-500 rounded" />

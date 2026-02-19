@@ -86,6 +86,7 @@ export function OrderSummarySection({
             </div>
 
             <Button
+              type="button"
               onClick={onClickPay}
               className="w-full h-14 text-lg font-bold"
               disabled={!canPay || hasOutOfStock || isPaying}

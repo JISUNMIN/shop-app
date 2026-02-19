@@ -317,7 +317,8 @@
       },
 
       "progress": {
-        "ordered": "Order placed",
+        "pending": "Payment pending",
+        "paid": "Payment completed",
         "preparing": "Preparing",
         "shipping": "Shipping",
         "delivered": "Delivered"
@@ -423,7 +424,8 @@
       "cancelRequested": "Cancel requested",
       "refunded": "Refunded",
       "returnRequested": "Return requested",
-      "returned": "Returned"
+      "returned": "Returned",
+      "pending": "Pending"
     },
 
     "common": {
@@ -551,6 +553,60 @@
     "validation": {
       "required": "This field is required.",
       "phone": "Invalid phone number format."
+    },
+    "pg": {
+      "title": "Payment",
+      "paymentMethod": "Payment method",
+      "paymentAmount": "Amount",
+      "depositAccountGuide": "Bank transfer account info",
+      "bank": "Bank",
+      "accountNumber": "Account number",
+      "accountHolder": "Account holder",
+      "depositDeadline": "Please deposit by {{date}}. (If not paid, it will be canceled automatically.)",
+
+      "finalizing": "Finalizing your order. Please wait a moment.",
+      "bankGuide": "Please check the deposit instructions. Your order will be received after the deposit is completed.",
+
+      "ctaHint": "Press the button below to proceed with payment.",
+      "payNow": "Proceed to payment",
+      "cancelToOrderForm": "Cancel and return to order form",
+
+      "processing": "Processing payment...",
+      "approved": "Payment approved.",
+
+      "creatingBankPendingOrder": "Creating a pending bank-transfer order...",
+      "creatingOrder": "Finalizing your order...",
+
+      "cannotGetOrderId": "Couldn't retrieve the order number. Please try again.",
+      "createOrderFailed": "Failed to create the order. Please try again.",
+
+      "confirmBankPendingOrder": "Create pending bank-transfer order",
+      "confirmPaidOrder": "Complete payment (confirm order)",
+
+      "cancelPaymentFail": "Cancel payment (mark as failed)",
+      "userCanceled": "User canceled the payment.",
+
+      "backToOrderForm": "Back to order form",
+
+      "genericProcessing": "Processing...",
+      "genericFinalizing": "Processing order...",
+      "genericFailed": "Something went wrong.",
+
+      "retry": "Try again",
+      "footerExample": "* This is a sample payment flow screen.",
+
+      "method": {
+        "card": "Card",
+        "bank": "Bank transfer",
+        "kakao": "KakaoPay",
+        "naver": "NaverPay"
+      },
+      "brand": {
+        "card": "Card",
+        "bank": "Bank transfer",
+        "kakao": "KakaoPay",
+        "naver": "NaverPay"
+      }
     }
   },
   "product": {

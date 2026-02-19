@@ -1,7 +1,7 @@
 // app/order/_components/OrderShell.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -21,12 +21,11 @@ import { CouponSelectDialog } from "@/app/order/_components/dialogs/CouponSelect
 import useCart from "@/hooks/useCart";
 import useAddress from "@/hooks/useAddress";
 import useCoupon from "@/hooks/useCoupon";
-import useOrder from "@/hooks/useOrder";
 import useProducts from "@/hooks/useProducts";
 
 import type { LocalizedText } from "@/types";
 
-export type PaymentMethod = "card" | "bank" | "kakao" | "naver";
+export type PaymentMethod = "CARD" | "BANK" | "KAKAO" | "NAVER";
 
 export type OrderFormValues = {
   selectedAddressId: number;
@@ -66,13 +65,13 @@ export default function OrderShell() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { listData: cartItems, isListLoading, removeFromCartMutate } = useCart();
+  const { listData: cartItems, isListLoading } = useCart();
   const { listData: addressList } = useAddress();
   const { listData: couponList } = useCoupon();
-  const { createOrderMutate, isCreateOrderPending } = useOrder();
 
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
+
 
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
@@ -159,7 +158,7 @@ export default function OrderShell() {
       selectedAddressId: defaultAddressId,
       deliveryMemo: "custom",
       customMemo: "",
-      paymentMethod: "card",
+      paymentMethod: "CARD",
       selectedCouponId: null,
       usePoints: false,
       pointsToUse: 0,
@@ -212,39 +211,44 @@ export default function OrderShell() {
     const shipMemo =
       deliveryMemo === "custom" ? (customMemo?.trim() ? customMemo.trim() : null) : deliveryMemo;
 
-    createOrderMutate(
-      {
-        shipName: selectedAddress.name,
-        shipPhone: selectedAddress.phone,
-        shipZip: selectedAddress.zip ?? null,
-        shipAddress1: selectedAddress.address1,
-        shipAddress2: selectedAddress.address2 ?? null,
-        shipMemo,
+    const payload = {
+      shipName: selectedAddress.name,
+      shipPhone: selectedAddress.phone,
+      shipZip: selectedAddress.zip ?? null,
+      shipAddress1: selectedAddress.address1,
+      shipAddress2: selectedAddress.address2 ?? null,
+      shipMemo,
+      totalAmount: finalAmount,
+      discountAmount: totalDiscount,
+      couponId: selectedCouponId ?? null,
+      products: orderItems.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+    };
 
-        totalAmount: finalAmount,
-        discountAmount: totalDiscount,
-        couponId: selectedCouponId ?? null,
+    const paymentMethod = methods.getValues("paymentMethod");
 
-        products: orderItems.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-      },
-      {
-        onSuccess: (data: any) => {
-          orderItems.forEach((item) => {
-            if (typeof item.id === "number") {
-              removeFromCartMutate({ itemId: item.id, showToast: false });
-            }
-          });
+    const cartItemIdsToRemove = orderItems
+      .map((i) => (typeof i.id === "number" ? i.id : null))
+      .filter((v): v is number => typeof v === "number");
 
-          const orderId = data?.id;
-          router.replace(`/order/complete/${orderId}`);
-        },
-      },
+    sessionStorage.removeItem("order:pending:orderId");
+    sessionStorage.removeItem("order:pending:lock");
+
+    sessionStorage.setItem(
+      "order:pending",
+      JSON.stringify({
+        payload,
+        paymentMethod,
+        cartItemIdsToRemove,
+      }),
     );
+
+    router.push(`/order/pg`);
   };
+
 
   return (
     <FormProvider {...methods}>
@@ -289,7 +293,6 @@ export default function OrderShell() {
                 finalAmount={finalAmount}
                 canPay={canPay}
                 hasOutOfStock={hasOutOfStock}
-                isPaying={isCreateOrderPending}
                 onClickPay={handlePay}
               />
             </div>

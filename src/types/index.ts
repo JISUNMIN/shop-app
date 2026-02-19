@@ -48,6 +48,7 @@ export interface Order {
   shipAddress1: string;
   shipAddress2?: string;
   shipMemo?: string;
+  paymentMethod?: string;
 }
 
 export interface OrderItem {

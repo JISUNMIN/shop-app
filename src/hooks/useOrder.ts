@@ -15,6 +15,7 @@ export type CreateOrderPayload = {
   totalAmount: number;
   discountAmount?: number;
   couponId?: number | null;
+  paymentMethod?:string;
 
   products: Array<{
     productId: number;

@@ -317,7 +317,8 @@
         "inProgress": "진행중"
       },
       "progress": {
-        "ordered": "주문완료",
+        "pending": "결제대기",
+        "paid": "결제완료",
         "preparing": "상품준비중",
         "shipping": "배송중",
         "delivered": "배송완료"
@@ -422,7 +423,8 @@
       "cancelRequested": "취소 요청",
       "refunded": "환불 완료",
       "returnRequested": "반품 요청",
-      "returned": "반품 완료"
+      "returned": "반품 완료",
+      "pending": "결제 대기 중"
     },
     "common": {
       "won": "원",
@@ -549,6 +551,60 @@
     "validation": {
       "required": "필수 입력 항목입니다.",
       "phone": "전화번호 형식이 올바르지 않습니다."
+    },
+    "pg": {
+      "title": "결제",
+      "paymentMethod": "결제수단",
+      "paymentAmount": "결제금액",
+      "depositAccountGuide": "입금 계좌 안내",
+      "bank": "은행",
+      "accountNumber": "계좌번호",
+      "accountHolder": "예금주",
+      "depositDeadline": "{{date}} 까지 입금해 주세요. (미입금 시 자동 취소됩니다.)",
+
+      "finalizing": "주문 확정 처리 중입니다. 잠시만 기다려주세요.",
+      "bankGuide": "입금 안내를 확인해주세요. 입금 완료 후 주문이 접수됩니다.",
+
+      "ctaHint": "아래 버튼을 누르면 결제가 진행됩니다.",
+      "payNow": "결제 진행",
+      "cancelToOrderForm": "취소하고 주문서로",
+
+      "processing": "결제 진행 중입니다...",
+      "approved": "결제가 승인되었습니다.",
+
+      "creatingBankPendingOrder": "입금 대기 주문을 생성 중입니다...",
+      "creatingOrder": "주문 확정 처리 중입니다...",
+
+      "cannotGetOrderId": "주문번호를 확인하지 못했습니다. 다시 시도해주세요.",
+      "createOrderFailed": "주문 생성에 실패했습니다. 다시 시도해주세요.",
+
+      "confirmBankPendingOrder": "입금 대기 주문 생성",
+      "confirmPaidOrder": "결제 완료(주문 확정)",
+
+      "cancelPaymentFail": "결제 취소(실패 처리)",
+      "userCanceled": "사용자가 결제를 취소했습니다.",
+
+      "backToOrderForm": "주문서로 돌아가기",
+
+      "genericProcessing": "처리 중...",
+      "genericFinalizing": "주문 처리 중...",
+      "genericFailed": "처리에 실패했습니다.",
+
+      "retry": "다시 시도",
+      "footerExample": "* 결제 흐름 예시 화면입니다.",
+
+      "method": {
+        "card": "카드",
+        "bank": "무통장입금",
+        "kakao": "카카오페이",
+        "naver": "네이버페이"
+      },
+      "brand": {
+        "card": "Card",
+        "bank": "무통장입금",
+        "kakao": "KakaoPay",
+        "naver": "NaverPay"
+      }
     }
   },
   "product": {

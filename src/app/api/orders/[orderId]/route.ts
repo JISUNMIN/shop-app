@@ -36,6 +36,7 @@ export async function GET(_request: NextRequest, { params }: { params: { orderId
         shipAddress1: true,
         shipAddress2: true,
         shipMemo: true,
+        paymentMethod: true,
 
         orderItems: {
           select: {

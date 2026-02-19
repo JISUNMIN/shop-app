@@ -30,6 +30,8 @@ export default function OrderDetailShell() {
   const [mode, setMode] = useState<"cancel" | "return_exchange">("cancel");
 
   const { detailData: order, isDetailLoading } = useOrder(Number(orderId));
+  const methodKey = order?.paymentMethod?.toLowerCase();
+  const isBank = order?.paymentMethod === "BANK";
   const canCancel =
     order?.status === "PAID" || order?.status === "PENDING" || order?.status === "CONFIRMED";
   const canReturn = order?.status === "DELIVERED";
@@ -52,7 +54,8 @@ export default function OrderDetailShell() {
   const progressStep = getDeliveryProgressStep(order.status);
 
   const progressLabels = [
-    t("mypage.orderDetail.progress.ordered"),
+    t("mypage.orderDetail.progress.pending"),
+    t("mypage.orderDetail.progress.paid"),
     t("mypage.orderDetail.progress.preparing"),
     t("mypage.orderDetail.progress.shipping"),
     t("mypage.orderDetail.progress.delivered"),
@@ -283,12 +286,20 @@ export default function OrderDetailShell() {
                 <div className="flex justify-between items-end gap-4">
                   <span className="font-semibold">{t("mypage.orderDetail.payment.total")}</span>
                   <span className="text-xl sm:text-2xl font-semibold text-right">
-                    {t("price", { price: formatPrice(totalPrice, lang) })}
+                    {t("price", {
+                      price: formatPrice(
+                        isBank && order.status === "PENDING" ? 0 : totalPrice,
+                        lang,
+                      ),
+                    })}
                   </span>
                 </div>
 
                 <p className="text-xs text-gray-500 mt-3">
-                  {t("mypage.orderDetail.payment.notice")}
+                  <p className="text-xs text-gray-500 mt-3">
+                    {t("order.payment.title")}:{" "}
+                    {methodKey && t(`order.payment.methods.${methodKey}`)}
+                  </p>
                 </p>
               </div>
             </div>
@@ -320,7 +331,9 @@ export default function OrderDetailShell() {
         onOpenChange={setOpen}
         mode={mode}
         orderId={Number(order.id)}
-        refundAmount={t("price", { price: formatPrice(totalPrice, lang) })}
+        refundAmount={t("price", {
+          price: formatPrice(isBank && order.status === "PENDING" ? 0 : totalPrice, lang),
+        })}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useLangStore } from "@/store/langStore";
+import { LangCode } from "@/types";
 import { formatPrice as helperFormatPrice } from "@/utils/helper";
 import { useTranslation } from "react-i18next";
 
@@ -22,10 +23,10 @@ export default function CartSummary({
   finalPrice,
   onOrder,
 }: CartSummaryProps) {
-  const { lang } = useLangStore();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as LangCode;
 
-  const isFreeShipping = totalPrice >= 30000;
+  const isFreeShipping = totalItems >= 1;
 
   return (
     <Card className="sticky top-8">
@@ -45,22 +46,14 @@ export default function CartSummary({
 
           <div className="flex justify-between text-sm">
             <span>{t("shippingFee")}</span>
-            {isFreeShipping ? (
-              <div className="text-right">
-                <span className="line-through text-muted-foreground">
-                  {t("price", {
-                    price: helperFormatPrice(shippingFee, lang),
-                  })}
-                </span>
-                <span className="ml-2 text-green-600 font-medium">{t("free")}</span>
-              </div>
-            ) : (
-              <span>
+            <div className="text-right">
+              <span className="line-through text-muted-foreground">
                 {t("price", {
                   price: helperFormatPrice(shippingFee, lang),
                 })}
               </span>
-            )}
+              <span className="ml-2 text-green-600 font-medium">{t("free")}</span>
+            </div>
           </div>
         </div>
 
@@ -78,9 +71,6 @@ export default function CartSummary({
         {!isFreeShipping && (
           <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
             <span className="text-primary font-medium">
-              {t("price", {
-                price: helperFormatPrice(30000 - totalPrice, lang),
-              })}
             </span>
             {t("freeShippingMessage")}
           </div>

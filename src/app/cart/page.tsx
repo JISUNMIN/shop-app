@@ -40,7 +40,8 @@ export default function CartPage() {
     (sum, item) => sum + item.product.price * item.quantity,
     0,
   );
-  const shippingFee = totalPrice >= 30000 ? 0 : 3000;
+  // const shippingFee = totalPrice >= 30000 ? 0 : 3000;
+  const shippingFee = 0;
   const finalPrice = totalPrice + shippingFee;
 
   const handleCheckChange = (itemId: number, checked: boolean) => {

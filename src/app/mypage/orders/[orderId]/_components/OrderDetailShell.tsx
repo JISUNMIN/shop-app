@@ -296,10 +296,7 @@ export default function OrderDetailShell() {
                 </div>
 
                 <p className="text-xs text-gray-500 mt-3">
-                  <p className="text-xs text-gray-500 mt-3">
-                    {t("order.payment.title")}:{" "}
-                    {methodKey && t(`order.payment.methods.${methodKey}`)}
-                  </p>
+                  {t("order.payment.title")}: {methodKey && t(`order.payment.methods.${methodKey}`)}
                 </p>
               </div>
             </div>

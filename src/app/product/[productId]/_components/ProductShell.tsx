@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -100,6 +100,10 @@ export default function ProductShell({ productId }: { productId: number }) {
       },
     );
   };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   if (isDetailLoading) return <ProductDetailSkeleton />;
 

@@ -89,11 +89,17 @@ export default function CartPage() {
   };
 
   useEffect(() => {
-    if (cartItems) {
-      const initialSelected: Record<number, boolean> = {};
-      cartItems.forEach((item) => (initialSelected[item.id] = true));
-      setSelectedItems(initialSelected);
-    }
+    if (!cartItems) return;
+
+    setSelectedItems((prev) => {
+      const next: Record<number, boolean> = {};
+
+      cartItems.forEach((item) => {
+        next[item.id] = prev[item.id] ?? true;
+      });
+
+      return next;
+    });
   }, [cartItems]);
 
   if (isListLoading) {

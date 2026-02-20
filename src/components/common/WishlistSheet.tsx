@@ -25,6 +25,7 @@ type Props = {
 export default function WishlistSheet({ iconOnlyTrigger = true, size = "default" }: Props) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
+
   const { addToCartMutate } = useCart();
   const [pendingAddId, setPendingAddId] = useState<number | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
@@ -142,19 +143,21 @@ export default function WishlistSheet({ iconOnlyTrigger = true, size = "default"
           <div className="space-y-3">
             {listData.map((p) => {
               const isOutOfStock = Number(p.stock) <= 0;
+              const isAdding = pendingAddId === p.id;
+              const isDeleting = pendingDeleteId === p.id;
+
               return (
-                <Link
-                  key={p.id}
-                  href={`/product/${p.id}`}
-                  onClick={() => setOpen(false)}
-                  className="block"
-                >
-                  <Card className="p-3 bg-gray-50 hover:bg-gray-100 transition">
-                    <div className="flex gap-3">
+                <Card key={p.id} className="p-3 bg-gray-50 hover:bg-gray-100 transition">
+                  <div className="flex gap-3">
+                    <Link
+                      href={`/product/${p.id}`}
+                      onClick={() => setOpen(false)}
+                      className="flex gap-3 flex-1 min-w-0"
+                    >
                       <img
                         src={p.images?.[0] ?? "/placeholder.jpg"}
                         alt={p.name?.[lang] ?? ""}
-                        className="w-20 h-20 object-cover rounded-lg"
+                        className="w-20 h-20 object-cover rounded-lg shrink-0"
                       />
 
                       <div className="flex-1 min-w-0">
@@ -162,35 +165,23 @@ export default function WishlistSheet({ iconOnlyTrigger = true, size = "default"
                         <p className="text-base font-bold text-blue-600">
                           {t("price", { price: p.price.toLocaleString() })}
                         </p>
-                        {/* 장바구니 버튼 */}
-                        <div
-                          className="mt-2 flex gap-2"
-                          onClickCapture={(e) => {
-                            if (isOutOfStock || pendingAddId === p.id) {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }
-                          }}
-                        >
-                          <Button
-                            onClick={handleAddToCartClick(p.id)}
-                            disabled={isOutOfStock || pendingAddId === p.id}
-                          >
-                            {pendingAddId === p.id ? t("addingToCart") : t("cart")}
-                          </Button>
-                          {/* 삭제 버튼 */}
-                          <Button
-                            variant="outline"
-                            onClick={onClickDelete(p.id)}
-                            disabled={pendingDeleteId === p.id}
-                          >
-                            {pendingDeleteId === p.id ? t("deleting") : t("delete")}
-                          </Button>
-                        </div>
                       </div>
+                    </Link>
+
+                    <div className="flex flex-col justify-center gap-2 shrink-0">
+                      <Button
+                        onClick={handleAddToCartClick(p.id)}
+                        disabled={isOutOfStock || isAdding}
+                      >
+                        {isAdding ? t("addingToCart") : t("cart")}
+                      </Button>
+
+                      <Button variant="outline" onClick={onClickDelete(p.id)} disabled={isDeleting}>
+                        {isDeleting ? t("deleting") : t("delete")}
+                      </Button>
                     </div>
-                  </Card>
-                </Link>
+                  </div>
+                </Card>
               );
             })}
 

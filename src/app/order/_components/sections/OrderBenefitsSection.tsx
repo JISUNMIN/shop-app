@@ -1,16 +1,15 @@
 // app/order/_components/sections/OrderBenefitsSection.tsx
 import { Gift } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useFormContext } from "react-hook-form";
+// import { useFormContext } from "react-hook-form";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
 import type { Coupon, LangCode } from "@/types";
-import type { OrderFormValues } from "@/app/order/_components/OrderShell";
+// import type { OrderFormValues } from "@/app/order/_components/OrderShell";
 import { formatPrice } from "@/utils/helper";
-
 
 interface Props {
   selectedCoupon: Coupon | undefined;
@@ -23,17 +22,18 @@ interface Props {
 export function OrderBenefitsSection({
   selectedCoupon,
   couponDiscount,
-  availablePoints,
-  pointsMax,
+  // availablePoints,
+  // pointsMax,
   onOpenCouponDialog,
 }: Props) {
   const { t, i18n } = useTranslation();
-  const { watch, setValue } = useFormContext<OrderFormValues>();
+  // const { watch } = useFormContext<OrderFormValues>();
   const lang = i18n.language as LangCode;
   const priceText = (value: number) => t("price", { price: formatPrice(value, lang) });
 
-  const usePoints = watch("usePoints");
-  const pointsToUse = watch("pointsToUse");
+
+  // const usePoints = watch("usePoints");
+  // const pointsToUse = watch("pointsToUse");
 
   return (
     <Card className="p-4 md:p-6">
@@ -51,7 +51,7 @@ export function OrderBenefitsSection({
               <Gift className="w-4 h-4 text-orange-500" />
               {selectedCoupon
                 ? t("order.coupon.selected", {
-                    name: selectedCoupon.name,
+                    name: selectedCoupon.coupon.name,
                     discount: priceText(couponDiscount),
                   })
                 : t("order.coupon.select")}

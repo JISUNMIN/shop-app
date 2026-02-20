@@ -470,7 +470,7 @@
     "coupon": {
       "label": "할인쿠폰",
       "select": "쿠폰 선택",
-      "selected": "{{name}} (-{{discount}}원)"
+      "selected": "{{name}} (-{{discount}})"
     },
 
     "couponDialog": {
@@ -538,7 +538,8 @@
       "detailAddress": "상세주소",
       "detailAddressPlaceholder": "상세주소 입력",
       "setDefault": "기본 배송지로 설정",
-      "add": "추가하기"
+      "add": "추가하기",
+      "edit":"수정하기"
     },
 
     "alert": {

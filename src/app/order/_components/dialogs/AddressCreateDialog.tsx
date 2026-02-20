@@ -223,7 +223,7 @@ export function AddressCreateDialog({ open, onOpenChange, editingAddress, onCrea
 
             <div className="flex gap-2 pt-4">
               <Button onClick={submit} className="flex-1" disabled={!isValid || isSubmitting}>
-                {t("order.addressDialog.add")}
+                {editingAddress ? t("order.addressDialog.edit") : t("order.addressDialog.add")}
               </Button>
               <Button
                 variant="outline"

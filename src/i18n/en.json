@@ -472,7 +472,7 @@
     "coupon": {
       "label": "Coupon",
       "select": "Select a coupon",
-      "selected": "{{name}} (-{{discount}} KRW)"
+      "selected": "{{name}} (-{{discount}})"
     },
 
     "couponDialog": {
@@ -540,7 +540,8 @@
       "detailAddress": "Address line 2",
       "detailAddressPlaceholder": "Enter details",
       "setDefault": "Set as default address",
-      "add": "Add"
+      "add": "Add",
+      "edit": "Edit"
     },
 
     "alert": {

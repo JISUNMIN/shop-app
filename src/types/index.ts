@@ -118,6 +118,7 @@ export interface Coupon {
   discountValue: number;
   minOrderAmount: number;
   isActive: boolean;
+  coupon: Coupon;
 }
 
 export interface Wishlist {

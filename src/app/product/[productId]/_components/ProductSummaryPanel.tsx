@@ -90,7 +90,9 @@ export default function ProductSummaryPanel({
       )}
 
       <div className="flex items-start justify-between gap-4">
-        <h1 className="text-3xl font-semibold">{detailData.name[lang] ?? ""}</h1>
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold">
+          {detailData.name[lang] ?? ""}
+        </h1>
 
         <button
           onClick={handleWishlistClick}

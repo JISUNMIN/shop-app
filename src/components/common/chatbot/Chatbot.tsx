@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { getBotResponse } from "./response";
-import { QUICK_REPLY_KEYS, initialBotText } from "./constants";
+import { QUICK_REPLY_KEYS, ROBOT_CATEGORY_KEYS, initialBotText } from "./constants";
 import { useTranslation } from "react-i18next";
 
 interface Message {
@@ -42,43 +42,67 @@ export default function Chatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const normalize = (s: string) => s.replace(/\s/g, "").toLowerCase();
+
+  const findCategoryKeyFromInput = (input: string) => {
+    const q = normalize(input);
+    if (!q) return null;
+
+    let bestKey: string | null = null;
+    let bestScore = 0;
+
+    for (const key of ROBOT_CATEGORY_KEYS) {
+      const label = normalize(t(`chatbot.${key}`));
+
+      if (label === q) return key;
+
+      if (label.includes(q)) {
+        const score = q.length / label.length;
+        if (score > bestScore) {
+          bestScore = score;
+          bestKey = key;
+        }
+      }
+    }
+
+    if (q.length < 2) return null;
+
+    return bestKey;
+  };
+
   const handleSendMessage = (text?: string) => {
-    const raw = (text ?? inputValue).trim();
-    if (!raw) return;
-    const messageText = raw;
+    const input = (text ?? inputValue).trim();
+    if (!input) return;
+
+    const directKey = (ROBOT_CATEGORY_KEYS as readonly string[]).includes(input) ? input : null;
+
+    const matchedCategoryKey = directKey ?? findCategoryKeyFromInput(input);
+
+    const messageTextLabel = matchedCategoryKey ? t(`chatbot.${matchedCategoryKey}`) : input;
 
     setSuggestions([]);
 
-    const userMessage: Message = {
-      id: Date.now(),
-      text: messageText,
-      sender: "user",
-      timestamp: new Date(),
-    };
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now(), text: messageTextLabel, sender: "user", timestamp: new Date() },
+    ]);
 
-    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     setIsTyping(true);
 
     setTimeout(() => {
-      const reply = getBotResponse(messageText, t);
+      const reply = getBotResponse(matchedCategoryKey ?? input, t);
 
-      const botResponse: Message = {
-        id: Date.now() + 1,
-        text: reply.textKey,
-        sender: "bot",
-        timestamp: new Date(),
-      };
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, text: reply.textKey, sender: "bot", timestamp: new Date() },
+      ]);
 
-      setMessages((prev) => [...prev, botResponse]);
       setIsTyping(false);
 
-      if (reply.suggestions?.length) {
-        setSuggestions(reply.suggestions);
-      }
+      if (reply.suggestions?.length) setSuggestions(reply.suggestions);
     }, 700);
   };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();

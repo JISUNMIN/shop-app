@@ -50,6 +50,7 @@ export default function WishlistSheet({ iconOnlyTrigger = true, size = "default"
     if (!user) {
       removeLocalWishlist(productId);
       setLocalIds((prev) => prev.filter((x) => x !== productId));
+      window.dispatchEvent(new Event("wishlist:changed"));
       setPendingDeleteId(null);
       return;
     }
@@ -80,6 +81,7 @@ export default function WishlistSheet({ iconOnlyTrigger = true, size = "default"
           if (!user) {
             removeLocalWishlist(productId);
             setLocalIds((prev) => prev.filter((x) => x !== productId));
+            window.dispatchEvent(new Event("wishlist:changed"));
           } else deleteWishlistMutate({ productId });
         },
         onError: () => {

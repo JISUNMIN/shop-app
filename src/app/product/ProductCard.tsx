@@ -33,20 +33,23 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as keyof LocalizedText;
   const shouldReduceMotion = useReducedMotion();
+
   const { addToCartMutate, isAddPending } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
 
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showQuickView, setShowQuickView] = useState(false);
+
   const { listData, addWishlistMutate, deleteWishlistMutate } = useWishlist();
 
   const isSoldOut = product.stock === 0;
+  const productId = Number(product.id);
 
   const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     toggleWishlist({
       e,
-      productId: Number(product.id),
+      productId,
       isWishlisted,
       user,
       setIsWishlisted,
@@ -80,9 +83,30 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   useEffect(() => {
-    const list = user ? listData?.productIds : getLocalWishlist();
-    setIsWishlisted(list?.some((item) => item === product.id) ?? false);
-  }, [listData]);
+    const sync = () => {
+      if (user) {
+        const ids = listData?.productIds ?? [];
+        setIsWishlisted(ids.some((id: number) => Number(id) === productId));
+      } else {
+        const ids = getLocalWishlist();
+        setIsWishlisted(ids.some((id: number) => Number(id) === productId));
+      }
+    };
+
+    sync();
+
+    if (!user) {
+      window.addEventListener("wishlist:changed", sync);
+      window.addEventListener("storage", sync);
+
+      return () => {
+        window.removeEventListener("wishlist:changed", sync);
+        window.removeEventListener("storage", sync);
+      };
+    }
+
+    return;
+  }, [user, listData?.productIds, productId]);
 
   return (
     <motion.div

@@ -8,7 +8,6 @@ OAuth 인증, 비로그인 장바구니 유지, 주문 상태 머신 설계 등
 ## 🔗 Demo
 
 - Live Demo: https://shop-app-orcin-six.vercel.app
-- GitHub Repository: https://github.com/JISUNMIN/shop-app
 - 주요 기능: 로그인/비로그인 장바구니/찜하기, 주문/환불/반품 상태 관리, 쿠폰 적용
 
 ---

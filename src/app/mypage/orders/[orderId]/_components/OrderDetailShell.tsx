@@ -6,13 +6,15 @@ import { useParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { formatDate, formatPrice } from "@/utils/helper";
 import type { LangCode } from "@/types";
-import { DeliveryProgress } from "./DeliveryProgress";
 import OrderDetailSkeleton from "./OrderDetailSkeleton";
 import EmptyOrderState from "./EmptyOrderState";
 import { Badge } from "@/components/ui/badge";
 
 import {
-  getDeliveryProgressStep,
+  getAvailableOrderActions,
+  getOrderAttentionSummary,
+  getOrderCustomerActionSummary,
+  getOrderProgressPercent,
   getOrderStatusLabel,
   getShipMemoText,
   getShippingStatusLabel,
@@ -20,6 +22,9 @@ import {
 } from "@/utils/orders";
 import OrderClaimDialog from "./OrderClaimDialog";
 import { useState } from "react";
+import OrderStatusTimeline from "./OrderStatusTimeline";
+import Image from "next/image";
+import OrderStatusDebugPanel from "./OrderStatusDebugPanel";
 
 export default function OrderDetailShell() {
   const router = useRouter();
@@ -32,10 +37,6 @@ export default function OrderDetailShell() {
   const { detailData: order, isDetailLoading } = useOrder(Number(orderId));
   const methodKey = order?.paymentMethod?.toLowerCase();
   const isBank = order?.paymentMethod === "BANK";
-  const canCancel =
-    order?.status === "PAID" || order?.status === "PENDING" || order?.status === "CONFIRMED";
-  const canReturn = order?.status === "DELIVERED";
-
   if (isDetailLoading) {
     return <OrderDetailSkeleton />;
   }
@@ -50,28 +51,34 @@ export default function OrderDetailShell() {
 
   const statusLabel = getOrderStatusLabel(order.status, t);
   const shippingStatusLabel = getShippingStatusLabel(order.status, t);
-
-  const progressStep = getDeliveryProgressStep(order.status);
-
-  const progressLabels = [
-    t("mypage.orderDetail.progress.pending"),
-    t("mypage.orderDetail.progress.paid"),
-    t("mypage.orderDetail.progress.preparing"),
-    t("mypage.orderDetail.progress.shipping"),
-    t("mypage.orderDetail.progress.delivered"),
-  ];
+  const availableActions = getAvailableOrderActions(order.status);
+  const canCancel = availableActions.includes("cancel");
+  const canReturn = availableActions.includes("return");
+  const attention = getOrderAttentionSummary(order, t);
+  const customerAction = getOrderCustomerActionSummary(order, t);
+  const progressPercent = getOrderProgressPercent(order.status);
+  const timelineEventCount = order.orderEvents?.length ?? 0;
 
   const orderedAt = formatDate(order.createdAt, lang);
 
-  const productPrice = order.totalAmount ?? 0;
+  const totalPrice = order.totalAmount ?? 0;
   const discount = order.discountAmount ?? 0;
   const shippingFee = 0;
-  const totalPrice = Math.max(productPrice - discount + shippingFee, 0);
+  const productPrice = Math.max(totalPrice + discount - shippingFee, 0);
   const items = order.orderItems ?? [];
 
   const orderActionLabel = canCancel
     ? "mypage.orderDetail.actions.cancel"
     : "mypage.orderDetail.actions.returnExchange";
+
+  const insightToneClassMap: Record<string, string> = {
+    slate: "border-slate-200 bg-slate-50 text-slate-700",
+    amber: "border-amber-200 bg-amber-50 text-amber-800",
+    blue: "border-blue-200 bg-blue-50 text-blue-700",
+    emerald: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    rose: "border-rose-200 bg-rose-50 text-rose-700",
+    violet: "border-violet-200 bg-violet-50 text-violet-700",
+  };
 
   const handleOrderAction = () => {
     if (canCancel) {
@@ -124,11 +131,94 @@ export default function OrderDetailShell() {
                 </Badge>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-gray-600">
                 <span>{t("mypage.orders.orderNumber", { id: order.id })}</span>
                 <span>{t("mypage.orderDetail.orderedAt", { date: orderedAt })}</span>
               </div>
             </div>
+
+            <div className="mb-6 grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+              <div className="rounded-3xl bg-slate-950 p-5 text-white shadow-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">
+                      {t("mypage.orderDetail.insights.fulfillmentTitle")}
+                    </p>
+                    <p className="mt-3 text-xl font-bold">{attention.label}</p>
+                    <p className="mt-2 text-sm text-slate-300">{attention.description}</p>
+                  </div>
+                  <p className="text-sm font-bold text-slate-300">{progressPercent}%</p>
+                </div>
+
+                <div className="mt-4 h-2 rounded-full bg-white/15">
+                  <div
+                    className="h-full rounded-full bg-white transition-all"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+
+                <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl bg-white/6 p-3">
+                    <p className="text-xs text-slate-300">
+                      {t("mypage.orderDetail.insights.statusTitle")}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-white">{statusLabel}</p>
+                  </div>
+
+                  <div className="rounded-2xl bg-white/6 p-3">
+                    <p className="text-xs text-slate-300">
+                      {t("mypage.orderDetail.insights.shippingTitle")}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-white">{shippingStatusLabel}</p>
+                  </div>
+
+                  <div className="rounded-2xl bg-white/6 p-3">
+                    <p className="text-xs text-slate-300">
+                      {t("mypage.orderDetail.insights.timelineTitle")}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-white">
+                      {t("mypage.orderDetail.insights.timelineCount", {
+                        count: timelineEventCount,
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                <div
+                  className={[
+                    "rounded-3xl border p-5",
+                    insightToneClassMap[customerAction.tone] ?? insightToneClassMap.slate,
+                  ].join(" ")}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] opacity-80">
+                    {t("mypage.orderDetail.insights.customerActionTitle")}
+                  </p>
+                  <p className="mt-3 text-base font-bold">{customerAction.label}</p>
+                  <p className="mt-2 text-sm opacity-90">{customerAction.description}</p>
+                </div>
+
+                <div className="rounded-3xl border border-slate-200 bg-white p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                    {t("mypage.orderDetail.insights.trackingTitle")}
+                  </p>
+                  <p className="mt-3 text-base font-bold text-slate-900">
+                    {order.trackingNumber
+                      ? t("mypage.orderDetail.insights.trackingReady")
+                      : t("mypage.orderDetail.insights.trackingPending")}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-600">
+                    {order.trackingNumber
+                      ? `${order.carrier ?? "-"} · ${order.trackingNumber}`
+                      : t("mypage.orderDetail.insights.trackingPendingDescription")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <OrderStatusTimeline order={order} lang={lang} />
+            <OrderStatusDebugPanel order={order} />
 
             {/* Delivery */}
             <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-blue-50 rounded-lg">
@@ -141,9 +231,6 @@ export default function OrderDetailShell() {
                 {t("mypage.orderDetail.deliveryInfo.currentStatus")}:{" "}
                 <span className="font-semibold">{shippingStatusLabel}</span>
               </p>
-
-              <DeliveryProgress step={progressStep} labels={progressLabels} />
-
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mt-4">
                 <div>
                   <p className="text-gray-600 mb-1">
@@ -181,9 +268,11 @@ export default function OrderDetailShell() {
                       className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border border-gray-200 rounded-lg"
                     >
                       <div className="w-full sm:w-24 h-48 sm:h-24 bg-gray-100 rounded-lg overflow-hidden">
-                        <img
+                        <Image
                           src={item.product?.images?.[0]}
                           alt={name}
+                          width={240}
+                          height={240}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -287,10 +376,7 @@ export default function OrderDetailShell() {
                   <span className="font-semibold">{t("mypage.orderDetail.payment.total")}</span>
                   <span className="text-xl sm:text-2xl font-semibold text-right">
                     {t("price", {
-                      price: formatPrice(
-                        isBank && order.status === "PENDING" ? 0 : totalPrice,
-                        lang,
-                      ),
+                      price: formatPrice(totalPrice, lang),
                     })}
                   </span>
                 </div>

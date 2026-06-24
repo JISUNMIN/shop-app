@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosSession from "@/lib/axiosSession";
-import { Order } from "@/types";
+import { Order, OrderStatus, UpdateOrderShippingPayload } from "@/types";
 
 const ORDER_API_PATH = "/orders";
 
@@ -22,6 +22,12 @@ export type CreateOrderPayload = {
     quantity: number;
     price: number;
   }>;
+};
+
+export type UpdateOrderStatusPayload = {
+  id: number;
+  nextStatus: OrderStatus;
+  note?: string | null;
 };
 
 const useOrder = (targetId?: number) => {
@@ -58,6 +64,42 @@ const useOrder = (targetId?: number) => {
     },
   });
 
+  const { mutate: updateOrderStatusMutate, isPending: isUpdateOrderStatusPending } = useMutation<
+    Order,
+    Error,
+    UpdateOrderStatusPayload
+  >({
+    mutationKey: ["orders", "update-status"],
+    mutationFn: async ({ id, nextStatus, note }: UpdateOrderStatusPayload) => {
+      const res = await axiosSession.patch(`${ORDER_API_PATH}/${id}`, { nextStatus, note });
+      return res.data;
+    },
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["orders", "list"] }),
+        queryClient.invalidateQueries({ queryKey: ["orders", "detail", variables.id] }),
+      ]);
+    },
+  });
+
+  const { mutate: updateOrderShippingMutate, isPending: isUpdateOrderShippingPending } =
+    useMutation<Order, Error, UpdateOrderShippingPayload>({
+      mutationKey: ["orders", "update-shipping"],
+      mutationFn: async ({ id, carrier, trackingNumber }: UpdateOrderShippingPayload) => {
+        const res = await axiosSession.patch(`${ORDER_API_PATH}/${id}`, {
+          carrier,
+          trackingNumber,
+        });
+        return res.data;
+      },
+      onSuccess: async (_data, variables) => {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["orders", "list"] }),
+          queryClient.invalidateQueries({ queryKey: ["orders", "detail", variables.id] }),
+        ]);
+      },
+    });
+
   // 주문 상세 조회
   const {
     data: detailData,
@@ -82,6 +124,10 @@ const useOrder = (targetId?: number) => {
     // create
     createOrderMutate,
     isCreateOrderPending,
+    updateOrderStatusMutate,
+    isUpdateOrderStatusPending,
+    updateOrderShippingMutate,
+    isUpdateOrderShippingPending,
 
     // detail
     detailData,

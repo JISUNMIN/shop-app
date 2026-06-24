@@ -18,6 +18,7 @@ model User {
   emailVerified DateTime? @map("email_verified")
   phone         String?  @unique
   password      String?
+  role          UserRole @default(USER)
 
   phoneVerifiedAt DateTime?
 
@@ -172,6 +173,11 @@ model Order {
   returnReason      String?
   returnMemo        String?
 
+  assignedOperator   String?
+  priority           OrderPriority @default(NORMAL)
+  slaDueAt           DateTime?
+  internalMemo       String?
+
   paymentMethod PaymentMethod @default(CARD)
 
 
@@ -179,6 +185,7 @@ model Order {
   updatedAt     DateTime    @updatedAt
 
   orderItems    OrderItem[]
+  orderEvents   OrderEvent[]
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
@@ -196,6 +203,21 @@ model OrderItem {
   product Product @relation(fields: [productId], references: [id])
 
   @@map("order_items")
+}
+
+model OrderEvent {
+  id         Int            @id @default(autoincrement())
+  orderId     Int
+  eventType   OrderEventType
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  note        String?
+  createdAt   DateTime       @default(now())
+
+  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@map("order_events")
 }
 
 model Address {
@@ -309,4 +331,28 @@ enum PaymentMethod {
   KAKAO
   NAVER
   CARD
+}
+
+enum OrderPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum OrderEventType {
+  ORDER_CREATED
+  STATUS_CHANGED
+  CANCEL_REQUESTED
+  REFUNDED
+  RETURN_REQUESTED
+  RETURNED
+  PAYMENT_CONFIRMED
+  SHIPPING_STARTED
+  DELIVERED
 }

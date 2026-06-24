@@ -1,10 +1,32 @@
 // prisma/seed.ts
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const adminPasswordHash = await bcrypt.hash("admin1234!", 12);
+
+  await prisma.user.upsert({
+    where: { userId: "ops_admin" },
+    update: {
+      phoneVerifiedAt: new Date(),
+      password: adminPasswordHash,
+    },
+    create: {
+      userId: "ops_admin",
+      name: "Operations Admin",
+      email: "ops_admin@roboshop.local",
+      phone: "01099998888",
+      password: adminPasswordHash,
+      phoneVerifiedAt: new Date(),
+    },
+  });
+
+  await prisma.$executeRawUnsafe('UPDATE "users" SET "role" = \'ADMIN\' WHERE "userId" = \'ops_admin\'');
+
   // 기존 데이터 삭제
+  await prisma.orderEvent.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.cartItem.deleteMany();

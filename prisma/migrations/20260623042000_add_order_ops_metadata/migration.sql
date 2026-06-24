@@ -1,0 +1,12 @@
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'OrderPriority') THEN
+    CREATE TYPE "OrderPriority" AS ENUM ('LOW', 'NORMAL', 'HIGH', 'URGENT');
+  END IF;
+END $$;
+
+ALTER TABLE "orders"
+ADD COLUMN IF NOT EXISTS "assignedOperator" TEXT,
+ADD COLUMN IF NOT EXISTS "priority" "OrderPriority" NOT NULL DEFAULT 'NORMAL',
+ADD COLUMN IF NOT EXISTS "slaDueAt" TIMESTAMP(3),
+ADD COLUMN IF NOT EXISTS "internalMemo" TEXT;

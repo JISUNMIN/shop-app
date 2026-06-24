@@ -116,6 +116,13 @@ export default function Header() {
                 textClassName="text-base"
               />
               <div>
+                {user?.role === "ADMIN" && (
+                  <Link href="/ops/orders">
+                    <Button variant="outline" size="sm" className="mr-2 px-3 font-semibold">
+                      {t("opsOrders.quickLink")}
+                    </Button>
+                  </Link>
+                )}
                 {/* 로그인*/}
                 {!user && (
                   <Link href="/login">
@@ -220,6 +227,13 @@ export default function Header() {
                     </Button>
                   </Link>
                 </>
+              )}
+              {user?.role === "ADMIN" && (
+                <Link href="/ops/orders">
+                  <Button variant="outline" size="sm" className="px-3 font-semibold">
+                    {t("opsOrders.quickLink")}
+                  </Button>
+                </Link>
               )}
               {/* 마이페이지 */}
               {user && <MypageButton />}

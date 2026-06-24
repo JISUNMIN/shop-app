@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import useOrderClaim, { ClaimPayload } from "@/hooks/useOrderClaim";
+import useOrderClaim from "@/hooks/useOrderClaim";
 
 type RequestMode = "cancel" | "return_exchange";
 type ReturnExchangeType = "return" | "exchange";
@@ -56,22 +56,23 @@ export default function OrderClaimDialog({
   };
 
   const handleConfirm = () => {
+    if (orderId == null) return;
+
     if (mode === "return_exchange" && !returnExchangeType) {
       setTypeError(true);
       return;
     }
 
-    const payload =
-      mode === "cancel"
+    const payload = {
+      id: orderId,
+      ...(mode === "cancel"
         ? {
-            id: orderId,
-            cancelReason: cancelReason.trim() ?? "",
+            cancelReason: cancelReason.trim(),
           }
         : {
-            id: orderId,
-            returnReason: returnExchangeReason.trim() ?? "",
-            // returnExchangeType: returnExchangeType,
-          };
+            returnReason: returnExchangeReason.trim(),
+          }),
+    };
 
     orderClaimMutate(payload);
     handleClose(false);

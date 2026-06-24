@@ -1,43 +1,47 @@
-import { auth } from "@/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { appendOrderEvent } from "@/lib/orderEvents";
+import { getOperatorSession } from "@/lib/operatorAuth";
 import {
   buildShippingUpdateNote,
   buildTransitionData,
   getOrderEventTypeForStatus,
   validateOrderPatchInput,
 } from "@/lib/orderOperations";
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
-import type { OrderEventType, OrderStatus } from "@/types";
+import type { OrderEventType, OrderPriority, OrderStatus } from "@/types";
 
 export async function GET(
   _request: NextRequest,
   context: { params: Promise<{ orderId: string }> },
 ) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const operator = await getOperatorSession();
+    if (!operator.ok) {
+      return NextResponse.json({ error: operator.message }, { status: operator.status });
     }
 
     const { orderId: rawOrderId } = await context.params;
     const orderId = Number(rawOrderId);
+
     if (!Number.isFinite(orderId)) {
       return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
     }
 
-    const order = await prisma.order.findFirst({
-      where: { userId, id: orderId },
+    const order = await (prisma.order.findUnique as (...args: unknown[]) => Promise<unknown>)({
+      where: { id: orderId },
       select: {
         id: true,
         status: true,
-
         totalAmount: true,
         discountAmount: true,
-
+        paymentMethod: true,
+        carrier: true,
+        trackingNumber: true,
+        assignedOperator: true,
+        priority: true,
+        slaDueAt: true,
+        internalMemo: true,
         createdAt: true,
         updatedAt: true,
         paidAt: true,
@@ -46,34 +50,45 @@ export async function GET(
         returnedAt: true,
         cancelRequestedAt: true,
         returnRequestedAt: true,
-
-        carrier: true,
-        trackingNumber: true,
-
         shipName: true,
         shipPhone: true,
         shipZip: true,
         shipAddress1: true,
         shipAddress2: true,
         shipMemo: true,
-        paymentMethod: true,
-
+        cancelReason: true,
+        cancelMemo: true,
+        returnReason: true,
+        returnMemo: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            userId: true,
+            phone: true,
+            email: true,
+          },
+        },
         orderItems: {
           select: {
             id: true,
+            orderId: true,
+            productId: true,
             quantity: true,
             price: true,
-
             product: {
               select: {
+                id: true,
                 name: true,
+                price: true,
                 images: true,
+                stock: true,
               },
             },
           },
         },
         orderEvents: {
-          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
           select: {
             id: true,
             orderId: true,
@@ -90,10 +105,11 @@ export async function GET(
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
-    return NextResponse.json(order);
-  } catch (e) {
+
+    return NextResponse.json(JSON.parse(JSON.stringify(order)));
+  } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch order", detail: String(e) },
+      { error: "Failed to fetch operator order detail", detail: String(error) },
       { status: 500 },
     );
   }
@@ -104,15 +120,9 @@ export async function PATCH(
   context: { params: Promise<{ orderId: string }> },
 ) {
   try {
-    if (process.env.NODE_ENV === "production") {
-      return NextResponse.json({ error: "Not available in production" }, { status: 403 });
-    }
-
-    const session = await auth();
-    const userId = session?.user?.id;
-
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const operator = await getOperatorSession();
+    if (!operator.ok) {
+      return NextResponse.json({ error: operator.message }, { status: operator.status });
     }
 
     const { orderId: rawOrderId } = await context.params;
@@ -128,15 +138,37 @@ export async function PATCH(
     const trackingNumber =
       typeof body?.trackingNumber === "string" ? body.trackingNumber.trim() : undefined;
     const note = typeof body?.note === "string" ? body.note.trim() : undefined;
+    const assignedOperator =
+      typeof body?.assignedOperator === "string" ? body.assignedOperator.trim() : undefined;
+    const priority = typeof body?.priority === "string" ? (body.priority as OrderPriority) : undefined;
+    const slaDueAtRaw = typeof body?.slaDueAt === "string" ? body.slaDueAt.trim() : undefined;
+    const internalMemo =
+      typeof body?.internalMemo === "string" ? body.internalMemo.trim() : undefined;
+    const slaDueAt =
+      slaDueAtRaw === undefined
+        ? undefined
+        : slaDueAtRaw
+          ? new Date(slaDueAtRaw)
+          : null;
 
     const hasShippingUpdate = carrier !== undefined || trackingNumber !== undefined;
-    if (!nextStatus && !hasShippingUpdate) {
+    const hasOpsMetadataUpdate =
+      assignedOperator !== undefined ||
+      priority !== undefined ||
+      slaDueAt !== undefined ||
+      internalMemo !== undefined;
+    if (!nextStatus && !hasShippingUpdate && !hasOpsMetadataUpdate) {
       return NextResponse.json({ error: "Missing patch payload" }, { status: 400 });
     }
 
-    const existing = await prisma.order.findFirst({
-      where: { id: orderId, userId },
-      select: { id: true, status: true, carrier: true, trackingNumber: true },
+    const existing = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: {
+        id: true,
+        status: true,
+        carrier: true,
+        trackingNumber: true,
+      },
     });
 
     if (!existing) {
@@ -165,6 +197,10 @@ export async function PATCH(
         ...(nextStatus ? buildTransitionData(nextStatus, new Date()) : {}),
         ...(carrier !== undefined ? { carrier: carrier || null } : {}),
         ...(trackingNumber !== undefined ? { trackingNumber: trackingNumber || null } : {}),
+        ...(assignedOperator !== undefined ? { assignedOperator: assignedOperator || null } : {}),
+        ...(priority !== undefined ? { priority } : {}),
+        ...(slaDueAt !== undefined ? { slaDueAt } : {}),
+        ...(internalMemo !== undefined ? { internalMemo: internalMemo || null } : {}),
       };
 
       const updatedOrder = await tx.order.update({
@@ -197,13 +233,32 @@ export async function PATCH(
         });
       }
 
+      if (hasOpsMetadataUpdate) {
+        const opsNoteParts = [
+          assignedOperator !== undefined
+            ? `assignee=${assignedOperator || "-"}`
+            : null,
+          priority !== undefined ? `priority=${priority}` : null,
+          slaDueAt !== undefined ? `sla=${slaDueAt ? slaDueAt.toISOString() : "-"}` : null,
+          internalMemo !== undefined ? `memo=${internalMemo || "-"}` : null,
+        ].filter(Boolean);
+
+        await appendOrderEvent(tx, {
+          orderId,
+          eventType: "STATUS_CHANGED" as OrderEventType,
+          fromStatus: updatedOrder.status as OrderStatus,
+          toStatus: updatedOrder.status as OrderStatus,
+          note: `Ops metadata updated: ${opsNoteParts.join(", ")}`,
+        });
+      }
+
       return updatedOrder;
     });
 
     return NextResponse.json(updated);
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to update order status", detail: String(error) },
+      { error: "Failed to update operator order", detail: String(error) },
       { status: 500 },
     );
   }

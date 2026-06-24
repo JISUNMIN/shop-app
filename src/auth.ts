@@ -7,6 +7,13 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { issueWelcomeCouponToUser } from "@/utils/coupon";
 
+type AppRole = "USER" | "ADMIN";
+type AuthShape = {
+  userId?: string | null;
+  phone?: string | null;
+  role?: AppRole | null;
+};
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
 
@@ -26,18 +33,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!userId || !password) return null;
 
         const user = await prisma.user.findUnique({ where: { userId } });
+        const dbUser = user as (typeof user & AuthShape) | null;
 
-        if (!user?.password) return null;
+        if (!dbUser?.password) return null;
 
-        const ok = await bcrypt.compare(password, user.password);
+        const ok = await bcrypt.compare(password, dbUser.password);
         if (!ok) return null;
 
         return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          userId: user.userId,
-          phone: user.phone,
+          id: dbUser.id,
+          name: dbUser.name,
+          email: dbUser.email,
+          userId: dbUser.userId,
+          phone: dbUser.phone,
+          role: dbUser.role ?? "USER",
         };
       },
     }),
@@ -67,9 +76,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account) token.provider = account.provider; // "kakao" | "naver" | "credentials"
 
       if (user) {
+        const authUser = user as typeof user & AuthShape;
         token.id = user.id;
-        token.userId = (user as any).userId;
-        token.phone = (user as any).phone;
+        token.userId = authUser.userId;
+        token.phone = authUser.phone;
+        token.role = authUser.role ?? token.role;
+      }
+
+      if (token.id && !token.role) {
+        const dbUser = (await prisma.user.findUnique({
+          where: { id: token.id as string },
+        })) as ({ role?: AppRole | null } & { id: string }) | null;
+        token.role = dbUser?.role ?? "USER";
       }
 
       return token;
@@ -78,10 +96,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (!token.id) return session;
 
-      (session.user as any).id = token.id;
-      (session.user as any).userId = token.userId;
-      (session.user as any).provider = token.provider;
-      (session.user as any).phone = token.phone;
+      const sessionUser = session.user as typeof session.user & {
+        id: string;
+        userId?: string | null;
+        provider?: string | null;
+        phone?: string | null;
+        role?: AppRole | null;
+      };
+      sessionUser.id = token.id;
+      sessionUser.userId = token.userId;
+      sessionUser.provider = token.provider;
+      sessionUser.phone = token.phone;
+      sessionUser.role = token.role as AppRole | null | undefined;
 
       return session;
     },

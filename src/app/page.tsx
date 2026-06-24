@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import ProductList from "@/app/product/ProductList";
 import BannerCarousel, { Banner } from "@/components/common/BannerCarousel";
+import HomeCapabilityShowcase from "@/components/common/HomeCapabilityShowcase";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 const banners = [
@@ -15,6 +16,7 @@ export default function Page() {
   return (
     <Suspense fallback={<LoadingSpinner/>}>
       <BannerCarousel banners={banners} />
+      <HomeCapabilityShowcase />
       <ProductList />
     </Suspense>
   );

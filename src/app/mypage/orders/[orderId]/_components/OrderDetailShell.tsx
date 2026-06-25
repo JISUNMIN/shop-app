@@ -25,6 +25,7 @@ import { useState } from "react";
 import OrderStatusTimeline from "./OrderStatusTimeline";
 import Image from "next/image";
 import OrderStatusDebugPanel from "./OrderStatusDebugPanel";
+import OrderTrackingDialog from "./OrderTrackingDialog";
 
 export default function OrderDetailShell() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function OrderDetailShell() {
   const lang = i18n.language as LangCode;
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"cancel" | "return_exchange">("cancel");
+  const [trackingOpen, setTrackingOpen] = useState(false);
 
   const { detailData: order, isDetailLoading } = useOrder(Number(orderId));
   const methodKey = order?.paymentMethod?.toLowerCase();
@@ -393,6 +395,7 @@ export default function OrderDetailShell() {
                 className="w-full sm:flex-1 min-w-[180px] px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!order.trackingNumber}
                 title={!order.trackingNumber ? t("mypage.orderDetail.actions.trackDisabled") : ""}
+                onClick={() => setTrackingOpen(true)}
               >
                 {t("mypage.orderDetail.actions.track")}
               </button>
@@ -418,6 +421,7 @@ export default function OrderDetailShell() {
           price: formatPrice(isBank && order.status === "PENDING" ? 0 : totalPrice, lang),
         })}
       />
+      <OrderTrackingDialog open={trackingOpen} onOpenChange={setTrackingOpen} order={order} />
     </div>
   );
 }

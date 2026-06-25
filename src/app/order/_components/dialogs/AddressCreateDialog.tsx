@@ -16,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AddressSearchField } from "../AddressSearchField";
 import { formatKoreanMobile } from "@/utils/helper";
 import useAddress from "@/hooks/useAddress";
-import { Address } from "@/types";
+import { Address, AddressPayload } from "@/types";
 
 export type NewAddressFormValues = {
   label: string;
@@ -24,6 +24,8 @@ export type NewAddressFormValues = {
   phone: string;
   address1: string;
   address2: string;
+  zip?: string;
+  memo?: string;
   isDefault: boolean;
 };
 
@@ -84,7 +86,7 @@ export function AddressCreateDialog({ open, onOpenChange, editingAddress, onCrea
       return;
     }
 
-    const created = await addAddressMutateAsync(data);
+    const created = await addAddressMutateAsync(data as AddressPayload);
     onCreated?.(created);
     onOpenChange(false);
   });

@@ -35,6 +35,11 @@
 
     "loginDescription": "Log in to your account and start shopping",
     "signupDescription": "Create a new account and start shopping",
+    "opsNotice": {
+      "title": "Operator access notice",
+      "description": "The operations board requires an ADMIN role. If you need a local demo account or a clearer entry path, open the operator access guide.",
+      "link": "Open operator access guide"
+    },
 
     "orSnsLogin": "Or continue with social login",
     "orEmailSignup": "Or sign up with email",
@@ -424,6 +429,47 @@
           "waitDescription": "This step mainly depends on operational processing rather than customer action right now."
         }
       },
+      "trackingDialog": {
+        "title": "Track delivery",
+        "description": "Review shipping progress for order {{id}}.",
+        "currentShipping": "Current shipping flow",
+        "orderStatus": "Order status",
+        "carrier": "Carrier",
+        "trackingNumber": "Tracking number",
+        "insightTitle": "Current guidance",
+        "helperTitle": "Tracking tips",
+        "helperDescription": "Opening the external lookup lets you check the latest carrier-side delivery step. Right after the carrier information is updated, it may take a little time before the latest result appears.",
+        "actionGuide1Title": "1. Copy tracking number",
+        "actionGuide1Description": "Copy the number and paste it into any carrier lookup service you prefer.",
+        "actionGuide2Title": "2. Open external lookup",
+        "actionGuide2Description": "Open a carrier-aware search using both the carrier and tracking number together.",
+        "actionGuide3Title": "3. Recheck order status",
+        "actionGuide3Description": "After delivery is complete, return to order detail to review return eligibility and next actions.",
+        "copy": "Copy tracking",
+        "openExternal": "Open external tracking",
+        "toastCopied": "Tracking number copied.",
+        "toastCopyFailed": "Failed to copy tracking number.",
+        "insight": {
+          "pendingLabel": "Before shipping begins",
+          "pendingDescription": "Payment or deposit confirmation is still pending, so carrier tracking has not started yet.",
+          "preparingLabel": "Preparing for shipment",
+          "preparingDescription": "The order is being checked and packed, and tracking becomes more useful once the carrier update is reflected.",
+          "shippingLabel": "Live shipment tracking",
+          "shippingDescription": "The carrier has likely received the package, so you can follow the shipment progress step by step.",
+          "deliveredLabel": "Delivery completed",
+          "deliveredDescription": "This order has been delivered. If something is wrong, review return or exchange options in order detail.",
+          "cancelRequestedLabel": "Cancellation under review",
+          "cancelRequestedDescription": "This order is currently focused on cancellation handling rather than shipment tracking.",
+          "refundedLabel": "Refund completed",
+          "refundedDescription": "Refund handling is complete, so shipment tracking is no longer the main concern for this order.",
+          "returnRequestedLabel": "Return request received",
+          "returnRequestedDescription": "The order is waiting for pickup or the next return-handling step.",
+          "returnedLabel": "Return completed",
+          "returnedDescription": "The return flow for this order has been completed.",
+          "defaultLabel": "Shipping status guidance",
+          "defaultDescription": "Tracking guidance is generated from the current order and shipping state."
+        }
+      },
       "debug": {
         "title": "Developer status simulator",
         "description": "Move this order to the next available state to test the full flow.",
@@ -805,7 +851,7 @@
       "opsValue": "Live dashboard"
     },
     "primaryCta": "Explore order experience",
-    "secondaryCta": "See support flow",
+    "secondaryCta": "Open operator guide",
     "secondaryCtaAdmin": "Open ops board",
     "proofTitle": "Implemented pillars",
     "proof": {
@@ -828,6 +874,38 @@
         "description": "Customers can understand status and available actions in order detail, while operators continue handling the exact same order from an operations view."
       }
     }
+  },
+  "opsAccess": {
+    "badge": "Operator demo access",
+    "badgeSecondary": "Local entry guide",
+    "title": "The operations board is a protected area, so local demos need a clear entry path.",
+    "description": "This guide brings together the login path, role requirement, and local demo account details needed to show the operator order board smoothly.",
+    "ctaGoOps": "Go to ops board",
+    "ctaLogin": "Go to operator login",
+    "ctaHome": "Go home",
+    "flowTitle": "Operator access flow",
+    "flowDescription": "The goal is to reduce friction and explain the minimum required steps.",
+    "step1Label": "1. Prepare an operator account",
+    "step1Description": "The operations board is available only to users with the ADMIN role. A normal user account cannot open it.",
+    "step2Label": "2. Log in and return",
+    "step2Description": "If you try to open the board while logged out, you'll be sent to login and then returned to the ops board after success.",
+    "step3Label": "3. If role access fails, review the guide",
+    "step3Description": "If you're logged in but not an ADMIN, you now land on this guide instead of being silently pushed back home.",
+    "currentStateTitle": "Current session state",
+    "currentStateDescription": "This shows how the current browser session is seen by the app.",
+    "sessionLabel": "Session info",
+    "sessionLoggedIn": "Signed in: {{userId}} / Role: {{role}}",
+    "sessionLoggedOut": "You are not currently signed in.",
+    "signOutCta": "Sign out current account",
+    "devGuideTitle": "Local demo account",
+    "devGuideDescription": "In development, you can use the account below to demo the operations board.",
+    "devAccountTitle": "Seeded admin account",
+    "devAccountId": "User ID: ops_admin",
+    "devAccountPassword": "Password: admin1234!",
+    "devSeedTitle": "Before running seed",
+    "devSeedDescription": "If the admin account does not exist, you can create it with `npx prisma db seed`.\nThis seed also refills sample product and order data, so your local data may change.",
+    "whyTitle": "Why this guide exists",
+    "whyDescription": "The operations board is one of the strongest portfolio pieces in this project, but it sits behind a different role model than normal shopping flows. Making that access path visible helps demos feel much more intentional."
   },
 
   "support": {

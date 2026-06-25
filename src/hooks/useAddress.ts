@@ -1,6 +1,6 @@
 // src/hooks/useAddress.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Address } from "@/types";
+import { Address, AddressPayload, AddressUpdatePayload } from "@/types";
 import axiosSession from "@/lib/axiosSession";
 
 const ADDRESS_API_PATH = "/addresses";
@@ -26,7 +26,7 @@ const useAddress = () => {
   const { mutateAsync: addAddressMutateAsync, isPending: isAddPending } = useMutation<
     Address,
     Error,
-    Address
+    AddressPayload
   >({
     mutationFn: async (data) => {
       const res = await axiosSession.post<Address>(ADDRESS_API_PATH, data);
@@ -36,8 +36,11 @@ const useAddress = () => {
   });
 
   // 배송지 수정
-  const { mutate: editAddressMutate, isPending: isEditPending } = useMutation<void, Error, Address>(
-    {
+  const { mutate: editAddressMutate, isPending: isEditPending } = useMutation<
+    void,
+    Error,
+    AddressUpdatePayload
+  >({
       mutationFn: async (data) => {
         const { id, ...rest } = data;
         await axiosSession.patch(`${ADDRESS_API_PATH}/${id}`, rest);

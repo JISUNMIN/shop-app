@@ -31,6 +31,16 @@ export interface OrderItemView {
   stock: number;
 }
 
+export interface CheckoutOrderItem {
+  id?: number;
+  name: string;
+  price: number;
+  productId: number;
+  quantity: number;
+  image: string[];
+  stock: number;
+}
+
 export interface Order {
   id: number;
   totalAmount: number;
@@ -225,6 +235,9 @@ export interface Address {
   memo?: string;
 }
 
+export type AddressPayload = Omit<Address, "id">;
+export type AddressUpdatePayload = Partial<AddressPayload> & { id: number };
+
 export interface Coupon {
   id: number;
   code: string;
@@ -233,7 +246,6 @@ export interface Coupon {
   discountValue: number;
   minOrderAmount: number;
   isActive: boolean;
-  coupon: Coupon;
 }
 
 export interface Wishlist {

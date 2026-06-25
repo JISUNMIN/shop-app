@@ -1,7 +1,7 @@
 // app/order/_components/OrderShell.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -23,7 +23,8 @@ import useAddress from "@/hooks/useAddress";
 import useCoupon from "@/hooks/useCoupon";
 import useProducts from "@/hooks/useProducts";
 
-import type { LocalizedText } from "@/types";
+import type { CartItem, CheckoutOrderItem, LocalizedText } from "@/types";
+import type { UserCoupon } from "@/hooks/useCoupon";
 
 export type PaymentMethod = "CARD" | "BANK" | "KAKAO" | "NAVER";
 
@@ -40,24 +41,17 @@ export type OrderFormValues = {
   pointsToUse: number;
 };
 
-type OrderItem = {
-  id?: number;
-  productId: number;
-  name?: string;
-  price: number;
-  quantity: number;
-  stock: number;
-  image?: any;
-};
-
 type SelectedProductItem = {
   productId: number;
   quantity: number;
 };
 
-function isValidSelectedItem(v: any): v is SelectedProductItem {
-  const productId = Number(v?.productId);
-  const quantity = Number(v?.quantity);
+function isValidSelectedItem(v: unknown): v is SelectedProductItem {
+  if (typeof v !== "object" || v === null) return false;
+
+  const candidate = v as { productId?: unknown; quantity?: unknown };
+  const productId = Number(candidate.productId);
+  const quantity = Number(candidate.quantity);
   return Number.isFinite(productId) && productId > 0 && Number.isFinite(quantity) && quantity > 0;
 }
 
@@ -108,12 +102,12 @@ export default function OrderShell() {
     { enableList: false },
   );
 
-  const orderItems: OrderItem[] = useMemo(() => {
+  const orderItems: CheckoutOrderItem[] = useMemo(() => {
     if (selectedProductItems.length) {
-      const cartByProductId = new Map<number, any>();
+      const cartByProductId = new Map<number, CartItem>();
       (cartItems ?? []).forEach((ci) => cartByProductId.set(ci.product.id, ci));
 
-      return selectedProductItems
+      const selectedCartItems = selectedProductItems
         .map(({ productId, quantity }) => {
           const ci = cartByProductId.get(productId);
           if (!ci) return null;
@@ -126,9 +120,11 @@ export default function OrderShell() {
             quantity,
             stock: Number(ci.product.stock) ?? 0,
             image: ci.product.images,
-          } as OrderItem;
+          } satisfies CheckoutOrderItem;
         })
-        .filter(Boolean) as OrderItem[];
+        .filter((item): item is NonNullable<typeof item> => item !== null);
+
+      return selectedCartItems;
     }
 
     if (productDetail) {
@@ -182,7 +178,7 @@ export default function OrderShell() {
   const selectedCoupon = useMemo(
     () => couponList?.find((c) => c.id === selectedCouponId),
     [couponList, selectedCouponId],
-  );
+  ) as UserCoupon | undefined;
 
   const couponDiscount = useMemo(() => {
     if (!selectedCoupon) return 0;
@@ -275,6 +271,7 @@ export default function OrderShell() {
               <OrderBenefitsSection
                 selectedCoupon={selectedCoupon}
                 couponDiscount={couponDiscount}
+                availablePoints={0}
                 pointsMax={0}
                 onOpenCouponDialog={() => setShowCouponDialog(true)}
               />
@@ -310,7 +307,7 @@ export default function OrderShell() {
         <CouponSelectDialog
           open={showCouponDialog}
           onOpenChange={setShowCouponDialog}
-          coupons={couponList}
+          coupons={couponList ?? []}
           subtotal={subtotal}
         />
       </div>

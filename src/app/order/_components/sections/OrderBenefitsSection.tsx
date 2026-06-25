@@ -7,12 +7,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-import type { Coupon, LangCode } from "@/types";
+import type { LangCode } from "@/types";
+import type { UserCoupon } from "@/hooks/useCoupon";
 // import type { OrderFormValues } from "@/app/order/_components/OrderShell";
 import { formatPrice } from "@/utils/helper";
 
 interface Props {
-  selectedCoupon: Coupon | undefined;
+  selectedCoupon: UserCoupon | undefined;
   couponDiscount: number;
   availablePoints: number;
   pointsMax: number;

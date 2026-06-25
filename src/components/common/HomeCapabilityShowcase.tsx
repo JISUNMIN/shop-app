@@ -97,7 +97,7 @@ export default function HomeCapabilityShowcase() {
                 </Button>
               </Link>
 
-              <Link href={isAdmin ? "/ops/orders" : "/support"}>
+              <Link href={isAdmin ? "/ops/orders" : "/ops-access"}>
                 <Button size="lg" variant="outline" className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white sm:w-auto">
                   {isAdmin ? t("homeShowcase.secondaryCtaAdmin") : t("homeShowcase.secondaryCta")}
                 </Button>

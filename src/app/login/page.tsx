@@ -29,6 +29,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const rawCallbackUrl = searchParams.get("callbackUrl");
   const callbackUrl = rawCallbackUrl && rawCallbackUrl.startsWith("/") ? rawCallbackUrl : null;
+  const isOpsLogin = callbackUrl?.startsWith("/ops") ?? false;
   const signupHref = callbackUrl
     ? `/signup?${new URLSearchParams({ callbackUrl }).toString()}`
     : "/signup";
@@ -88,6 +89,16 @@ export default function LoginPage() {
               </CardHeader>
 
               <CardContent className="space-y-4">
+                {isOpsLogin && (
+                  <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+                    <p className="font-semibold">{t("auth.opsNotice.title")}</p>
+                    <p className="mt-2 leading-6">{t("auth.opsNotice.description")}</p>
+                    <Link href="/ops-access" className="mt-3 inline-flex font-semibold underline underline-offset-4">
+                      {t("auth.opsNotice.link")}
+                    </Link>
+                  </div>
+                )}
+
                 <FormInput
                   id="userId"
                   placeholder="userId"

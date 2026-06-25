@@ -35,6 +35,11 @@
 
     "loginDescription": "계정에 로그인하고 쇼핑을 시작하세요",
     "signupDescription": "새로운 계정을 만들어 쇼핑을 시작하세요",
+    "opsNotice": {
+      "title": "운영자 페이지 접근 안내",
+      "description": "운영 보드는 ADMIN 권한 계정만 접근할 수 있습니다. 로컬 데모 계정이나 진입 흐름이 필요하면 운영자 접근 가이드를 확인하세요.",
+      "link": "운영자 접근 가이드 보기"
+    },
 
     "orSnsLogin": "또는 SNS로 로그인",
     "orEmailSignup": "또는 이메일로 가입",
@@ -421,6 +426,47 @@
           "waitDescription": "지금은 고객 액션보다 운영 처리 결과를 기다리는 단계입니다."
         }
       },
+      "trackingDialog": {
+        "title": "배송조회",
+        "description": "주문번호 {{id}}의 배송 진행 정보를 확인합니다.",
+        "currentShipping": "현재 배송 흐름",
+        "orderStatus": "주문 상태",
+        "carrier": "택배사",
+        "trackingNumber": "운송장 번호",
+        "insightTitle": "현재 안내",
+        "helperTitle": "조회 팁",
+        "helperDescription": "외부 조회를 열면 택배사 기준으로 최신 배송 단계를 확인할 수 있습니다. 운송장 정보가 갱신된 직후에는 반영까지 약간의 시간이 걸릴 수 있습니다.",
+        "actionGuide1Title": "1. 운송장 복사",
+        "actionGuide1Description": "번호를 복사해서 원하는 택배 조회 서비스에 바로 붙여넣을 수 있습니다.",
+        "actionGuide2Title": "2. 외부 조회 열기",
+        "actionGuide2Description": "택배사와 운송장 번호를 함께 검색해 바로 조회할 수 있게 연결합니다.",
+        "actionGuide3Title": "3. 상태 다시 확인",
+        "actionGuide3Description": "배송 완료 후에는 주문 상세에서 반품 가능 여부와 후속 액션을 바로 확인할 수 있습니다.",
+        "copy": "운송장 복사",
+        "openExternal": "외부 배송조회 열기",
+        "toastCopied": "운송장 번호를 복사했습니다.",
+        "toastCopyFailed": "운송장 번호 복사에 실패했습니다.",
+        "insight": {
+          "pendingLabel": "배송 준비 전 단계",
+          "pendingDescription": "아직 결제 또는 입금 확인이 끝나지 않아 배송 조회가 시작되기 전 단계입니다.",
+          "preparingLabel": "출고 준비 진행 중",
+          "preparingDescription": "상품 검수와 출고 준비가 진행 중이며, 운송장 반영 직후부터 배송조회가 더 정확해집니다.",
+          "shippingLabel": "배송 추적 진행 중",
+          "shippingDescription": "택배사가 상품을 인수한 이후 배송 단계를 순차적으로 확인할 수 있는 상태입니다.",
+          "deliveredLabel": "배송 완료 상태",
+          "deliveredDescription": "배송이 완료된 주문입니다. 수령 후 이상이 있으면 주문 상세에서 반품/교환 가능 여부를 확인하세요.",
+          "cancelRequestedLabel": "취소 요청 검토 중",
+          "cancelRequestedDescription": "현재 주문은 배송 추적보다 취소 처리 검토가 우선인 상태입니다.",
+          "refundedLabel": "환불 처리 완료",
+          "refundedDescription": "해당 주문의 환불 처리가 완료되어 더 이상 배송조회가 중요하지 않은 상태입니다.",
+          "returnRequestedLabel": "반품 요청 접수 상태",
+          "returnRequestedDescription": "반품 회수 또는 후속 처리 안내를 기다리는 상태입니다.",
+          "returnedLabel": "반품 완료 상태",
+          "returnedDescription": "반품 절차가 완료된 주문입니다.",
+          "defaultLabel": "배송 상태 확인",
+          "defaultDescription": "현재 주문과 배송 흐름을 기준으로 조회 안내를 제공합니다."
+        }
+      },
       "debug": {
         "title": "개발용 상태 시뮬레이터",
         "description": "현재 주문을 다음 가능한 상태로 이동시켜 흐름을 테스트할 수 있습니다.",
@@ -802,7 +848,7 @@
       "opsValue": "실시간 대시보드"
     },
     "primaryCta": "주문 경험 보기",
-    "secondaryCta": "지원 흐름 보기",
+    "secondaryCta": "운영자 진입 가이드",
     "secondaryCtaAdmin": "운영 보드 열기",
     "proofTitle": "지금 구현된 축",
     "proof": {
@@ -825,6 +871,38 @@
         "description": "고객은 주문 상세에서 현재 상태와 가능한 액션을 확인하고, 운영자는 같은 주문을 다른 관점에서 이어서 처리할 수 있습니다."
       }
     }
+  },
+  "opsAccess": {
+    "badge": "운영자 데모 접근",
+    "badgeSecondary": "로컬 진입 가이드",
+    "title": "운영 보드는 권한이 필요한 화면이라, 로컬에서 바로 들어가려면 진입 흐름을 알아야 합니다.",
+    "description": "이 페이지는 운영자 주문 보드를 시연하기 위해 필요한 로그인 경로, 권한 조건, 로컬 데모 계정 안내를 한곳에 정리한 가이드입니다.",
+    "ctaGoOps": "운영 보드로 이동",
+    "ctaLogin": "운영자 로그인으로 이동",
+    "ctaHome": "홈으로 이동",
+    "flowTitle": "운영자 진입 흐름",
+    "flowDescription": "막히는 지점을 줄이기 위해 최소 단계만 정리했습니다.",
+    "step1Label": "1. 운영자 계정 준비",
+    "step1Description": "운영 보드는 ADMIN 권한 사용자만 볼 수 있습니다. 일반 사용자 계정으로는 접근할 수 없습니다.",
+    "step2Label": "2. 로그인 후 다시 진입",
+    "step2Description": "운영 보드 접근 시 로그인되지 않았으면 로그인 화면으로 이동하고, 성공하면 다시 운영 보드로 돌아옵니다.",
+    "step3Label": "3. 권한이 없으면 가이드 확인",
+    "step3Description": "로그인은 되어 있지만 ADMIN 권한이 아니면 홈으로 튕기지 않고 이 가이드에서 왜 막혔는지 바로 확인할 수 있게 했습니다.",
+    "currentStateTitle": "현재 세션 상태",
+    "currentStateDescription": "지금 이 브라우저 세션 기준으로 어떤 상태인지 보여줍니다.",
+    "sessionLabel": "세션 정보",
+    "sessionLoggedIn": "로그인됨: {{userId}} / 권한: {{role}}",
+    "sessionLoggedOut": "현재 로그인되어 있지 않습니다.",
+    "signOutCta": "현재 계정 로그아웃",
+    "devGuideTitle": "로컬 데모 계정 안내",
+    "devGuideDescription": "개발 환경에서는 아래 계정으로 운영 보드를 시연할 수 있습니다.",
+    "devAccountTitle": "시드 기준 관리자 계정",
+    "devAccountId": "아이디: ops_admin",
+    "devAccountPassword": "비밀번호: admin1234!",
+    "devSeedTitle": "시드 실행 전 주의",
+    "devSeedDescription": "관리자 계정이 없으면 `npx prisma db seed` 로 생성할 수 있습니다.\n다만 이 시드는 샘플 상품/주문 데이터를 다시 채우는 성격이라 기존 로컬 데이터가 바뀔 수 있습니다.",
+    "whyTitle": "왜 이런 가이드가 필요한가",
+    "whyDescription": "운영 보드는 포트폴리오의 핵심 기능이지만 일반 사용자 흐름과 다른 권한 구조를 갖습니다. 그래서 로컬 데모 시에는 권한 조건과 재진입 경로를 명확히 보여주는 편이 실제 시연과 설명에 훨씬 유리합니다."
   },
 
   "support": {

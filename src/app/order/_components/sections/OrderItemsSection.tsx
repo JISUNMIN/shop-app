@@ -5,14 +5,14 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-import type { LangCode, OrderItemView } from "@/types";
+import type { CheckoutOrderItem, LangCode } from "@/types";
 import Image from "next/image";
 import { OrderItemsSkeleton } from "./OrderItemsSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/utils/helper";
 
 type OrderItemsSectionProps = {
-  orderItems: OrderItemView[];
+  orderItems: CheckoutOrderItem[];
   isListLoading: boolean;
 };
 

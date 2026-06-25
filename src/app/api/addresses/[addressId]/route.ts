@@ -3,7 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function DELETE(_request: NextRequest, { params }: { params: { addressId: string } }) {
+type RouteContext = {
+  params: Promise<{ addressId: string }>;
+};
+
+export async function DELETE(_request: NextRequest, context: RouteContext) {
   try {
     const session = await auth();
     const userId = session?.user?.id;
@@ -12,7 +16,8 @@ export async function DELETE(_request: NextRequest, { params }: { params: { addr
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const addressId = Number(params.addressId);
+    const { addressId: addressIdParam } = await context.params;
+    const addressId = Number(addressIdParam);
     if (!Number.isFinite(addressId)) {
       return NextResponse.json({ error: "Invalid addressId" }, { status: 400 });
     }
@@ -56,7 +61,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { addr
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { addressId: string } }) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     const session = await auth();
     const userId = session?.user?.id;
@@ -64,7 +69,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { addres
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const addressId = Number(params.addressId);
+    const { addressId: addressIdParam } = await context.params;
+    const addressId = Number(addressIdParam);
     if (!Number.isFinite(addressId)) {
       return NextResponse.json({ error: "Invalid addressId" }, { status: 400 });
     }

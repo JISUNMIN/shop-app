@@ -16,6 +16,7 @@ export const formatCartItems = (
     quantity: item.quantity,
     price: item.product.price,
     image: item.product.images,
+    stock: item.product.stock,
   }));
 };
 

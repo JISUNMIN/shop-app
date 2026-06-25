@@ -5,7 +5,11 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
   const operator = await getOperatorSession();
 
   if (!operator.ok) {
-    redirect(operator.status === 401 ? "/login" : "/");
+    redirect(
+      operator.status === 401
+        ? "/login?callbackUrl=%2Fops%2Forders"
+        : "/ops-access?reason=forbidden",
+    );
   }
 
   return <>{children}</>;

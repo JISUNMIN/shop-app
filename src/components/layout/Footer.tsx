@@ -8,11 +8,11 @@ export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="bg-gray-900 text-gray-300 mt-20">
+    <footer className="border-t border-slate-200 bg-[linear-gradient(180deg,#0f172a_0%,#0b1220_100%)] text-gray-300">
       <div className="mx-auto w-full max-w-6xl px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.35fr_1fr_1fr_1fr]">
+          <div className="rounded-[1.75rem] border border-white/8 bg-white/5 p-6 shadow-[0_22px_55px_-34px_rgba(0,0,0,0.55)]">
+            <div className="mb-4 flex items-center gap-3">
               <div aria-hidden>
                 <Bot className="w-5 h-5 text-white/80" />
               </div>
@@ -21,11 +21,27 @@ export default function Footer() {
                 Robo<span className="text-[color:var(--button-bg)]">Shop</span>
               </span>
             </div>
-            <p className="text-sm text-gray-400">{t("footer.brandTagline")}</p>
+            <p className="max-w-sm text-sm leading-6 text-gray-400">{t("footer.brandTagline")}</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Link
+                href="/special-offers"
+                className="rounded-full border border-white/10 bg-white/7 px-4 py-2 text-sm text-white/80 transition-colors hover:bg-white/12 hover:text-white"
+              >
+                특가 모아보기
+              </Link>
+              <Link
+                href="/rental-service"
+                className="rounded-full border border-white/10 bg-white/7 px-4 py-2 text-sm text-white/80 transition-colors hover:bg-white/12 hover:text-white"
+              >
+                렌탈 서비스
+              </Link>
+            </div>
           </div>
 
           <div>
-            <h4 className="font-bold text-white mb-4">{t("footer.support.title")}</h4>
+            <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/42">
+              {t("footer.support.title")}
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -44,6 +60,14 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link
+                  href="/demo-guide"
+                  className="transition-colors hover:text-[color:var(--link-accent)]"
+                >
+                  {t("footer.support.demoGuide")}
+                </Link>
+              </li>
+              <li>
                 <a
                   href="mailto:support@roboshop.co.kr?subject=RoboShop%201%3A1%20Inquiry"
                   className="transition-colors hover:text-[color:var(--link-accent)]"
@@ -55,7 +79,9 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold text-white mb-4">{t("footer.shopping.title")}</h4>
+            <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/42">
+              {t("footer.shopping.title")}
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -85,7 +111,9 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold text-white mb-4">{t("footer.company.title")}</h4>
+            <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/42">
+              {t("footer.company.title")}
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -95,11 +123,19 @@ export default function Footer() {
                   {t("footer.company.about")}
                 </Link>
               </li>
+              <li>
+                <a
+                  href="mailto:biz@roboshop.co.kr"
+                  className="transition-colors hover:text-[color:var(--link-accent)]"
+                >
+                  biz@roboshop.co.kr
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-800/80 mt-8 pt-8 text-sm text-gray-500 text-center">
+        <div className="mt-8 border-t border-gray-800/80 pt-8 text-center text-sm text-gray-500">
           {t("footer.copyright", { year: new Date().getFullYear() })}
         </div>
       </div>

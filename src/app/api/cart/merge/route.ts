@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { getGuestCartId } from "@/utils/cart";
+import { resolveGuestCartId } from "@/utils/cart";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +13,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const guestCartId = getGuestCartId(request);
+    const guestCartId = resolveGuestCartId(request);
+
+    if (!guestCartId) {
+      return NextResponse.json({ merged: 0 });
+    }
 
     // 1) guest cart 조회
     const guestItems = await prisma.cartItem.findMany({

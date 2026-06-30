@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
   try {
     const { userId, guestCartId } = await getOwner(request);
     const { productId, quantity } = await request.json();
+    const sessionId = guestCartId ?? undefined;
 
     if (!productId || !quantity || quantity < 1) {
       return NextResponse.json({ error: "Invalid product ID or quantity" }, { status: 400 });
@@ -40,9 +41,11 @@ export async function POST(request: NextRequest) {
       ? await prisma.cartItem.findUnique({
           where: { productId_userId: { productId, userId } },
         })
-      : await prisma.cartItem.findUnique({
-          where: { productId_sessionId: { productId, sessionId: guestCartId } },
-        });
+      : sessionId
+        ? await prisma.cartItem.findUnique({
+            where: { productId_sessionId: { productId, sessionId } },
+          })
+        : null;
 
     let cartItem;
     if (existingItem) {
@@ -71,7 +74,7 @@ export async function POST(request: NextRequest) {
       cartItem = await prisma.cartItem.create({
         data: userId
           ? { productId, quantity, userId }
-          : { productId, quantity, sessionId: guestCartId },
+          : { productId, quantity, sessionId },
         include: { product: true },
       });
     }
@@ -88,13 +91,14 @@ export async function PATCH(request: NextRequest) {
   try {
     const { userId, guestCartId } = await getOwner(request);
     const { itemId, quantity } = await request.json();
+    const sessionId = guestCartId ?? undefined;
 
     if (!itemId || !quantity || quantity < 1) {
       return NextResponse.json({ error: "Invalid item ID or quantity" }, { status: 400 });
     }
 
     const cartItem = await prisma.cartItem.findFirst({
-      where: userId ? { id: itemId, userId } : { id: itemId, sessionId: guestCartId },
+      where: userId ? { id: itemId, userId } : { id: itemId, sessionId },
       include: { product: true },
     });
 
@@ -128,6 +132,7 @@ export async function DELETE(request: NextRequest) {
     const { userId, guestCartId } = await getOwner(request);
     const { searchParams } = new URL(request.url);
     const itemId = Number(searchParams.get("itemId"));
+    const sessionId = guestCartId ?? undefined;
 
     if (!itemId) {
       return NextResponse.json({ error: "Item ID is required" }, { status: 400 });
@@ -135,7 +140,7 @@ export async function DELETE(request: NextRequest) {
 
     // 권한 확인
     const cartItem = await prisma.cartItem.findFirst({
-      where: userId ? { id: itemId, userId } : { id: itemId, sessionId: guestCartId },
+      where: userId ? { id: itemId, userId } : { id: itemId, sessionId },
     });
 
     if (!cartItem) {

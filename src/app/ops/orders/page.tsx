@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import {
   Activity,
   AlertTriangle,
+  Boxes,
   Clock3,
   ExternalLink,
   PackageSearch,
@@ -322,7 +323,8 @@ export default function OpsOrdersPage() {
   const focusOrders = useMemo(() => filteredOrders.slice(0, 3), [filteredOrders]);
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8">
+    <div className="-mx-4 bg-white sm:-mx-6 lg:-mx-8">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
       <div className="rounded-[28px] border border-slate-200 bg-[linear-gradient(135deg,#0f172a_0%,#132238_52%,#1f4b6e_100%)] p-6 text-white shadow-lg">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -335,6 +337,15 @@ export default function OpsOrdersPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <Link href="/ops/products/new">
+              <Button
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10 hover:text-white"
+              >
+                <Boxes className="h-4 w-4" />
+                상품 등록
+              </Button>
+            </Link>
             <Badge
               className={[
                 "border-white/20 px-2.5 py-1 text-[11px] text-white",
@@ -918,6 +929,7 @@ export default function OpsOrdersPage() {
             {t("opsOrders.empty")}
           </Card>
         )}
+      </div>
       </div>
     </div>
   );

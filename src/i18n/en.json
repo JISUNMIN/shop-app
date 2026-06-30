@@ -35,6 +35,20 @@
 
     "loginDescription": "Log in to your account and start shopping",
     "signupDescription": "Create a new account and start shopping",
+    "demoLogin": {
+      "title": "Quick demo account",
+      "description": "Choose the customer or operator flow and the demo credentials will be filled in automatically.",
+      "customer": {
+        "label": "Customer demo account",
+        "description": "Use this for normal shopping and My Page flows.",
+        "credential": "demo_user / demo1234!"
+      },
+      "operator": {
+        "label": "Operator demo account",
+        "description": "Use this for the ops board and operator detail pages.",
+        "credential": "ops_admin / admin1234!"
+      }
+    },
     "opsNotice": {
       "title": "Operator access notice",
       "description": "The operations board requires an ADMIN role. If you need a local demo account or a clearer entry path, open the operator access guide.",
@@ -823,6 +837,7 @@
       "title": "Support",
       "center": "Customer center",
       "faq": "FAQ",
+      "demoGuide": "Demo guide",
       "inquiry": "1:1 inquiry"
     },
     "shopping": {
@@ -837,54 +852,60 @@
     },
     "copyright": "© {{year}} RoboShop. All rights reserved."
   },
+  "homeHero": {
+    "eyebrow": "Robot Marketplace",
+    "title": "Find the robot you need right away.",
+    "description": "Compare delivery, cleaning, and smart-home robots in one place.",
+    "primaryCta": "Shop now",
+    "secondaryCta": "Talk to an expert",
+    "previews": {
+      "preview1": "Delivery robot",
+      "preview2": "Cleaning robot"
+    },
+    "slides": {
+      "slide1": {
+        "title": "Smart robots for home and everyday life",
+        "description": "Explore entry-level, home, and premium products in one place."
+      },
+      "slide2": {
+        "title": "Popular models and premium robot picks",
+        "description": "Quickly compare standout products and higher-end robot lines."
+      },
+      "slide3": {
+        "title": "Browse by category from delivery to humanoid robots",
+        "description": "Pick the robot type you want and move straight into the product list."
+      }
+    }
+  },
   "homeShowcase": {
-    "badge": "Portfolio highlight",
-    "badgeSecondary": "Operations-first robot commerce",
-    "title": "This project is designed around what happens after checkout, not just product browsing.",
-    "description": "It connects order creation, state transitions, shipping handling, cancel/return requests, operator priorities, and SLA workflows into one robot-focused commerce experience. The homepage now makes that difference visible right away.",
-    "stats": {
-      "statusesLabel": "Order flow",
-      "statusesValue": "8-state machine",
-      "claimsLabel": "Claims",
-      "claimsValue": "Cancel + return flow",
-      "opsLabel": "Operations",
-      "opsValue": "Live dashboard"
-    },
-    "primaryCta": "Explore order experience",
-    "secondaryCta": "Open operator guide",
-    "secondaryCtaAdmin": "Open ops board",
-    "proofTitle": "Implemented pillars",
-    "proof": {
-      "statuses": "Shared transition rules",
-      "timeline": "Customer order timeline",
-      "live": "Live operations stream",
-      "sla": "Priority / SLA queues"
-    },
-    "cards": {
-      "statusMachine": {
-        "title": "Order-state-machine architecture",
-        "description": "Payment, shipping, cancellation, refund, and return stages now follow the same shared rules across UI and server logic."
+    "promos": {
+      "sale": {
+        "label": "Weekly pick",
+        "title": "Up to 30% off popular models",
+        "cta": "Browse deals"
       },
-      "opsBoard": {
-        "title": "Operator board and detailed handling flow",
-        "description": "Operators can work through a real workflow with a dashboard, detail view, event history, assignee fields, and priority handling."
+      "rental": {
+        "label": "Rental service",
+        "title": "Start with a monthly rental plan",
+        "cta": "View pricing"
       },
-      "claimFlow": {
-        "title": "Claim flow that connects customer and operator",
-        "description": "Customers can understand status and available actions in order detail, while operators continue handling the exact same order from an operations view."
+      "matching": {
+        "label": "Expert matching",
+        "title": "Not sure which robot fits you?",
+        "cta": "Request consult"
       }
     }
   },
   "opsAccess": {
     "badge": "Operator demo access",
     "badgeSecondary": "Local entry guide",
-    "title": "The operations board is a protected area, so local demos need a clear entry path.",
-    "description": "This guide brings together the login path, role requirement, and local demo account details needed to show the operator order board smoothly.",
+    "title": "Operator board access",
+    "description": "Check role access and demo credentials in one place.",
     "ctaGoOps": "Go to ops board",
     "ctaLogin": "Go to operator login",
     "ctaHome": "Go home",
     "flowTitle": "Operator access flow",
-    "flowDescription": "The goal is to reduce friction and explain the minimum required steps.",
+    "flowDescription": "The minimum steps to reach the operator board.",
     "step1Label": "1. Prepare an operator account",
     "step1Description": "The operations board is available only to users with the ADMIN role. A normal user account cannot open it.",
     "step2Label": "2. Log in and return",
@@ -892,20 +913,94 @@
     "step3Label": "3. If role access fails, review the guide",
     "step3Description": "If you're logged in but not an ADMIN, you now land on this guide instead of being silently pushed back home.",
     "currentStateTitle": "Current session state",
-    "currentStateDescription": "This shows how the current browser session is seen by the app.",
+    "currentStateDescription": "Current browser session status.",
     "sessionLabel": "Session info",
     "sessionLoggedIn": "Signed in: {{userId}} / Role: {{role}}",
     "sessionLoggedOut": "You are not currently signed in.",
     "signOutCta": "Sign out current account",
     "devGuideTitle": "Local demo account",
-    "devGuideDescription": "In development, you can use the account below to demo the operations board.",
+    "devGuideDescription": "Use the account below in development.",
     "devAccountTitle": "Seeded admin account",
     "devAccountId": "User ID: ops_admin",
     "devAccountPassword": "Password: admin1234!",
     "devSeedTitle": "Before running seed",
     "devSeedDescription": "If the admin account does not exist, you can create it with `npx prisma db seed`.\nThis seed also refills sample product and order data, so your local data may change.",
-    "whyTitle": "Why this guide exists",
-    "whyDescription": "The operations board is one of the strongest portfolio pieces in this project, but it sits behind a different role model than normal shopping flows. Making that access path visible helps demos feel much more intentional."
+    "readinessTitle": "Local demo readiness",
+    "readinessDescription": "Check whether the local demo is ready.",
+    "readinessRefresh": "Run again",
+    "readinessEmpty": "There is no readiness result yet.",
+    "readinessLoading": "Checking local demo readiness.",
+    "readinessHealthy": "Local operator demo readiness looks healthy.",
+    "readinessNeedsAttention": "There are a few items to review before the local operator demo.",
+    "readinessGeneratedAt": "Last checked: {{date}}",
+    "whyTitle": "Why it matters",
+    "whyDescription": "The operator board uses a different permission flow from the customer side, so a separate entry guide helps demos stay clear."
+  },
+  "demoGuide": {
+    "badge": "Demo flow guide",
+    "badgeSecondary": "An in-app demo script",
+    "title": "Customer and operator demo flow",
+    "description": "A quick guide to the screens used most often in demos.",
+    "primaryCta": "Open customer order flow",
+    "secondaryCta": "Check operator readiness",
+    "scenarioTitle": "Demo order data readiness",
+    "scenarioDescription": "See which order states are actually available to demonstrate in this local environment right now.",
+    "scenarioRefresh": "Check again",
+    "scenarioEmpty": "There is no demo data diagnostic result yet.",
+    "scenarioLoading": "Checking demo order data.",
+    "scenarioStats": {
+      "total": "Total orders",
+      "tracking": "Tracking-ready order",
+      "delivered": "Delivered example",
+      "claim": "Claim example"
+    },
+    "scenarioSample": "Sample order #{{id}}",
+    "scenarioNoSample": "There is no sample order in this state right now.",
+    "scenarioOpenCustomer": "Open customer detail",
+    "scenarioOpenOps": "Open ops detail",
+    "notReady": "Not ready",
+    "stepLabel": "STEP {{step}}",
+    "customer": {
+      "title": "Customer demo flow",
+      "description": "Customer order view flow.",
+      "steps": {
+        "1": "Start from the homepage product flow.",
+        "2": "Open My Page orders to review status summaries.",
+        "3": "Open an order detail to check timeline and shipping info.",
+        "4": "Show cancellation, return, and tracking actions."
+      }
+    },
+    "ops": {
+      "title": "Operator demo flow",
+      "description": "Operator order handling flow.",
+      "steps": {
+        "1": "Check operator access status.",
+        "2": "Sign in with an operator account if needed.",
+        "3": "Review queues and priority on the board.",
+        "4": "Open order detail for status updates and notes."
+      }
+    },
+    "routesTitle": "Useful routes to open",
+    "routesDescription": "Frequently used screens.",
+    "routes": {
+      "home": "Homepage",
+      "homeDetail": "Main shopping screen.",
+      "mypage": "My Page orders",
+      "mypageDetail": "Customer order history screen.",
+      "opsAccess": "Operator access guide",
+      "opsAccessDetail": "Check operator access status.",
+      "opsBoard": "Operator order board",
+      "opsBoardDetail": "Operator order handling screen.",
+      "devBoard": "Development order board",
+      "devBoardDetail": "Order-state testing screen."
+    },
+    "talkingPointsTitle": "Talking points",
+    "talkingPointsDescription": "Short points for a quick walkthrough.",
+    "talkingPoints": {
+      "point1": "This commerce flow continues after checkout.",
+      "point2": "Customer and operator views share the same order state rules.",
+      "point3": "The demo shows both shopping and operations in one flow."
+    }
   },
 
   "support": {
@@ -1015,6 +1110,12 @@
     "suggestions": "Suggestions",
     "loading": "Loading...",
     "noResults": "No results."
+  },
+  "productCollection": {
+    "catalogTitle": "All products",
+    "catalogDescription": "Choose categories and sorting to find the robot you want.",
+    "catalogCount": "{{count}} total",
+    "uncategorized": "Uncategorized"
   },
 
   "register": "Register",
@@ -1127,7 +1228,7 @@
     "badge": "Operator workspace",
     "quickLink": "Ops board",
     "title": "Live order operations dashboard",
-    "description": "An operations board for managing order status, shipping handling, and claim response in one place. It uses auto refresh and shared transition rules to simulate a real operator workflow.",
+    "description": "Manage order status, shipping, and claims in one place.",
     "autoRefreshOn": "Auto refresh on",
     "autoRefreshOff": "Auto refresh off",
     "refresh": "Refresh now",
@@ -1151,7 +1252,7 @@
       "unassignedOrders": "Unassigned orders"
     },
     "controlsTitle": "Operator filters",
-    "controlsDescription": "Narrow the board quickly by status, customer, or shipping information.",
+    "controlsDescription": "Find orders fast by status or customer.",
     "searchPlaceholder": "Search by order id, customer, user id, phone, or tracking number",
     "assigneeFilterPlaceholder": "Filter further by assignee",
     "priorityFilterPlaceholder": "Priority filter",
@@ -1167,7 +1268,7 @@
       "all": "All"
     },
     "queueTitle": "Focus queues",
-    "queueDescription": "Jump between the groups an operator usually needs to act on first.",
+    "queueDescription": "Switch between the order groups that need attention first.",
     "queue": {
       "all": "All queue",
       "urgent": "Urgent queue",
@@ -1177,7 +1278,7 @@
       "mine": "My queue"
     },
     "focusTitle": "Orders to act on now",
-    "focusDescription": "The top orders to review first based on the current queue and sort order.",
+    "focusDescription": "Orders to check first.",
     "focusEmpty": "There are no priority orders under the current conditions.",
     "unknownCustomer": "Unknown customer",
     "customerContact": "Contact {{phone}}",

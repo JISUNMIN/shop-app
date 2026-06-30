@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { auth } from "@/auth";
 
 const PRODUCT_TABLE = "products";
 
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
     const table = Prisma.raw(PRODUCT_TABLE);
 
     const [products, totalRes] = await Promise.all([
-      prisma.$queryRaw<any[]>`
+      prisma.$queryRaw<Array<Record<string, unknown>>>`
         SELECT *
         FROM ${table}
         ${whereSql}
@@ -105,5 +106,73 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Products API Error:", error);
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+
+    if (session?.user?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const body = (await request.json()) as {
+      nameKo?: string;
+      nameEn?: string;
+      descriptionKo?: string;
+      descriptionEn?: string;
+      categoryKo?: string;
+      categoryEn?: string;
+      price?: number;
+      stock?: number;
+      images?: string[];
+    };
+
+    const nameKo = body.nameKo?.trim() ?? "";
+    const nameEn = body.nameEn?.trim() ?? "";
+    const categoryKo = body.categoryKo?.trim() ?? "";
+    const categoryEn = body.categoryEn?.trim() ?? "";
+    const descriptionKo = body.descriptionKo?.trim() ?? "";
+    const descriptionEn = body.descriptionEn?.trim() ?? "";
+    const images = (body.images ?? []).map((item) => item.trim()).filter(Boolean);
+    const price = Number(body.price ?? 0);
+    const stock = Number(body.stock ?? 0);
+
+    if (!nameKo || !nameEn || !categoryKo || !categoryEn || !images.length) {
+      return NextResponse.json({ error: "Required fields are missing" }, { status: 400 });
+    }
+
+    if (!Number.isFinite(price) || price < 0 || !Number.isFinite(stock) || stock < 0) {
+      return NextResponse.json({ error: "Invalid numeric fields" }, { status: 400 });
+    }
+
+    const created = await prisma.product.create({
+      data: {
+        name: {
+          ko: nameKo,
+          en: nameEn,
+        },
+        description:
+          descriptionKo || descriptionEn
+            ? {
+                ko: descriptionKo,
+                en: descriptionEn,
+              }
+            : Prisma.JsonNull,
+        category: {
+          ko: categoryKo,
+          en: categoryEn,
+        },
+        images,
+        price,
+        stock,
+      },
+    });
+
+    return NextResponse.json(created, { status: 201 });
+  } catch (error) {
+    console.error("Products CREATE API Error:", error);
+    return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
   }
 }

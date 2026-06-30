@@ -1,12 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { KeyRound, ShieldCheck, UserCog } from "lucide-react";
+import { CheckCircle2, KeyRound, RefreshCcw, ShieldCheck, TriangleAlert, UserCog } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+type ReadinessCheck = {
+  key: string;
+  label: string;
+  ok: boolean;
+  detail: string;
+};
+
+type ReadinessResponse = {
+  ok: boolean;
+  generatedAt: string;
+  checks: ReadinessCheck[];
+};
 
 export default function OpsAccessGuide() {
   const { t } = useTranslation();
@@ -14,6 +28,48 @@ export default function OpsAccessGuide() {
   const isAdmin = session?.user?.role === "ADMIN";
   const isLoggedIn = status === "authenticated";
   const isDevelopment = process.env.NODE_ENV !== "production";
+  const [readiness, setReadiness] = useState<ReadinessResponse | null>(null);
+  const [isReadinessLoading, setIsReadinessLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isDevelopment) return;
+
+    const fetchReadiness = async () => {
+      setIsReadinessLoading(true);
+
+      try {
+        const response = await fetch("/api/demo/ops-readiness", { cache: "no-store" });
+        if (!response.ok) {
+          setReadiness(null);
+          return;
+        }
+
+        const data = (await response.json()) as ReadinessResponse;
+        setReadiness(data);
+      } finally {
+        setIsReadinessLoading(false);
+      }
+    };
+
+    void fetchReadiness();
+  }, [isDevelopment]);
+
+  const refreshReadiness = async () => {
+    setIsReadinessLoading(true);
+
+    try {
+      const response = await fetch("/api/demo/ops-readiness", { cache: "no-store" });
+      if (!response.ok) {
+        setReadiness(null);
+        return;
+      }
+
+      const data = (await response.json()) as ReadinessResponse;
+      setReadiness(data);
+    } finally {
+      setIsReadinessLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#ffffff_42%,_#f8fafc_100%)] px-4 py-10 md:px-6 md:py-14">
@@ -142,6 +198,86 @@ export default function OpsAccessGuide() {
                     <p className="font-semibold">{t("opsAccess.devSeedTitle")}</p>
                     <p className="mt-2 whitespace-pre-line">{t("opsAccess.devSeedDescription")}</p>
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {isDevelopment && (
+              <Card className="border-slate-200 shadow-sm">
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <CardTitle>{t("opsAccess.readinessTitle")}</CardTitle>
+                      <CardDescription>{t("opsAccess.readinessDescription")}</CardDescription>
+                    </div>
+
+                    <Button variant="outline" size="sm" onClick={refreshReadiness} disabled={isReadinessLoading}>
+                      <RefreshCcw className={`mr-2 h-4 w-4 ${isReadinessLoading ? "animate-spin" : ""}`} />
+                      {t("opsAccess.readinessRefresh")}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {!readiness && !isReadinessLoading && (
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                      {t("opsAccess.readinessEmpty")}
+                    </div>
+                  )}
+
+                  {isReadinessLoading && (
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                      {t("opsAccess.readinessLoading")}
+                    </div>
+                  )}
+
+                  {readiness && (
+                    <>
+                      <div
+                        className={`rounded-2xl border p-4 text-sm ${
+                          readiness.ok
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                            : "border-amber-200 bg-amber-50 text-amber-900"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 font-semibold">
+                          {readiness.ok ? (
+                            <CheckCircle2 className="h-4 w-4" />
+                          ) : (
+                            <TriangleAlert className="h-4 w-4" />
+                          )}
+                          {readiness.ok
+                            ? t("opsAccess.readinessHealthy")
+                            : t("opsAccess.readinessNeedsAttention")}
+                        </div>
+                        <p className="mt-2 text-sm">
+                          {t("opsAccess.readinessGeneratedAt", { date: readiness.generatedAt })}
+                        </p>
+                      </div>
+
+                      <div className="space-y-3">
+                        {readiness.checks.map((check) => (
+                          <div
+                            key={check.key}
+                            className={`rounded-2xl border p-4 ${
+                              check.ok
+                                ? "border-emerald-200 bg-emerald-50/70"
+                                : "border-rose-200 bg-rose-50/70"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                              {check.ok ? (
+                                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                              ) : (
+                                <TriangleAlert className="h-4 w-4 text-rose-600" />
+                              )}
+                              {check.label}
+                            </div>
+                            <p className="mt-2 text-sm text-slate-700">{check.detail}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             )}

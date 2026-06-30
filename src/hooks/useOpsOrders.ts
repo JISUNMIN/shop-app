@@ -1,7 +1,7 @@
 "use client";
 
 import type { AxiosError } from "axios";
-import { useEffect, useEffectEvent, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -51,18 +51,18 @@ const useOpsOrders = ({ status, search, autoRefresh }: UseOpsOrdersParams) => {
     refetchOnWindowFocus: false,
   });
 
-  const handleStreamOpen = useEffectEvent(() => {
+  const handleStreamOpen = useCallback(() => {
     setStreamState("live");
-  });
+  }, []);
 
-  const handleStreamMessage = useEffectEvent(() => {
+  const handleStreamMessage = useCallback(() => {
     setStreamState("live");
     void queryClient.invalidateQueries({ queryKey: ["ops-orders"] });
-  });
+  }, [queryClient]);
 
-  const handleStreamError = useEffectEvent(() => {
+  const handleStreamError = useCallback(() => {
     setStreamState("error");
-  });
+  }, []);
 
   useEffect(() => {
     if (!autoRefresh) {

@@ -20,11 +20,18 @@ export const formatCartItems = (
   }));
 };
 
+export function resolveGuestCartId(request: NextRequest) {
+  const guestCartId =
+    request.cookies.get(GUEST_CART_COOKIE)?.value ?? request.headers.get("x-session-id");
+
+  return guestCartId ?? null;
+}
+
 export function getGuestCartId(request: NextRequest) {
-  const guestCartId = request.cookies.get(GUEST_CART_COOKIE)?.value;
+  const guestCartId = resolveGuestCartId(request);
 
   if (!guestCartId) {
-    throw new Error("Missing guest cart id cookie");
+    throw new Error("Missing guest cart id");
   }
 
   return guestCartId;
@@ -33,7 +40,11 @@ export function getGuestCartId(request: NextRequest) {
 export const getOwner = async (request: NextRequest) => {
   const session = await auth();
   const userId = session?.user?.id ?? null;
-  const guestCartId = getGuestCartId(request);
+  const guestCartId = resolveGuestCartId(request);
+
+  if (!userId && !guestCartId) {
+    throw new Error("Missing cart owner information");
+  }
 
   return {
     userId,

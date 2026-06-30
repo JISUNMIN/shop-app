@@ -6,6 +6,25 @@ const prisma = new PrismaClient();
 
 async function main() {
   const adminPasswordHash = await bcrypt.hash("admin1234!", 12);
+  const customerPasswordHash = await bcrypt.hash("demo1234!", 12);
+
+  await prisma.user.upsert({
+    where: { userId: "demo_user" },
+    update: {
+      phoneVerifiedAt: new Date(),
+      password: customerPasswordHash,
+      role: "USER",
+    },
+    create: {
+      userId: "demo_user",
+      name: "Demo Customer",
+      email: "demo_user@roboshop.local",
+      phone: "01012341234",
+      password: customerPasswordHash,
+      phoneVerifiedAt: new Date(),
+      role: "USER",
+    },
+  });
 
   await prisma.user.upsert({
     where: { userId: "ops_admin" },

@@ -335,22 +335,54 @@ export default function SignupPage() {
   }, [otpExpiresSec, mobileVerified]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      {/* Logo */}
-      <RoboShopLogo
-        className="flex items-center justify-center gap-2 mb-8"
-        botClassName="w-8 h-8"
-        textClassName="text-2xl"
-      />
+    <div className="-mx-4 min-h-screen bg-[linear-gradient(180deg,#f7fbff_0%,#eef5fb_48%,#ffffff_100%)] px-4 py-8 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
+        <section className="rounded-[2rem] bg-[linear-gradient(135deg,#0f172a_0%,#143252_55%,#2f79c4_100%)] p-7 text-white shadow-[0_28px_70px_-36px_rgba(15,23,42,0.65)]">
+          <RoboShopLogo
+            className="flex items-center gap-2"
+            botClassName="h-8 w-8"
+            textClassName="text-2xl text-white"
+          />
+          <p className="mt-10 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#9dd0ff]">
+            Create Account
+          </p>
+          <h1 className="mt-4 text-4xl font-black leading-tight tracking-[-0.04em]">
+            새로운 계정을 만들고
+            <br />
+            로봇 쇼핑 경험을
+            <br />
+            바로 시작하세요
+          </h1>
+          <p className="mt-4 max-w-md text-sm leading-6 text-white/72">
+            회원가입 이후 바로 로그인되어 상품 탐색, 주문 확인, 데모용 운영 흐름까지 자연스럽게
+            이어집니다.
+          </p>
 
-      {/* Signup Card */}
-      <Card className="w-full max-w-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">{t("auth.signupTitle")}</CardTitle>
-          <CardDescription className="text-center">{t("auth.signupDescription")}</CardDescription>
-        </CardHeader>
+          <div className="mt-8 space-y-3">
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/8 p-4">
+              <p className="text-lg font-semibold">가입 흐름 단순화</p>
+              <p className="mt-2 text-sm leading-6 text-white/68">
+                계정 생성 후 별도 진입 없이 바로 메인 또는 필요한 콜백 경로로 이어집니다.
+              </p>
+            </div>
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/8 p-4">
+              <p className="text-lg font-semibold">휴대폰 인증 포함</p>
+              <p className="mt-2 text-sm leading-6 text-white/68">
+                회원 식별에 필요한 핵심 정보만 빠르게 확인할 수 있도록 구성했습니다.
+              </p>
+            </div>
+          </div>
+        </section>
 
-        <CardContent className="space-y-4">
+        <Card className="w-full max-w-lg justify-self-center rounded-[2rem] border-slate-200 bg-white/94 shadow-[0_22px_55px_-34px_rgba(15,23,42,0.18)] backdrop-blur">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-center text-2xl font-black tracking-[-0.03em]">
+              {t("auth.signupTitle")}
+            </CardTitle>
+            <CardDescription className="text-center">{t("auth.signupDescription")}</CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
           {/* SNS Signup */}
           <div className="space-y-3">
             <SNSButton
@@ -362,10 +394,10 @@ export default function SignupPage() {
             {/* <SNSButton className="h-12 gap-3" hasLabel type="naver" callbackUrl={rawCallbackUrl ?? undefined} /> */}
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-white px-2 text-gray-500">{t("auth.orEmailSignup")}</span>
             </div>
@@ -523,7 +555,8 @@ export default function SignupPage() {
             </div>
 
             {/* 약관 동의 */}
-            <div className="space-y-3 pt-2">
+            <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4">
+              <div className="space-y-3">
               <div className="flex items-start space-x-2">
                 <Controller
                   name="agreeTerms"
@@ -571,9 +604,10 @@ export default function SignupPage() {
               {errors.agreeTerms?.message && (
                 <p className="text-sm text-red-500">{errors.agreeTerms.message}</p>
               )}
+              </div>
             </div>
 
-            <Button className="w-full h-11" disabled={isSigningUp}>
+            <Button className="h-11 w-full rounded-full" disabled={isSigningUp}>
               {isSigningUp ? t("auth.signingUp") : t("auth.signupButton")}
             </Button>
           </form>
@@ -587,8 +621,9 @@ export default function SignupPage() {
               {t("auth.login")}
             </Link>
           </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
